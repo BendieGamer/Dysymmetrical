@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Types = require(script.Parent.Types)
 
-local CharTypes = {
+local Character = {
     AutoLoadedAnims = {
         "Idle",
         "Walk",
@@ -19,7 +19,7 @@ local CharTypes = {
 }
 
 --- Survivor preset for customization.
-function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
+function Character.GetDefaultSurvivorSettings(): Types.Survivor
     return {
         Owner = nil,
         Config = {
@@ -69,20 +69,8 @@ function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
     }
 end
 
---- Creates a survivor with the settings specified in `Props`.
---- 
---- Every property that has to be there has a fallback, so not all properties have to be written there if the default values are fine.
-function CharTypes.CreateSurvivor(Props: Types.Survivor): Types.Survivor
-    Props = Props or {}
-    local Final = CharTypes.GetDefaultSurvivorSettings()
-
-    Utils.Type.DeepTableOverwrite(Final, Props)
-
-    return Final
-end
-
 --- Killer preset for customization.
-function CharTypes.GetDefaultKillerSettings(): Types.Killer
+function Character.GetDefaultKillerSettings(): Types.Killer
     return {
         Owner = nil,
         Config = {
@@ -143,33 +131,75 @@ function CharTypes.GetDefaultKillerSettings(): Types.Killer
     }
 end
 
---- Creates a killer with the settings specified in `Props`.
---- 
---- Every property that has to be there has a fallback, so not all properties have to be written there if the default values are fine.
-function CharTypes.CreateKiller(Props: Types.Killer): Types.Killer
-    Props = Props or {}
-    local Final = CharTypes.GetDefaultKillerSettings()
+type New = (
+    ((Type: "Killer", CharacterName: string, Props: Types.Killer) -> Types.Killer) &
+    ((Type: "Survivor", CharacterName: string, Props: Types.Survivor) -> Types.Survivor)
+)
+--[=[
+    Creates a character / skin with the settings specified in `Props`.
+
+    This function, if put in a local variable, SHOULD have type checking to specify if you want a killer or a survivor for proper autocompletion.
+
+    With this I mean like so:
+
+    ```lua
+    local KillerExample: Types.Killer = Character.New("Killer", {...})
+    ```
+
+    **Quick note: not every property has to be there, every crucial property has a default value as a fallback.**
     
-    Utils.Type.DeepTableOverwrite(Final, Props)
+    You may also create skins by defining `RootCharacterName` as a 3rd parameter.
 
-    return Final
-end
+    This way, if it's defined, it'll treat this as a skin and, if it isn't, as a unique character.
 
---- Creates a skin of a character with the settings specified in `Props`.
---- 
---- Every property that has to be there has a fallback, so not all properties have to be written there if the default values are fine.
-function CharTypes.CreateSkin<T>(Type: "Killer" | "Survivor", CharacterName: string, Props: T & (Types.Killer | Types.Survivor)): T & (Types.Killer | Types.Survivor)
-    local RootCharacter = Utils.Instance.GetCharacterModule(Type, CharacterName)
-    if not RootCharacter then
+    ```lua
+    local SkinExample: Types.Killer = Character.New("Killer", {...}, "NullexVoyd")
+    ```
+]=]
+function Character.New(Type: "Killer" | "Survivor", Props: Types.Killer | Types.Survivor, RootCharacterName: string?): Types.Killer | Types.Survivor
+    --prevent errors from not defining Props
+    Props = Props or {}
+    --try to get the func based off of the given role
+    local Func = Character[`GetDefault{Type}Settings`]
+    --if the role doesn't have its own func, halt
+    --TODO: unify default settings as well
+    if not Func then
         return
     end
 
-    Props = Props or {}
+    --check if it's supposed to be a skin and, if it is, try to get the root character module
+    local Final
+    if RootCharacterName ~= nil then
+        Final = Utils.Instance.GetCharacterModule(Type, RootCharacterName)
+    end
+    
+    --if there's an available module to base a skin off of, use it; if not, just get the default settings
+    Final = Final ~= nil and Utils.Type.CopyTable(require(Final)) or Func()
 
-    local Final: T & (Types.Survivor | Types.Killer) = Utils.Type.CopyTable(require(RootCharacter))
+    --apply Props to whatever properties we already have in Final
     Utils.Type.DeepTableOverwrite(Final, Props)
 
+    --return the damn thing
     return Final
 end
+Character.New = Character.New :: New
 
-return CharTypes
+--- **DEPRECATED:** Use `Character.New()` instead.
+@deprecated
+function Character.CreateKiller(Props: Types.Killer): Types.Killer
+    return Character.New("Killer", Props)
+end
+
+--- **DEPRECATED:** Use `Character.New()` instead.
+@deprecated
+function Character.CreateSurvivor(Props: Types.Survivor): Types.Survivor
+    return Character.New("Survivor", Props)
+end
+
+--- **DEPRECATED:** Use `Character.New()` instead.
+@deprecated
+function Character.CreateSkin(Type: "Killer" | "Survivor", CharacterName: string, Props: Types.Survivor | Types.Killer): Types.Survivor | Types.Killer
+    return Character.New(Type, Props, CharacterName)
+end
+
+return Character

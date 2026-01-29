@@ -171,7 +171,7 @@ local function OnCommanderHit(self: Types.Ability, _hitbox: Types.HitboxDetails,
     })
 end
 
-local Commander: Types.Survivor = Character.CreateSurvivor({
+local Commander: Types.Survivor = Character.New("Survivor", {
     Config = {
         Name = "Commander",
         Quote = "*pyro noises*",

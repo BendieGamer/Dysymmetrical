@@ -153,7 +153,7 @@ function OverchargeBehaviour(self: Types.Ability)
 end
 
 --Character Definition
-local NullexVoyd: Types.Killer = Character.CreateKiller({
+local NullexVoyd: Types.Killer = Character.New("Killer", {
     Config = {
         Name = "Nullex Voyd",
         Quote = "Order was the first lie.",

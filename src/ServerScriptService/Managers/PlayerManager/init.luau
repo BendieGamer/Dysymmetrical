@@ -20,18 +20,27 @@ function PlayerManager._OnPlayerLoaded(Player: Player)
         return
     end
 
+    --wait for a while to make sure the player doesn't get sent to a round directly if it starts as they join
+    --also to make sure that the changelog appears on next boot if the player leaves before these 3 seconds just in case
     task.wait(3)
 
+    --obviously, if there is no player, halt
     if not Player then
         return
     end
 
+    --set them as loaded
     local Value = Instance.new("ObjectValue")
     Value.Name = Player.Name
     Value.Value = Player
     Value.Parent = ReplicatedStorage.LoadedPlayers
 
-    Utils.PlayerData.GetSpecificObject(Player, "Misc.LastSeenLog").Value = game.PlaceVersion
+    --try to fetch their LastSeenLog and, if it's there, update it
+    --this is done mainly for changelogs to show up on boot if there's a new update
+    local LastSeen = Utils.PlayerData.GetSpecificObject(Player, "Misc.LastSeenLog")
+    if LastSeen then
+        LastSeen.Value = game.PlaceVersion
+    end
 end
 
 return PlayerManager
