@@ -158,7 +158,7 @@ function Emote:Init(player: Player)
     end
 
     --get turn to move direction here since it's client only and it may be used to lock the head while emoting
-    self.TurnToMoveDirection = require(Players.LocalPlayer.PlayerScripts.Miscellaneous.TurnToMoveDirection)
+    self.TurnToMoveDirection = require(Players.LocalPlayer.PlayerScripts.Visual.TurnToMoveDirection)
 
     --if there are sounds, do the same as with animations
     if self.SoundIds then
