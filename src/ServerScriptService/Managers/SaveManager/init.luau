@@ -42,6 +42,7 @@ function SaveManager:Init()
     SaveManager._CheckPrefabIntegrity()
 
     Utils.Player.ObservePlayers(function(Player: Player)
+		Player:SetAttribute("SaveLoaded", false)
         task.defer(function()
             local SaveFile = SaveManager.Load(Player)
 			SaveManager.PlayerDatas[Player.UserId] = SaveFile -- Gets its own variable to make things easier to read. Done in this way so this variable points to the entry in the table and not to the data itself.
@@ -77,6 +78,8 @@ function SaveManager:Init()
 					AchievementProgress.Parent = Group
 				end
 			end
+
+			Player:SetAttribute("SaveLoaded", true)
         end)
     end)
 

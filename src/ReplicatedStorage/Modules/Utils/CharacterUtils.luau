@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(ReplicatedStorage.Classes.Types)
 local InstanceUtils = require(script.Parent.InstanceUtils)
-local PlayerUtils = require(script.Parent.PlayerUtils)
+local PlayerDataUtils = require(script.Parent.PlayerDataUtils)
 local TypeUtils = require(script.Parent.TypeUtils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Promise = require(ReplicatedStorage.Packages._Index["howmanysmall_janitor@1.18.3"].Promise)
@@ -195,7 +195,7 @@ end
 --- Checks if a player has an effect.
 --- @return Returns a `boolean` indicating if the specified player has the effect and the level if it's true.
 function CharacterUtils.CheckPlayerEffect(Player: Player, effectName: string): (boolean, number?)
-    if Player.Character and InstanceUtils.AwaitChild(Player.Character, "Effects."..effectName) then
+    if Player.Character and InstanceUtils.FindFirstChild(Player.Character, "Effects."..effectName) then
         return true, Player.Character.Effects[effectName].Value
     end
 
@@ -270,10 +270,14 @@ end
 function CharacterUtils.GetLoadedCharacters(IncludeAFK: boolean?): {Model}
     local t: {Model} = {}
 
-    for _, Player in PlayerUtils.GetLoadedPlayers(IncludeAFK) do
-        if Player.Character then
-            table.insert(t, Player.Character)
+    for _, Player: ObjectValue in ReplicatedStorage.LoadedPlayers:GetChildren() do
+        if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player.Value, "Game.AFK") then
+            continue
         end
+
+		if Player.Value.Character then
+        	table.insert(t, Player.Value)
+		end
     end
 
     return t

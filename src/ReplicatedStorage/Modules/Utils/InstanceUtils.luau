@@ -377,7 +377,7 @@ function InstanceUtils.GetEffectModule(name: string, subfolder: string?, module:
 	local Effect: ModuleScript
 
 	local path = (subfolder and #subfolder > 0) and subfolder.."."..name or name
-	Effect = InstanceUtils.AwaitChild(ReplicatedStorage.Content.Effects, path, 0)
+	Effect = InstanceUtils.FindFirstChild(ReplicatedStorage.Content.Effects, path)
 
     if not Effect:IsA("ModuleScript") then
         return
@@ -466,6 +466,38 @@ function InstanceUtils.HighlightInstanceFor(players: Player | {Player}, instance
 	else
 		Network:FireClientConnection(players, "HighlightInstance", "REMOTE_EVENT", instance, duration, color)
 	end
+end
+
+--- Gets the name of the type of a `ModuleScript` in `ReplicatedStorage.Content`.
+--- 
+--- Will return `nil` if the module isn't a descendant of `ReplicatedStorage.Content`.
+--- 
+--- Purely made to make other scripts shorter and easier to read
+function InstanceUtils.GetTypeOfItemModule(Module: ModuleScript): string
+	--if it's not in Content, halt
+	if not Module:IsDescendantOf(ReplicatedStorage.Content) then
+		return
+	end
+
+	--get the parent since it's generally named after the type of object
+	local Type = Module.Parent
+	--if it's a skin, just return the thing, as it's a very specific case
+	if Type.Parent.Parent.Name == "Skins" then
+		return "Skin"
+	end
+
+	--set it to a string
+	Type = Type.Name or tostring(Type)
+
+	--if it's the root folder, then it means the module itself is named after the type
+	if Type == "Content" then
+		Type = Module.Name or tostring(Module)
+	end
+
+	--removes the last character of the string if it's an `s` to make it singular
+	Type = Type:gsub("s$", "")
+
+	return Type
 end
 
 return InstanceUtils

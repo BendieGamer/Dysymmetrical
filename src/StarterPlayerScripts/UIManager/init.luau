@@ -1,6 +1,9 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Utils = require(ReplicatedStorage.Modules.Utils)
+
+local TypeUtils = require(ReplicatedStorage.Modules.Utils.TypeUtils)
+local CharacterUtils = require(ReplicatedStorage.Modules.Utils.CharacterUtils)
+
 type GuiItem = {
     Name: string,
     Enabled: boolean?,
@@ -152,14 +155,14 @@ function UIManager.CreateScreenGui(Info: GuiItem): ScreenGui
         --why am I doing this instead of `ScreenGui:ClearAllChildren()`
         --it's been proved that just redoing the ScrenGui is more performant than clearing its children because it doesn't have to reparent every single child individually
         --cool sauce i love reading random stuff like this in devforum out of nowhere
-        local JanitorInstance = Utils.Character.ObserveCharacter(Players.LocalPlayer, function(_Character: Model)
+        local JanitorInstance = CharacterUtils.ObserveCharacter(Players.LocalPlayer, function(_Character: Model)
             ScreenGui:Destroy()
             UIManager.ManagedScreenGuis[Info.Name] = UIManager.CreateScreenGui(Info)
         end)
         JanitorInstance:LinkToInstance(ScreenGui)
     end
     -- override -> order in default table -> default to last in default table
-    ScreenGui.DisplayOrder = Info.DisplayOrder or table.find(UIManager.DefaultGuiInfo, Info) or Utils.Type.GetCountOfDict(UIManager.ManagedScreenGuis)
+    ScreenGui.DisplayOrder = Info.DisplayOrder or table.find(UIManager.DefaultGuiInfo, Info) or TypeUtils.GetCountOfDict(UIManager.ManagedScreenGuis)
     ScreenGui.Parent = Players.LocalPlayer.PlayerGui
     if Info.Callback then
         Info.Callback(ScreenGui)

@@ -8,8 +8,6 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 return {
     Init = function(_)
-        --get the prefab
-        local UIPrefab = Utils.Instance.AwaitChild(script, "PlayerVitals")
         Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Character: Model, CharacterJanitor: Types.Janitor)
             --if the character is a spectator, halt
             if not Character:GetAttribute("Role") or Character:GetAttribute("Role") == "Spectator" then
