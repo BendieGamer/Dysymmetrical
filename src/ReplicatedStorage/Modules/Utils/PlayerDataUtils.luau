@@ -105,7 +105,7 @@ function PlayerDataUtils.GetPlayerSetting(Player: Player, path: string): any
     PlayerDataUtils.AwaitSaveLoad(Player)
 
     local splitPath = TypeUtils.SplitStringPath(path)
-    local PlayerSettings = InstanceUtils.FindFirstChild(Player, "PlayerData.Settings")
+    local PlayerSettings = PlayerDataUtils.GetSpecificObject(Player, "Settings")
     if not PlayerSettings then
         return
     end
@@ -129,10 +129,10 @@ function PlayerDataUtils.CreateMissingSkinValue(SourcePlayer: Player, name: stri
     PlayerDataUtils.AwaitSaveLoad(SourcePlayer)
 
     if not RunService:IsServer() then
-        return InstanceUtils.FindFirstChild(SourcePlayer, "PlayerData.Equipped.Skins."..name) :: StringValue | any
+        return PlayerDataUtils.GetSpecificObject(SourcePlayer, `Equipped.Skins.{name}`) :: StringValue | any
     end
 
-    local EquippedSkins = InstanceUtils.FindFirstChild(SourcePlayer, "PlayerData.Equipped.Skins")
+    local EquippedSkins = PlayerDataUtils.GetSpecificObject(SourcePlayer, "Equipped.Skins")
     local SkinValue = EquippedSkins:FindFirstChild(name)
     if SkinValue then
         return SkinValue
@@ -151,10 +151,10 @@ function PlayerDataUtils.CreateMissingPurchasedSkinValue(SourcePlayer: Player, n
     PlayerDataUtils.AwaitSaveLoad(SourcePlayer)
 
     if not RunService:IsServer() then
-        return InstanceUtils.FindFirstChild(SourcePlayer, "PlayerData.Purchased.Skins."..name) :: Folder | any
+        return PlayerDataUtils.GetSpecificObject(SourcePlayer, `Purchased.Skins.{name}`) :: Folder | any
     end
 
-    local PurchasedSkins = InstanceUtils.FindFirstChild(SourcePlayer, "PlayerData.Purchased.Skins")
+    local PurchasedSkins = PlayerDataUtils.GetSpecificObject(SourcePlayer, "Purchased.Skins")
     local SkinFolder = InstanceUtils.FindFirstChild(PurchasedSkins, name)
     if SkinFolder then
         return SkinFolder
