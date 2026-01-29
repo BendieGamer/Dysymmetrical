@@ -106,6 +106,9 @@ function PlayerDataUtils.GetPlayerSetting(Player: Player, path: string): any
 
     local splitPath = TypeUtils.SplitStringPath(path)
     local PlayerSettings = InstanceUtils.FindFirstChild(Player, "PlayerData.Settings")
+    if not PlayerSettings then
+        return
+    end
     if #splitPath == 1 then
         return PlayerSettings:FindFirstChild(splitPath[1]).Value
     else
