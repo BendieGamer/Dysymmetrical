@@ -13,7 +13,7 @@ local DefaultLabels = {
 return {
     Init = function(_)
         local Info = ReplicatedStorage.RoundInfo
-        local Frame = Utils.Instance.AwaitChild(script, "TimeFrame"):Clone()
+        local Frame = script.TimeFrame:Clone()
         Frame.Parent = UIManager.FetchScreenGui("Time")
 
         local TimeCounter = Frame.TimeCounter

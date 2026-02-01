@@ -7,7 +7,7 @@ local Rand = Random.new()
 
 local Utils = require(script.Parent.Utils)
 
-local LoadedSounds = Utils.Instance.AwaitChild(script, "LoadedSounds")
+local LoadedSounds = script.LoadedSounds
 
 local Sounds = {
     CommonSounds = {

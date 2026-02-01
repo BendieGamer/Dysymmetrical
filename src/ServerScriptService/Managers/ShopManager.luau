@@ -25,7 +25,7 @@ function ShopManager:Init()
         --take the money (taxes included)
         Money.Value -= Price
         --increase the player's net worth so that they feel rich
-        Utils.PlayerData.GetPlayerSetting(Player, "Currency.NetWorth", false).Value -= Price
+        Utils.PlayerData.GetPlayerStat(Player, "Currency.NetWorth", false).Value -= Price
 
         --create the product on the spot
         local Product = Instance.new("IntValue")

@@ -57,7 +57,7 @@ UIManager.DefaultGuiInfo = {
         ResetOnSpawn = false,
     },
     {
-        Name = "SideBar",
+        Name = "Sidebar",
         ResetOnSpawn = false,
     },
     {
@@ -126,6 +126,23 @@ function UIManager:Init()
 
         UIManager.ManagedScreenGuis[Gui.Name] = UIManager.CreateScreenGui(Gui)
     end
+
+    --initializing all UI modules from here to keep it tidy
+    for _, Module in ReplicatedStorage.UI:GetDescendants() do
+        if not Module:IsA("ModuleScript") then
+            continue
+        end
+
+        local Code = require(Module)
+        if typeof(Code) == "table" and Code.Init and typeof(Code.Init) == "function" then
+            Code:Init()
+        end
+    end
+
+    --i know that if the modules are initialized here they don't have to use FetchScreenGui anymore because every ScreenGui would be there when initting
+    --but i could not give less of a shit because i'm lazy to change it back and it's readable this way
+    --2.0 is making me insane
+    --   -dys
 end
 
 --- Directly creates a `ScreenGui` instance.
@@ -153,7 +170,7 @@ function UIManager.CreateScreenGui(Info: GuiItem): ScreenGui
     if ScreenGui.ResetOnSpawn then
         ScreenGui.ResetOnSpawn = false
         --why am I doing this instead of `ScreenGui:ClearAllChildren()`
-        --it's been proved that just redoing the ScrenGui is more performant than clearing its children because it doesn't have to reparent every single child individually
+        --it's been proved that just redoing the ScreenGui is more performant than clearing its children because it doesn't have to reparent every single child individually
         --cool sauce i love reading random stuff like this in devforum out of nowhere
         local JanitorInstance = CharacterUtils.ObserveCharacter(Players.LocalPlayer, function(_Character: Model)
             ScreenGui:Destroy()

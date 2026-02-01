@@ -203,6 +203,9 @@ function PlayerDataUtils.GetSpecificObject(Player: Player, Path: string): ValueB
     PlayerDataUtils.AwaitSaveLoad(Player)
     --get the data folder
     local PlayerData = Player:FindFirstChild("PlayerData")
+    if not PlayerData then
+        return
+    end
     --find the object inside
     return InstanceUtils.FindFirstChild(PlayerData, Path)
 end

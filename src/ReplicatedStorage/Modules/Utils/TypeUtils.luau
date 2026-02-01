@@ -251,4 +251,83 @@ function TypeUtils.ConvertInstanceTreeToTable(TargetInstance: Instance, Depth: n
 	return tree
 end
 
+--[=[
+    Safely indexes an item from a table which search must be done in more than one step.
+    
+    For example, if I wanted to index an item in a table inside another table, and I'm not sure if it's gonna be there, that is a good use scenario.
+
+    ```lua
+        local Table = {}
+        
+        -- SCENARIO 1 --
+        Table.Items = {
+            Thing = "Hey!",
+        }
+
+        local ItemInTable = Utils.Type.SafeTableIndex(Table, "Items.Thing")
+        print(ItemInTable)
+    ```
+    Output: `"Hey!"`
+
+    ```lua
+        local Table = {}
+
+        -- SCENARIO 2 --
+        --we're not setting the items table here
+        
+        local ItemInTable = Utils.TypeSafeTableIndex(Table, "Items.Thing")
+        print(ItemInTable)
+    ```
+    Output: `nil`
+
+    Here's what would happen if scenario 2 would've been done using normal indexing:
+    ```lua
+        local Table = {}
+
+        -- SCENARIO 3 --
+        --we're not setting the items table here
+
+        local ItemInTable = Table.Items.Thing
+        print(ItemInTable)
+    ```
+    Output: `ERROR in line 6: attempt to index 'nil' with "Items"`
+
+    This, consequently, halts execution, and screws up scripts, without allowing for custom handling.
+
+    This isn't needed for just one step indexing as it'll just be the same thing.
+
+    ```lua
+        local Table = {}
+
+        -- SCENARIO 4 --
+        --we're not setting the items table here
+
+        local ItemInTable = Table.Items
+        print(ItemInTable)
+    ```
+    Output: `nil`
+]=]
+function TypeUtils.SafeTableIndex<T>(TableToIndex: T & {}, Path: string): T & {}
+    --gets all steps separately in a table to iterate over them
+    local Steps = TypeUtils.SplitStringPath(Path)
+
+    --set base item as the table itself
+    local CurrentItem = TableToIndex
+
+    --iterate over each step
+    for _, Step in ipairs(Steps) do
+        --if the current item is `nil`, halt and return `nil` to prevent halting thread execution
+        if CurrentItem == nil then
+            return
+        end
+        --try to index the next step in the current item
+        CurrentItem = CurrentItem[Step]
+        
+        --i'm doing the check first just in case `TableToIndex` is `nil` for some reason
+    end
+
+    --this item supposedly was found, so return its value
+    return CurrentItem
+end
+
 return TypeUtils

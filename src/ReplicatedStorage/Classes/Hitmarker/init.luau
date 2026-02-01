@@ -10,7 +10,7 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local Hitmarker = {}
 
-local HitmarkerPrefab = Utils.Instance.AwaitChild(script, "Hitmarker")
+local HitmarkerPrefab = script.Hitmarker
 local HitmarkerFolder = workspace.TempObjectFolders.Hitmarkers
 
 local HitmarkerValues = {

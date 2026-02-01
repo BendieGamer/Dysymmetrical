@@ -23,7 +23,7 @@ return {
             end
             debug.setmemorycategory(Module.Name)
             local Scr = require(Module)
-            if type(Scr) == "table" and Scr.Init and type(Scr.Init) == "function" then
+            if typeof(Scr) == "table" and Scr.Init and typeof(Scr.Init) == "function" then
                 Scr:Init()
             end
         end

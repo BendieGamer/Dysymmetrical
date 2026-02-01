@@ -2,6 +2,7 @@ local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
+local Types = require(ReplicatedStorage.Classes.Types)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
@@ -10,7 +11,17 @@ local Signal = require(ReplicatedStorage.Utils.Signal)
 local BuyWindow = {}
 BuyWindow.__index = BuyWindow
 
-function BuyWindow.New(Shop, Module: ModuleScript, Parent: Frame, Card: Frame)
+type BuyWindow = {
+    Checking: boolean,
+    Instance: Instance,
+    JanitorInstance: Types.Janitor,
+    Removed: Signal.Signal<>,
+    Purchased: Signal.Signal<>,
+    Show: () -> (),
+    Hide: () -> (),
+}
+
+function BuyWindow.New(Shop, Module: ModuleScript): BuyWindow
     local self = setmetatable({
         Checking = false,
         Instance = script:FindFirstChild("Window"):Clone(),
@@ -28,7 +39,6 @@ function BuyWindow.New(Shop, Module: ModuleScript, Parent: Frame, Card: Frame)
     local ItemInfo = require(Module)
     --set label for when the window shows up
     self.Instance.PriceTag.Text = `Purchase {ItemInfo.Config.Name} for {ItemInfo.Config.Price > 0 and `{ItemInfo.Config.Price}$` or "FREE"}?`
-    self.Instance.Parent = Parent
     --hide at first
     self.Instance.Size = Utils.UDim.Zero
 
@@ -44,15 +54,12 @@ function BuyWindow.New(Shop, Module: ModuleScript, Parent: Frame, Card: Frame)
         self.Instance.Buy.TextLabel.Text = "..."
 
         --fetch item purchase
-        local Bought = Network:FireServerConnection("BuyItem", "REMOTE_FUNCTION", Module)
+        local Bought = Network:FireServerConnection("BuyShopItem", "REMOTE_FUNCTION", Module)
 
         --if it was successfully bought, 
         if Bought then
             --visual cue
             self.Instance.Buy.TextLabel.Text = "Purchased!"
-            --reload card to display it as owned
-            Card.Container.Owned.BackgroundTransparency = 0.55
-            Card.Container.Owned.TextLabel.TextTransparency = 0
             --fire signal
             self.Purchased:Fire()
             --hide after a bit
@@ -61,7 +68,7 @@ function BuyWindow.New(Shop, Module: ModuleScript, Parent: Frame, Card: Frame)
             end), true)
         else
             --visual cue to indicate poorness
-            self.Instance.Buy.TextLabel.Text = "you're too poor. sorry, but numbers speak for you."
+            self.Instance.Buy.TextLabel.Text = "you're too poor."
             self.Checking = false
         end
     end))

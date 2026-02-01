@@ -363,6 +363,9 @@ function PlayerUtils.GetLoadedPlayers(IncludeAFK: boolean?): {Player}
     local t: {Player} = {}
 
     for _, Player: ObjectValue in ReplicatedStorage.LoadedPlayers:GetChildren() do
+        if not Player.Value then
+            continue
+        end
         if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player.Value, "Game.AFK") then
             continue
         end

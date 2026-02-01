@@ -8,7 +8,7 @@ local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Types = require(script.Parent.Types)
-local PlayerSpeedManager = RunService:IsServer() and require(game:GetService("ServerScriptService").Managers.PlayerManager.PlayerSpeedManager) or nil
+local PlayerSpeedManager = RunService:IsServer() and require(game:GetService("ServerScriptService").Managers.PlayerManager.CharacterManager.PlayerSpeedManager) or nil
 
 local Emote = {}
 Emote.__index = Emote
