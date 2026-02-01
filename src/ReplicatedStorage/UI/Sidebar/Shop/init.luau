@@ -163,7 +163,7 @@ function Shop._ReloadContent(CreateCards: boolean?)
     end
 end
 
-function Shop.Open(TweenDuration: number)
+function Shop:Open(TweenDuration: number)
     if not Shop.Enabled or not Players.LocalPlayer.Character or Players.LocalPlayer.Character:GetAttribute("Role") ~= "Spectator" or not Sidebar.Enabled then
         return 0
     end
@@ -211,7 +211,7 @@ function Shop.Open(TweenDuration: number)
     return
 end
 
-function Shop.Close(TweenDuration: number)
+function Shop:Close(TweenDuration: number)
     if Shop.BuyWindow then
         Shop.BuyWindow:Hide(TweenDuration <= 0)
     end
@@ -234,9 +234,9 @@ function Shop.Close(TweenDuration: number)
     Shop.Opened = false
 end
 
-function Shop.Toggle(Toggle: boolean)
+function Shop:Toggle(Toggle: boolean)
     if not Shop.Enabled and Toggle then
-        Shop.Init()
+        Shop:Init()
     end
 
     if not Toggle and Shop.Enabled then

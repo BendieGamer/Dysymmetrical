@@ -39,6 +39,22 @@ local Menus: {[string]: Button} = {
         CloseOnOtherOpen = true,
         CloseOthersOnOpen = true,
     },
+    Rules = {
+        Render = "rbxassetid://83147016587963",
+        Type = "SmallButton",
+        InvertedRender = "rbxassetid://90249013398230",
+        LayoutOrder = 7,
+        CloseOnOtherOpen = true,
+        CloseOthersOnOpen = true,
+    },
+    Changelog = {
+        Render = "rbxassetid://82434587437333",
+        Type = "SmallButton",
+        InvertedRender = "rbxassetid://113410904986274",
+        LayoutOrder = 8,
+        CloseOnOtherOpen = true,
+        CloseOthersOnOpen = true,
+    },
 }
 
 local function TweenInverted(BarButton, Inverted: boolean)
@@ -54,7 +70,7 @@ local function TweenInverted(BarButton, Inverted: boolean)
                 TextColor3 = Value,
             }):Play()
 
-            return
+            continue
         end
 
         if not (Child:IsA("ImageLabel") or Child:IsA("ImageButton")) then
@@ -96,7 +112,7 @@ function Sidebar.CloseAll(Remaining: any)
             continue
         end
 
-        menu.Close(Sidebar.ToggleDuration)
+        menu:Close(Sidebar.ToggleDuration)
 
         if not menu.Button then
             continue
@@ -110,7 +126,7 @@ function Sidebar.OpenMenu(Menu)
     Sounds.PlaySound(Sounds.CommonSounds.ButtonPress, {Volume = 0.8})
 
     if not Menu.Opened then
-        if Menu.Open(Sidebar.ToggleDuration) ~= nil then
+        if Menu:Open(Sidebar.ToggleDuration) ~= nil then
             return
         end
         if Menu.Button then
@@ -124,7 +140,7 @@ function Sidebar.OpenMenu(Menu)
         return
     end
 
-    Menu.Close(Sidebar.ToggleDuration)
+    Menu:Close(Sidebar.ToggleDuration)
     if Menu.Button then
         TweenInverted(Menu.Button, false)
     end
@@ -199,7 +215,7 @@ function Sidebar:Init()
             if not Menu.UIInstance then
                 return
             end
-            Menu.Toggle(char:GetAttribute("Role") == "Spectator")
+            Menu:Toggle(char:GetAttribute("Role") == "Spectator")
         end)
     end
 end
