@@ -31,6 +31,14 @@ local Menus: {[string]: Button} = {
         CloseOnOtherOpen = true,
         CloseOthersOnOpen = true,
     },
+    Stats = {
+        Render = "rbxassetid://130488549713780",
+        Type = "Button",
+        InvertedRender = "rbxassetid://72911514685580",
+        LayoutOrder = 3,
+        CloseOnOtherOpen = true,
+        CloseOthersOnOpen = true,
+    },
 }
 
 local function TweenInverted(BarButton, Inverted: boolean)
@@ -84,7 +92,7 @@ end
 
 function Sidebar.CloseAll(Remaining: any)
     for _, menu in Sidebar.Menus do
-        if menu == Remaining or not menu.Opened or not menu.CloseOnOtherOpen or not menu.UIInstance then
+        if menu == Remaining or not menu.Opened or not menu.CloseOnOtherOpen then
             continue
         end
 
