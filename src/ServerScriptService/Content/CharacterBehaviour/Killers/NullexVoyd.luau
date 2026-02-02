@@ -1,6 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local SoundService = game:GetService("SoundService")
 
+local PlayerSpeedManager = require(ServerScriptService.Managers.PlayerManager.CharacterManager.PlayerSpeedManager)
+local ServerUtils = require(ServerScriptService.ServerUtils)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 
@@ -38,6 +41,38 @@ function NullexVoyd.DataAnchorBehaviour(self: Types.Ability)
             self.TeleporterInstance = TpInstance
         end))
     end
+end
+
+function NullexVoyd.CallbackPingBehaviour(self: Types.Ability)
+    PlayerSpeedManager.AddFactor(self.Owner, self.Name, 0.18)
+    self.OwnerProperties.Character:SetAttribute("PreventSlash", true)
+
+    self:AddConnection(task.delay(self.Duration, function()
+        PlayerSpeedManager.RemoveSpeedFactor(self.owner, self.Name)
+        self.OwnerProperties.Character:SetAttribute("PreventSlash", false)
+    end))
+end
+
+function NullexVoyd.OverchargeBehaviour(self: Types.Ability)
+    ServerUtils.Character.ApplyEffect({
+        TargetHumanoid = self.OwnerProperties.Character:FindFirstChildWhichIsA("Humanoid"),
+        EffectSettings = {
+            Name = "Speed", 
+            Level = self.SpeedLevel, 
+            Duration = self.SpeedDuration
+        }
+    })
+
+    self:AddConnection(task.delay(self.SpeedDuration, function()
+        ServerUtils.Character.ApplyEffect({
+            TargetHumanoid = self.OwnerProperties.Character:FindFirstChildWhichIsA("Humanoid"),
+            EffectSettings = {
+                Name = "Slowness", 
+                Level = self.SlownessLevel, 
+                Duration = self.SlownessDuration
+            }
+        })
+    end))
 end
 
 return NullexVoyd

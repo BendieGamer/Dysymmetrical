@@ -2,83 +2,37 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
-local ServerScriptService = game:GetService("ServerScriptService")
 local SoundService = game:GetService("SoundService")
 
-local ServerUtils = RunService:IsServer() and require(ServerScriptService.ServerUtils) or nil
-local PlayerSpeedManager = RunService:IsServer() and require(game:GetService("ServerScriptService").Managers.PlayerManager.CharacterManager.PlayerSpeedManager) or nil
 local Character = require(ReplicatedStorage.Classes.Character)
 local Ability = require(ReplicatedStorage.Classes.Ability)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
-local Sounds = require(ReplicatedStorage.Modules.Sounds)
+
+local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Killers.NullexVoyd) or nil
 
 local Info = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 local MasterSoundGroup = SoundService.SoundGroups.Master
 local SoundFolder = SoundService.TempSounds
 
 local function DataAnchorBehaviour(self: Types.Ability)
-    if RunService:IsServer() then
-        if self.Setup then
-            self.OwnerProperties.Character:PivotTo(self.PositionInfo)
-        
-            if self.TeleporterInstance then
-                self.TeleporterInstance:Destroy()
-            end
-        
-            self.PositionInfo = nil
-            self.Setup = false
-        else
-            self.Setup = true
-        
-            self:AddConnection(task.delay(0.75, function()
-                self.DevicePosition = self.OwnerProperties.Character.HumanoidRootPart.Position - Vector3.new(0, 3 * self.OwnerProperties.Character:GetScale(), 0)
-                Sounds.PlaySound(self.PlaceSound, {
-                    Position = self.DevicePosition,
-                    RollOffMaxDistance = 35,
-                    RollOffMinDistance = 12,
-                    Name = self.Name,
-                    SoundGroup = SoundService.SoundGroups.Master.SFX,
-                })
-            end))
-            self:AddConnection(task.delay(0.917, function()
-                local TpInstance = self.CharModule.Config.TeleporterPrefab:Clone()
-                TpInstance:PivotTo(CFrame.new(self.DevicePosition))
-                TpInstance.Parent = workspace.Map.InGame
-                self.PositionInfo = self.OwnerProperties.Character:GetPivot()
-                self.TeleporterInstance = TpInstance
-            end))
-        end
+    if self.Setup then
+        self.Cooldown = self.FirstCooldown
+        self.Setup = false
     else
-        if self.Setup then
-            self.Cooldown = self.FirstCooldown
-            self.Setup = false
-        else
-            self.Cooldown = self.SecondCooldown
-            self.Setup = true
-        
-            self.OwnerProperties.SpeedManager:AddFactor(self.Name, 0)
-        
-            self:PlayUseAnimation()
-            self:AddConnection(task.delay((self.UseAnimationTrack.Length or 1.7) + 0.4, function()
-                self.OwnerProperties.SpeedManager:RemoveSpeedFactor(self.Name)
-            end))
-        end
+        self.Cooldown = self.SecondCooldown
+        self.Setup = true
+    
+        self.OwnerProperties.SpeedManager:AddFactor(self.Name, 0)
+    
+        self:PlayUseAnimation()
+        self:AddConnection(task.delay((self.UseAnimationTrack.Length or 1.7) + 0.4, function()
+            self.OwnerProperties.SpeedManager:RemoveSpeedFactor(self.Name)
+        end))
     end
 end
 
 local function CallbackPingBehaviour(self: Types.Ability)
-    if RunService:IsServer() then
-        PlayerSpeedManager.AddFactor(self.Owner, self.Name, 0.18)
-        self.OwnerProperties.Character:SetAttribute("PreventSlash", true)
-
-        self:AddConnection(task.delay(self.Duration, function()
-            PlayerSpeedManager.RemoveSpeedFactor(self.owner, self.Name)
-            self.OwnerProperties.Character:SetAttribute("PreventSlash", false)
-        end))
-
-        return
-    end
     task.defer(function()
         local Sound = Instance.new("Sound")
         Sound.Name = self.Name
@@ -126,32 +80,6 @@ local function CallbackPingBehaviour(self: Types.Ability)
     end
 end
 
-function OverchargeBehaviour(self: Types.Ability)
-    if RunService:IsServer() then
-        ServerUtils.Character.ApplyEffect({
-            TargetHumanoid = self.OwnerProperties.Character:FindFirstChildWhichIsA("Humanoid"),
-            EffectSettings = {
-                Name = "Speed", 
-                Level = self.SpeedLevel, 
-                Duration = self.SpeedDuration
-            }
-        })
-
-        self:AddConnection(task.delay(self.SpeedDuration, function()
-            ServerUtils.Character.ApplyEffect({
-                TargetHumanoid = self.OwnerProperties.Character:FindFirstChildWhichIsA("Humanoid"),
-                EffectSettings = {
-                    Name = "Slowness", 
-                    Level = self.SlownessLevel, 
-                    Duration = self.SlownessDuration
-                }
-            })
-        end))
-    
-        return
-    end
-end
-
 --Character Definition
 local NullexVoyd: Types.Killer = Character.New("Killer", {
     Config = {
@@ -195,6 +123,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 PositionInfo = CFrame.new(),
 
                 Behaviour = DataAnchorBehaviour,
+                ServerBehaviour = ServerBehaviour.DataAnchorBehaviour,
             }),
 
             CallbackPing = Ability.New({
@@ -204,6 +133,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 Cooldown = 32.5,
                 UseSound = "rbxassetid://72568635961241",
                 Behaviour = CallbackPingBehaviour,
+                ServerBehaviour = ServerBehaviour.CallbackPingBehaviour,
             }),
 
             Overcharge = Ability.New({
@@ -216,7 +146,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 SlownessLevel = 3,
                 Duration = 4.7,
                 DisableSlashOnPerform = false,
-                Behaviour = OverchargeBehaviour,
+                ServerBehaviour = ServerBehaviour.CallbackPingBehaviour,
             }),
         },
     },
