@@ -39,6 +39,14 @@ local Menus: {[string]: Button} = {
         CloseOnOtherOpen = true,
         CloseOthersOnOpen = true,
     },
+    Credits = {
+        Render = "rbxassetid://82434587437333",
+        Type = "SmallButton",
+        InvertedRender = "rbxassetid://113410904986274",
+        LayoutOrder = 6,
+        CloseOnOtherOpen = true,
+        CloseOthersOnOpen = true,
+    },
     Rules = {
         Render = "rbxassetid://83147016587963",
         Type = "SmallButton",
