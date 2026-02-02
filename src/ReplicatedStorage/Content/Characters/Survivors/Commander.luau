@@ -9,7 +9,7 @@ local Character = require(ReplicatedStorage.Classes.Character)
 local Types = require(ReplicatedStorage.Classes.Types)
 -- local Utils = require(ReplicatedStorage.Modules.Utils)
 -- local Sounds = require(ReplicatedStorage.Modules.Sounds)
-local CommonFunctions = RunService:IsServer() and require(game:GetService("ServerScriptService").System.CommonFunctions) or nil
+local ServerUtils = RunService:IsServer() and require(game:GetService("ServerScriptService").ServerUtils) or nil
 -- local PlayerSpeedManager = RunService:IsServer() and require(game:GetService("ServerScriptService").Managers.PlayerManager.PlayerSpeedManager) or nil
 
 -- local function BlindsideBehaviour(self: Types.Ability)
@@ -48,7 +48,7 @@ local CommonFunctions = RunService:IsServer() and require(game:GetService("Serve
 --                         },
 --                         Connections = {
 --                             PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
---                                 CommonFunctions.GrantRewardToPlayer(self.Owner, {Money = 10, EXP = 20, Reason = "blinding the killer with Blindside"})
+--                                 ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 10, EXP = 20, Reason = "blinding the killer with Blindside"})
 --                             end,
 --                         }
 --                     })
@@ -79,7 +79,7 @@ local CommonFunctions = RunService:IsServer() and require(game:GetService("Serve
 --             self.CharModule.GameplayConfig.Abilities.Justice:ChangeAbilityCharges("Set", 1)
 --         end))
 
---         CommonFunctions.ApplyEffect({
+--         ServerUtils.Character.ApplyEffect({
 --             TargetHumanoid = self.OwnerProperties.Humanoid,
 --             EffectSettings = {
 --                 Name = "Slowness",
@@ -120,7 +120,7 @@ local CommonFunctions = RunService:IsServer() and require(game:GetService("Serve
 --                 },
 --                 Connections = {
 --                     PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
---                         CommonFunctions.GrantRewardToPlayer(self.Owner, {Money = 6, EXP = 14, Reason = "stunning the killer with Justice"})
+                        -- ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 6, EXP = 14, Reason = "stunning the killer with Justice"})
 --                     end,
 --                 }
 --             })
@@ -161,7 +161,7 @@ local CommonFunctions = RunService:IsServer() and require(game:GetService("Serve
 -- end
 
 local function OnCommanderHit(self: Types.Ability, _hitbox: Types.HitboxDetails, _damage: number)
-    CommonFunctions.ApplyEffect({
+    ServerUtils.Character.ApplyEffect({
         TargetHumanoid = self.OwnerProperties.Humanoid,
         EffectSettings = {
             Name = "Resistance",

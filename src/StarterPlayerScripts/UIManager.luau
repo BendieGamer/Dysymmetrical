@@ -168,14 +168,20 @@ function UIManager.CreateScreenGui(Info: GuiItem): ScreenGui
         ScreenGui.ResetOnSpawn = Info.ResetOnSpawn
     end
     if ScreenGui.ResetOnSpawn then
+        --ALWAYS false, or else it'll screw up the whole thing (i think)
         ScreenGui.ResetOnSpawn = false
+
         --why am I doing this instead of `ScreenGui:ClearAllChildren()`
-        --it's been proved that just redoing the ScreenGui is more performant than clearing its children because it doesn't have to reparent every single child individually
+
+        --because it's been proven that just redoing the ScreenGui is more performant than clearing its children
+        --because it doesn't have to reparent every single child individually
+
         --cool sauce i love reading random stuff like this in devforum out of nowhere
         local JanitorInstance = CharacterUtils.ObserveCharacter(Players.LocalPlayer, function(_Character: Model)
             ScreenGui:Destroy()
             UIManager.ManagedScreenGuis[Info.Name] = UIManager.CreateScreenGui(Info)
         end)
+        
         JanitorInstance:LinkToInstance(ScreenGui)
     end
     -- override -> order in default table -> default to last in default table
@@ -189,18 +195,14 @@ function UIManager.CreateScreenGui(Info: GuiItem): ScreenGui
 end
 
 --- Will try to get an existing `ScreenGui` and, if it doesn't exist, it creates it with default values.
+--- 
+--- `UIManager.CreateScreenGui()` still does the same sanity check to return an existing `ScreenGui` with the same name,
+--- but this function describes better what you're doing, so for readability it's a lot better to sue this one if you're trying to get an existing `ScreenGui`.
 function UIManager.FetchScreenGui(Name: string): ScreenGui
     local Result = UIManager.ManagedScreenGuis[Name]
     if Result then
         return Result
     end
-
-    --removed this due to remaking ResetOnSpawn behaviour
-    -- Result = Players.LocalPlayer.PlayerGui:FindFirstChild(Name)
-    -- if Result then
-    --     UIManager.ManagedScreenGuis[Name] = Result
-    --     return Result
-    -- end
 
     return UIManager.CreateScreenGUI(UIManager._GetDefaultInfoByName(Name) or {Name = Name})
 end

@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 local Janitor = require(ReplicatedStorage.Packages._Index["howmanysmall_janitor@1.18.3"].janitor)
 export type Janitor = Janitor.Janitor
@@ -19,7 +20,7 @@ export type Ability = {
     --- Internal function to initialize the ability's generally used variables and connections.
     Init: (self: Ability, charModule: Killer | Survivor, owner: Player) -> (),
     --- Empty function to execute extra code right after the ability is initialized using `Init`.
-    ExtraInit: (self: Ability) -> (),
+    OnInit: (self: Ability) -> (),
     --- Empty function to execute extra code right before the ability gets destroyed using `Destroy`.
     OnRemove: (self: Ability) -> (),
     --- Reloads the animation to be `newId`.
@@ -41,7 +42,20 @@ export type Ability = {
     --- The name of the input used for the ability, set up in `InputManager`.
     InputName: string,
     --- Literally the behaviour of the ability; what it does. Write your ability here.
+    --- 
+    --- If `Ability:ServerBehaviour()` isn't `nil`, this function will execute in both server and client, so `RunService:IsServer()` will be pretty useful.
+    --- 
+    --- On the contrary, if `Ability:ServerBehaviour()` *is* `nil`, this will only execute on client.
     Behaviour: (self: Ability) -> (),
+    --- Same thing as `Ability:Behaviour()` but it'll execute on server only.
+    --- 
+    --- If this property is set, `Ability:Behaviour()` will only be called on client.
+    --- 
+    --- Useful to keep things tidy or to write this function in `ServerScriptService` or `ServerStorage` in its own separate module
+    --- and prevent exploiters from stealing character behaviour code from server.
+    --- 
+    --- It's recommended to do this last thing as the engine is open-source. Always be wary of ye property!
+    ServerBehaviour: (self: Ability) -> (),
 
     --- The animation ID of the use animation.
     UseAnimation: string,
@@ -102,9 +116,17 @@ export type Ability = {
         InitialUses: number,
     },
 
+    --- Useful signals to execute code when certain base code from abilities execute.
     Signals: {
+        --- Fires every time this ability's charges change through `Ability:ChangeAbilityCharges()`.
+        --- 
+        --- @return The change amount of the charges.
         ChargesChanged: Signal.Signal<number>,
+        --- Fires every time this ability is used, thus `Ability:Behaviour()` is executed.
         Used: Signal.Signal<>,
+        --- Fires every time this ability's cooldown is changed / activated through `Ability:SetOnCooldown()`.
+        --- 
+        --- @return The cooldown this ability has been set to.
         CooldownSet: Signal.Signal<number>,
     },
 
@@ -137,17 +159,20 @@ export type Ability = {
         --- The owner's character's `HumanoidRootPart` instance for usage. Also gettable through `Utils.Character.GetRootPart(Owner)`.
         HRP: BasePart,
         --- See `StarterPlayerScripts.InputManager`.
-        InputManager: any,
-        --- See `StarterCharacterScripts.PlayerAttributeScripts.FOVManager`.
-        FOVManager: any,
-        --- See `StarterCharacterScripts.PlayerAttributeScripts.EffectManager`.
+        InputManager: typeof(require(StarterPlayer.StarterPlayerScripts.InputManager)),
+        --- See `StarterCharacterScripts.PlayerAttributeManagers.FOVManager`.
+        FOVManager: typeof(require(StarterPlayer.StarterCharacterScripts.PlayerAttributeManagers.FOVManager)),
+        --- See `StarterCharacterScripts.PlayerAttributeManagers.EffectManager`.
         EffectManager: any,
         --- See `StarterCharacterScripts.Miscellaneous.EmoteManager`.
         EmoteManager: any,
-        --- See `StarterCharacterScripts.Miscellaneous.TurnToMoveDirection`.
-        TurnToMoveDirection: any,
+        --- See `StarterPlayerScripts.Visual.TurnToMoveDirection`.
+        TurnToMoveDirection: {
+            AddHeadPreventionFactor: (self: any, name: string) -> (),
+            RemoveHeadPreventionFactor: (self: any, name: string) -> (),
+        },
         --- See `StarterCharacterScripts.AnimationManager`.
-        AnimationManager: any,
+        AnimationManager: any, --too lazy to copy all of the func definitions in here, would be clutter imo
     },
     --- The source module where the ability comes from. Contains all character info.
     CharModule: Killer | Survivor,
@@ -732,7 +757,7 @@ export type Killer = {
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character gets hit.
     --- 
     --- If you want the character to not get affected by the hit, you can return `"Ignored"`.
-    OnHit: (self: Killer, hitbox: any, damage: number) -> (string?)?,
+    OnHit: (self: Killer, hitbox: HitboxDetails, damage: number) -> (string?)?,
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character executes a survivor (the animation MUST be set).
     OnExecution: ((self: Killer, victim: Model, usedAnimName: string) -> ())?,
 }
@@ -830,7 +855,10 @@ export type Emote = {
 
     Animator: Animator,
     HumanoidRootPart: BasePart,
-    TurnToMoveDirection: {any},
+    TurnToMoveDirection: {
+        AddHeadPreventionFactor: (self: any, name: string) -> (),
+        RemoveHeadPreventionFactor: (self: any, name: string) -> (),
+    },
 
     TrackPlaying: AnimationTrack,
     AddConnection: <T>(self: Emote, Connection: T & (RBXScriptConnection | thread)) -> T & (RBXScriptConnection | thread),
@@ -898,7 +926,7 @@ export type HitboxSettings = {
 	}}?,
     --- Any callbacks for events fired in the hitbox's functionality.
     --- TODO: write what connections there are and what they do
-    Connections: {[string]: (any?) -> ()}?,
+    Connections: {[string]: ((thread | RBXScriptConnection)?) -> ()}?,
 }
 
 --- Details on a hitbox's current stats
@@ -1084,15 +1112,18 @@ export type Item = {
         --- The owner's character's `HumanoidRootPart` instance for usage. Also gettable through `Utils.Character.GetRootPart(Owner)`.
         HRP: BasePart,
         --- See `StarterPlayerScripts.InputManager`.
-        InputManager: any,
+        InputManager: typeof(require(StarterPlayer.StarterPlayerScripts.InputManager)),
         --- See `StarterCharacterScripts.PlayerAttributeScripts.FOVManager`.
-        FOVManager: any,
+        FOVManager: typeof(require(StarterPlayer.StarterCharacterScripts.PlayerAttributeManagers.FOVManager)),
         --- See `StarterCharacterScripts.PlayerAttributeScripts.EffectManager`.
         EffectManager: any,
         --- See `StarterCharacterScripts.Miscellaneous.EmoteManager`.
         EmoteManager: any,
         --- See `StarterCharacterScripts.Miscellaneous.TurnToMoveDirection`.
-        TurnToMoveDirection: any,
+        TurnToMoveDirection: {
+            AddHeadPreventionFactor: (self: any, name: string) -> (),
+            RemoveHeadPreventionFactor: (self: any, name: string) -> (),
+        },
         --- See `StarterCharacterScripts.AnimationManager`.
         AnimationManager: any,
     },
