@@ -205,7 +205,8 @@ function Sidebar:Init()
             -- Why does `TextLabel.AutomaticSize` not fucking work with `TextLabel.TextScaled`? No idea! I'm mentally insane! :D
             -- `TextLabel.TextSize` doesn't either. What world are we living in?
             -- 
-            -- reading this 2 months later makes me realize i was a dumbass -Dys 2026
+            -- reading this 2 months later makes me realize i was a dumbass -Dys XX/01/2026
+            -- what the fuck is my thought process when coding??????? -Dys 02/02/2026
             local Size = TextService:GetTextSize(BarButton.Title.Holder.Label.Text, OriginalYLabelBound, BarButton.Title.Holder.Label.Font, BarButton.Title.Holder.Label.AbsoluteSize)
             TweenService:Create(BarButton.Title.Holder, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0.15, Size.X + 56, 0.5, 0)
@@ -213,6 +214,7 @@ function Sidebar:Init()
         end)
         BarButton.MouseLeave:Connect(function()
             Sounds.PlaySound(Sounds.CommonSounds.ButtonHoverStop, {Volume = 0.2})
+
             TweenService:Create(BarButton, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Size = OriginalSize}):Play()
             TweenService:Create(BarButton.Title.Holder, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 0, 0.5, 0)
@@ -220,7 +222,7 @@ function Sidebar:Init()
         end)
 
         Utils.Character.ObserveCharacter(Players.LocalPlayer, function(char: Model)
-            if not Menu.UIInstance then
+            if Menu.Toggle == nil then
                 return
             end
             Menu:Toggle(char:GetAttribute("Role") == "Spectator")
