@@ -46,10 +46,10 @@ local DataTypes = require(script.DataTypes)
 --- Class used to connect the server and the clients more efficiently by encapsulating everything in a single place.
 local Network = {
     Folders = {
-        REMOTE_EVENT = nil,
-        REMOTE_FUNCTION = nil,
-        UREMOTE_EVENT = nil,
-        BINDABLE_EVENT = nil,
+        -- REMOTE_EVENT = nil,
+        -- REMOTE_FUNCTION = nil,
+        -- UREMOTE_EVENT = nil,
+        -- BINDABLE_EVENT = nil,
     },
     _FolderNames = {
         "REMOTE_EVENT",
@@ -57,7 +57,7 @@ local Network = {
         "UREMOTE_EVENT",
         "BINDABLE_EVENT",
     },
-    InstanceCreator = nil,
+    -- InstanceCreator = nil,
     ServiceLive = false,
 }
 
@@ -99,23 +99,38 @@ function Network:Init()
     self.ServiceLive = true
 end
 
+local InstanceConstructorTable = {
+    REMOTE_EVENT = function(): RemoteEvent
+        return Instance.new("RemoteEvent")
+    end,
+    UREMOTE_EVENT = function(): UnreliableRemoteEvent
+        return Instance.new("UnreliableRemoteEvent")
+    end,
+    REMOTE_FUNCTION = function(): RemoteFunction
+        return Instance.new("RemoteFunction")
+    end,
+    BINDABLE_EVENT = function(): BindableEvent
+        return Instance.new("BindableEvent")
+    end,
+}
 --- Creates an instance of a specific type for later usage.
 --- @param name                                                                     (`string`): The name of the instance.
 --- @param Type                                                                     (`string`): The desired type of the instance.
 --- @return `RemoteEvent | UnreliableRemoteEvent | RemoteFunction | BindableEvent`              The instance that has been created.
 function Network:_CreateInstance(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION" | "BINDABLE_EVENT"): RemoteEvent | UnreliableRemoteEvent | RemoteFunction | BindableEvent
-    if not RunService:IsServer() then return end
-    local instance
-    if Type == "REMOTE_EVENT" then
-        instance = Instance.new("RemoteEvent")
-    elseif Type == "UREMOTE_EVENT" then
-        instance = Instance.new("UnreliableRemoteEvent")
-    elseif Type == "REMOTE_FUNCTION" then
-        instance = Instance.new("RemoteFunction")
-    elseif Type == "BINDABLE_EVENT" then
-        instance = Instance.new("BindableEvent")
+    if not RunService:IsServer() then
+        warn("[DysNetworking:_CreateInstance()] This function shouldn't be called from the client. Make sure that it isn't!", debug.traceback())
+        return
     end
 
+    local instance = InstanceConstructorTable[Type]
+
+    if instance == nil then
+        warn(`[DysNetworking:_CreateInstance()] Type {Type} isn't a kind of remote / bindable! Are you sure you're spelling it right?`, debug.traceback())
+        return
+    end
+
+    instance = instance()
     instance.Name = name
     instance.Parent = self.Folders[Type]
     return instance
@@ -129,6 +144,7 @@ function Network:_SetupConnection(instance: RemoteEvent | UnreliableRemoteEvent 
         return instance.Event:Connect(function(...)
             local Arguments = {...}
             local Decompressed = self:_UnpackArgumentsFromNetwork(Arguments)
+
             return Callback(unpack(Decompressed))
         end)
     end
@@ -138,13 +154,16 @@ function Network:_SetupConnection(instance: RemoteEvent | UnreliableRemoteEvent 
             return instance.OnServerEvent:Connect(function(player, ...)
                 local Arguments = {...}
                 local Decompressed = self:_UnpackArgumentsFromNetwork(Arguments)
+
                 Callback(player, unpack(Decompressed))
             end)
         elseif instance:IsA("RemoteFunction") then
             instance.OnServerInvoke = function(player, ...)
                 local Arguments = {...}
                 local Decompressed = self:_UnpackArgumentsFromNetwork(Arguments)
+
                 -- Handle the callback and then compress the return value
+
                 local Result = { Callback(player, unpack(Decompressed)) }
                 local CompressedResult = self:_PackArgumentsForNetwork(Result)
                 return unpack(CompressedResult)
@@ -155,18 +174,22 @@ function Network:_SetupConnection(instance: RemoteEvent | UnreliableRemoteEvent 
             return instance.OnClientEvent:Connect(function(...)
                 local Arguments = {...}
                 local Decompressed = self:_UnpackArgumentsFromNetwork(Arguments)
+
                 Callback(unpack(Decompressed))
             end)
         elseif instance:IsA("RemoteFunction") then
             instance.OnClientInvoke = function(...)
                 local Arguments = {...}
                 local Decompressed = self:_UnpackArgumentsFromNetwork(Arguments)
+
                 local Result = { Callback(unpack(Decompressed)) }
                 local CompressedResult = self:_PackArgumentsForNetwork(Result)
+                
                 return unpack(CompressedResult)
             end
         end
     end
+
     return
 end
 
@@ -179,6 +202,7 @@ function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVE
     while not self:IsLive() do
         task.wait()
     end
+
     local instance
     if RunService:IsServer() then
         if not self.Folders[Type]:FindFirstChild(name) then
@@ -193,13 +217,17 @@ function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVE
             instance = self.Folders[Type]:FindFirstChild(name)
         end
     end
+
     return self:_SetupConnection(instance, Callback)
 end
 
 --- Destroys the Network instance. Only called when the server closes.
 function Network:Destroy()
     for _, RemoteFunction in self.Folders.REMOTE_FUNCTION:GetChildren() do
-        if not RemoteFunction:IsA("RemoteFunction") then continue end
+        if not RemoteFunction:IsA("RemoteFunction") then
+            continue
+        end
+
         RemoteFunction.OnServerInvoke = function() end
     end
 end
@@ -213,7 +241,11 @@ function Network:FireClientConnection(target: Player | {Player}, name: string, T
     while not self:IsLive() do
         task.wait()
     end
-    if not RunService:IsServer() then return end
+
+    if not RunService:IsServer() then
+        warn("[DysNetworking:FireClientConnection()] This function shouldn't be called from the client. Make sure that it isn't!", debug.traceback())
+        return
+    end
 
     local event = self.Folders[Type]:FindFirstChild(name)
     if not event then return end
@@ -246,15 +278,24 @@ end
 --- @param name    (`string`):  The name of the desired event
 --- @param Type    (`string`):  The type of the event (Reliable / Unreliable)
 --- @param ...                  Any parameters to pass to the connection
-function Network:FireAllClientConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION", ...)
+function Network:FireAllClientConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT", ...)
     while not self:IsLive() do
         task.wait()
     end
-    if not RunService:IsServer() or Type == "REMOTE_FUNCTION" then
+
+    if not RunService:IsServer() then
+        warn("[DysNetworking:FireAllClientConnection()] This function shouldn't be called from the client. Make sure that it isn't!", debug.traceback())
         return
     end
+
+    if Type == "REMOTE_FUNCTION" or Type == "BINDABLE_EVENT" then
+        warn(`[DysNetworking:FireAllClientConnection()] Event of type {Type} cannot be fired to every client at once!`, debug.traceback())
+        return
+    end
+
     local instance = self.Folders[Type]:FindFirstChild(name)
     if not instance then
+        warn(`[DysNetworking:FireAllClientConnection()] Event {name} couldn't be fired because it doesn't exist! Are you sure you're connecting it to anything?`, debug.traceback())
         return
     end
 
@@ -272,12 +313,15 @@ function Network:FireServerConnection(name: string, Type: "REMOTE_EVENT" | "UREM
     while not self:IsLive() do
         task.wait()
     end
+
     if not RunService:IsClient() then
+        warn("[DysNetworking:FireServerConnection()] This function shouldn't be called from the server. Make sure that it isn't!", debug.traceback())
         return
     end
 
     local instance = self.Folders[Type]:FindFirstChild(name)
-    if not self.Folders[Type]:FindFirstChild(name) then
+    if not instance then
+        warn(`[DysNetworking:FireServerConnection()] Event {name} couldn't be fired because it doesn't exist! Are you sure you're connecting it to anything?`, debug.traceback())
         return
     end
 
@@ -302,8 +346,12 @@ function Network:FireConnection(name: string, ...)
     while not self:IsLive() do
         task.wait()
     end
+
     local Bindable = self.Folders["BINDABLE_EVENT"]:FindFirstChild(name)
-    if not Bindable then return end
+    if not Bindable then
+        warn(`[DysNetworking:FireConnection] Event {name} couldn't be fired because it doesn't exist! Are you sure you're connecting it to anything?`, debug.traceback())
+        return
+    end
 
     local Arguments = {...}
     local CompressedArguments = self:_PackArgumentsForNetwork(Arguments)
@@ -316,11 +364,17 @@ end
 --- @param Type    (`string`):    The type of the desired instance inside of the script (e. g. "REMOTE_EVENT")
 --- @return `any`                 May return the desired instance
 function Network:GetInstance(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION" | "BINDABLE_EVENT")
+    --this function doesn't get used but it might be useful for some people idk -dys
     while not self:IsLive() do
         task.wait()
     end
-    if not self.Folders[Type]:FindFirstChild(name) then return end
-    return self.Folders[Type]:FindFirstChild(name)
+
+    local Event = self.Folders[Type]:FindFirstChild(name)
+    if not Event then
+        warn(`[DysNetworking:GetInstance] Event {name} couldn't be found! Are you sure you're connecting it to anything?`, debug.traceback())
+        return
+    end
+    return Event
 end
 
 --- Checks if the Network service is available in the current environment
@@ -331,11 +385,13 @@ end
 --- Checks if every folder is available
 function Network:_FoldersAvailable()
     local availableIndex = 0
+
     for _, folder in self.Folders do
         if folder ~= nil then
             availableIndex += 1
         end
     end
+
     return availableIndex == #self._FolderNames
 end
 
