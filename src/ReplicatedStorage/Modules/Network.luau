@@ -42,6 +42,13 @@
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 
+local BufferTag = {
+    Boolean = 0,
+    Int32 = 1,
+    Float64 = 2,
+    JSON = 3,
+}
+
 --- Class used to connect the server and the clients more efficiently by encapsulating everything in a single place.
 local Network = {
     Folders = {
@@ -338,9 +345,36 @@ function Network:_FoldersAvailable()
     return availableIndex == #self._FolderNames
 end
 
---- Internal function to unpack a buffer using HttpService.
+--- Internal function to decode a buffer based on its tag.
 function Network:_UnpackBuffer(Buffer: buffer)
-    return HttpService:JSONDecode(buffer.tostring(Buffer))
+    if buffer.len(Buffer) == 0 then return nil end
+    
+    local Tag = buffer.readu8(Buffer, 0)
+    if Tag == BufferTag.Boolean then
+        local val = buffer.readu8(Buffer, 1)
+        return val == 1 --as in binary code, 1 is true, 0 is false
+    elseif Tag == BufferTag.Int32 then
+        return buffer.readi32(Buffer, 1)
+    elseif Tag == BufferTag.Float64 then
+        return buffer.readf64(Buffer, 1)
+    elseif Tag == BufferTag.JSON then
+        local content = buffer.readstring(Buffer, 1, buffer.len(Buffer) - 1)
+        return HttpService:JSONDecode(content)
+    else
+        --just in case, try to decode le thing
+        local content = buffer.tostring(Buffer)
+        local success, result = pcall(function() 
+            return HttpService:JSONDecode(content) 
+        end)
+        
+        if success then
+            --if it was decoded, go for it
+            return result
+        end
+
+        --return the stuff directly
+        return content
+    end
 end
 
 --- Internal function to recursively decompress values (Buffer -> Table/Value).
@@ -363,26 +397,63 @@ function Network:_DecompressValue(ValueToDecompress: any)
     return ValueToDecompress
 end
 
---- Internal function to recursively compress values (Value -> JSON -> Buffer).
+local function IsNumberAnInt32(Value: number): boolean
+    return Value >= -2147483648 and Value <= 2147483647
+end
+
+--- Internal function to recursively compress values (Value -> Binary/JSON -> Buffer).
 function Network:_CompressValue(ValueToCompress: any)
+    --instances can't be compressed in a buffer
+    --and buffers shouldn't be compressed at all
     if typeof(ValueToCompress) == "Instance" or typeof(ValueToCompress) == "buffer" then
         return ValueToCompress
+
+    --tables will be recursively compressed
     elseif typeof(ValueToCompress) == "table" then
         local NewValue = {}
         for Key, Value in ValueToCompress do
             NewValue[Key] = self:_CompressValue(Value)
         end
         return NewValue
+
+    --booleans will be compressed to 0s and 1s to save some bytes
+    elseif typeof(ValueToCompress) == "boolean" then
+        local b = buffer.create(2) --1 byte for id + 1 byte for value (0 or 1)
+        buffer.writeu8(b, 0, BufferTag.Boolean)
+        buffer.writeu8(b, 1, ValueToCompress and 1 or 0) --
+        return b
+
+    --numbers will be stored in their own buffer to reduce even more the packet size
+    elseif typeof(ValueToCompress) == "number" then
+        --check if it's an int within the 32 bit signed range
+        if ValueToCompress % 1 == 0 and IsNumberAnInt32(ValueToCompress) then
+            local b = buffer.create(5) --1 byte for id + 4 for an int32
+            buffer.writeu8(b, 0, BufferTag.Int32)
+            buffer.writei32(b, 1, ValueToCompress)
+            return b
+        --otherwise treat as your typical double (float64)
+        else
+            local b = buffer.create(9) --1 byte for id + 8 for a float32
+            buffer.writeu8(b, 0, BufferTag.Float64)
+            buffer.writef64(b, 1, ValueToCompress)
+            return b
+        end
+
     else
+        --strings or unhandled data types
         local encoded = HttpService:JSONEncode(ValueToCompress)
         if encoded == "null" then
             if workspace:GetAttribute("DebugAllowed") == true then
-                warn("[DysNetworking:_CompressValue()]: Data Type "..typeof(ValueToCompress).." cannot be converted to JSON.")
+                warn(`[DysNetworking:_CompressValue()]: Data Type {typeof(ValueToCompress)} cannot be converted to JSON.`)
             end
             return
         end
-
-        return buffer.fromstring(encoded)
+        
+        local len = #encoded
+        local b = buffer.create(len + 1) -- 1 byte for id + length of JSON string
+        buffer.writeu8(b, 0, BufferTag.JSON)
+        buffer.writestring(b, 1, encoded)
+        return b
     end
 end
 

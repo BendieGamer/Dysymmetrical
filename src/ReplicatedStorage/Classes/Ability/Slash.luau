@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Hitbox = require(ReplicatedStorage.Classes.Hitbox)
+-- local Hitbox = require(ReplicatedStorage.Classes.Hitbox)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Ability = require(ReplicatedStorage.Classes.Ability)
 local Types = require(ReplicatedStorage.Classes.Types)
@@ -13,15 +13,15 @@ local function DefaultSlashBehaviour(self: Types.Ability)
 	if RunService:IsServer() then
 		Sounds.PlaySound(self.UseSound, {Parent = self.OwnerProperties.HRP})
 		task.delay(self.Delay, function()
-			Hitbox.New(self.Owner, {
-				CFrameOffset = self.HitboxOffset,
-				Size = self.HitboxSize,
-				Time = self.Duration,
-				Damage = self.Damage,
-				Reason = "Slash Attack",
-				ExecuteOnKill = true,
-				Connections = self.Connections,
-			})
+			-- Hitbox.New(self.Owner, {
+			-- 	CFrameOffset = self.HitboxOffset,
+			-- 	Size = self.HitboxSize,
+			-- 	Time = self.Duration,
+			-- 	Damage = self.Damage,
+			-- 	Reason = "Slash Attack",
+			-- 	ExecuteOnKill = true,
+			-- 	Connections = self.Connections,
+			-- })
 		end)
 	else
 		self.OwnerProperties.TurnToMoveDirection:AddHeadPreventionFactor("Slash")

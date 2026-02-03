@@ -6,7 +6,7 @@ local Ability = require(ReplicatedStorage.Classes.Ability)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
-local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Survivors.Commander) or nil
+local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Survivors.Commander) or {}
 
 local function JusticeExtraInit(self: Types.Ability)
     self.JusticeModel = Utils.Instance.AwaitChild(self.OwnerProperties.Character, "Deagle")

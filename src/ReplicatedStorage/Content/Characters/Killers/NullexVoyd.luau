@@ -9,7 +9,7 @@ local Ability = require(ReplicatedStorage.Classes.Ability)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
-local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Killers.NullexVoyd) or nil
+local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Killers.NullexVoyd) or {}
 
 local Info = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 local MasterSoundGroup = SoundService.SoundGroups.Master
