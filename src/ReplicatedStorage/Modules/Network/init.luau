@@ -41,6 +41,7 @@
 
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
+local DataTypes = require(script.DataTypes)
 
 local BufferTag = table.freeze({
     Boolean = 0,
@@ -52,6 +53,18 @@ local BufferTag = table.freeze({
     Vector3 = 6,
     JSON = 7,
     Buffer = 8,
+    String = 9,
+    CFrame = 10,
+    Vector2 = 11,
+    Color3 = 12,
+    UDim2 = 13,
+    BrickColor = 14,
+    Rect = 15,
+    NumberRange = 16,
+    UDim = 17,
+    DateTime = 18,
+    ColorSequence = 19,
+    NumberSequence = 20
 })
 
 --- Class used to connect the server and the clients more efficiently by encapsulating everything in a single place.
@@ -355,35 +368,8 @@ function Network:_UnpackBuffer(Buffer: buffer)
     if buffer.len(Buffer) == 0 then return nil end
     
     local Tag = buffer.readu8(Buffer, 0)
-    if Tag == BufferTag.Boolean then
-        local val = buffer.readu8(Buffer, 1)
-        return val == 1 --as in binary code, 1 is true, 0 is false
-    elseif Tag == BufferTag.Int8 then
-        return buffer.readi8(Buffer, 1)
-    elseif Tag == BufferTag.Int16 then
-        return buffer.readi16(Buffer, 1)
-    elseif Tag == BufferTag.Int32 then
-        return buffer.readi32(Buffer, 1)
-    elseif Tag == BufferTag.Float32 then
-        return buffer.readf32(Buffer, 1)
-    elseif Tag == BufferTag.Float64 then
-        return buffer.readf64(Buffer, 1)
-    elseif Tag == BufferTag.Vector3 then
-        return Vector3.new(
-            buffer.readf32(Buffer, 1),
-            buffer.readf32(Buffer, 5),
-            buffer.readf32(Buffer, 9)
-        )
-    elseif Tag == BufferTag.JSON then
-        local content = buffer.readstring(Buffer, 1, buffer.len(Buffer) - 1)
-        return HttpService:JSONDecode(content)
-    elseif Tag == BufferTag.Buffer then
-        local Length = buffer.len(Buffer) - 1
-        local b = buffer.create(Length)
-        --copy everything over except for the tag to maintain order
-        buffer.copy(b, 0, Buffer, 1, Length)
-        return b
-    else
+    local Behaviour = DataTypes.Behaviour[Tag]
+    if Behaviour == nil then
         --just in case, try to decode le thing
         local content = buffer.tostring(Buffer)
         local success, result = pcall(function() 
@@ -398,6 +384,7 @@ function Network:_UnpackBuffer(Buffer: buffer)
         --return the stuff directly
         return content
     end
+    return Behaviour.Decode(Buffer)
 end
 
 --- Internal function to recursively decompress values (Buffer -> Table/Value).
@@ -444,15 +431,40 @@ local function IsNumberAFloat32(Value: number): boolean
     return math.abs(Value) < 1000000
 end
 
+type NumberType = "Int8" | "Int16" | "Int32" | "Float32" | "Float64"
+local function GetNumberType(Value: number): NumberType
+    if IsNumberAnInt(Value) then
+        if IsNumberAnInt8(Value) then
+            return "Int8"
+        end
+
+        if IsNumberAnInt16(Value) then
+            return "Int16"
+        end
+
+        if IsNumberAnInt32(Value) then
+            return "Int32"
+        end
+    end
+
+    if IsNumberAFloat32(Value) then
+        return "Float32"
+    end
+
+    return "Float64"
+end
+
 --- Internal function to recursively compress values (Value -> Binary/JSON -> Buffer).
 function Network:_CompressValue(ValueToCompress: any)
+    local Type = typeof(ValueToCompress)
+
     --instances can't be compressed in a buffer
     --and buffers shouldn't be compressed at all
-    if typeof(ValueToCompress) == "Instance" then
+    if Type == "Instance" then
         return ValueToCompress
 
     --custom buffers will have their own tag to prevent interferences with the rest of the buffers
-    elseif typeof(ValueToCompress) == "buffer" then
+    elseif Type == "buffer" then
         local Length = buffer.len(ValueToCompress :: any)
         local b = buffer.create(Length + 1)
         buffer.writeu8(b, 0, BufferTag.Buffer)
@@ -460,83 +472,26 @@ function Network:_CompressValue(ValueToCompress: any)
         return b
 
     --tables will be recursively compressed
-    elseif typeof(ValueToCompress) == "table" then
+    elseif Type == "table" then
         local NewValue = {}
         for Key, Value in ValueToCompress do
             NewValue[Key] = self:_CompressValue(Value)
         end
         return NewValue
-
-    --booleans will be compressed to 0s and 1s to save some bytes
-    elseif typeof(ValueToCompress) == "boolean" then
-        local b = buffer.create(2) --1 byte for id + 1 byte for value (0 or 1)
-        buffer.writeu8(b, 0, BufferTag.Boolean)
-        buffer.writeu8(b, 1, ValueToCompress and 1 or 0) --
-        return b
-
-    --numbers will be stored in their own buffer to reduce even more the packet size
-    elseif typeof(ValueToCompress) == "number" then
-        if IsNumberAnInt(ValueToCompress) then
-            --check if it's an int within the 8 bit signed range
-            if IsNumberAnInt8(ValueToCompress) then
-                local b = buffer.create(2) --1 byte for id + 1 for an int8
-                buffer.writeu8(b, 0, BufferTag.Int8)
-                buffer.writei8(b, 1, ValueToCompress)
-                return b
-
-            --check if it's an int within the 16 bit signed range
-            elseif IsNumberAnInt16(ValueToCompress) then
-                local b = buffer.create(3) --1 byte for id + 2 for an int16
-                buffer.writeu8(b, 0, BufferTag.Int16)
-                buffer.writei16(b, 1, ValueToCompress)
-                return b
-
-            --check if it's an int within the 32 bit signed range
-            elseif IsNumberAnInt32(ValueToCompress) then
-                local b = buffer.create(5) --1 byte for id + 4 for an int32
-                buffer.writeu8(b, 0, BufferTag.Int32)
-                buffer.writei32(b, 1, ValueToCompress)
-                return b
-            end
-        end
-
-        if IsNumberAFloat32(ValueToCompress) then
-            local b = buffer.create(5) -- 1 byte for id + 4 for a float32
-            buffer.writeu8(b, 0, BufferTag.Float32)
-            buffer.writef32(b, 1, ValueToCompress)
-            return b
-        end
-
-        --suppose it's a float64 now
-        local b = buffer.create(9) --1 byte for id + 8 for a float64
-        buffer.writeu8(b, 0, BufferTag.Float64)
-        buffer.writef64(b, 1, ValueToCompress)
-        return b
     
-    --vector3s will be compressed like i did with le hitbox visualization
-    elseif typeof(ValueToCompress) == "Vector3" then
-        local b = buffer.create(13) --1 byte for id + 12 for a vector3 (4 bytes per float32 / vector component)
-        buffer.writeu8(b, 0, BufferTag.Vector3)
-        buffer.writef32(b, 1, ValueToCompress.X)
-        buffer.writef32(b, 5, ValueToCompress.Y)
-        buffer.writef32(b, 9, ValueToCompress.Z)
-        return b
-
+    --the rest are handled in DataTypes
     else
-        --strings or unhandled data types
-        local encoded = HttpService:JSONEncode(ValueToCompress)
-        if encoded == "null" then
-            if workspace:GetAttribute("DebugAllowed") == true then
-                warn(`[DysNetworking:_CompressValue()]: Data Type {typeof(ValueToCompress)} cannot be converted to JSON.`)
-            end
-            return
+        if DataTypes.Enum[Type] ~= nil then
+            return DataTypes.Behaviour[DataTypes.Enum[Type]].Encode(ValueToCompress)
+
+        elseif Type == "number" then
+            local NumberType = GetNumberType(ValueToCompress)
+            return DataTypes.Behaviour[DataTypes.Enum[NumberType]].Encode(ValueToCompress)
+
+        --if it's not there, just encode it as json
+        else
+            return DataTypes.Behaviour[DataTypes.Enum.JSON].Encode(ValueToCompress)
         end
-        
-        local len = #encoded
-        local b = buffer.create(len + 1) -- 1 byte for id + length of JSON string
-        buffer.writeu8(b, 0, BufferTag.JSON)
-        buffer.writestring(b, 1, encoded)
-        return b
     end
 end
 
