@@ -1,6 +1,6 @@
 local HttpService = game:GetService("HttpService")
 
-local BufferTag = table.freeze({
+local BufferTag = {
     boolean = 1,
     Int8 = 2,
     Int16 = 3,
@@ -23,7 +23,7 @@ local BufferTag = table.freeze({
     ColorSequence = 20,
     NumberSequence = 21,
     TweenInfo = 22,
-})
+}
 
 --tweeninfo stuffs
 local StyleMap = {}
@@ -36,10 +36,20 @@ for _, enumItem in ipairs(Enum.EasingDirection:GetEnumItems()) do
     DirectionMap[enumItem.Value] = enumItem
 end
 
-return {
+local function DeepFreezeTable<T>(Target: T & {}): T & {}
+    for Name, Member in Target do
+        if typeof(Member) == "table" then
+            DeepFreezeTable(Member)
+        end
+    end
+
+    return table.freeze(Target)
+end
+
+return DeepFreezeTable({
     Enum = BufferTag,
 
-    Behaviour = table.freeze({
+    Behaviour = {
         --boolean
         {
             Encode = function(ValueToCompress: boolean): buffer
@@ -190,26 +200,50 @@ return {
         --cframe
         {
             Encode = function(ValueToCompress: CFrame): buffer
-                local b = buffer.create(49) --1 byte for id + 48 bytes for the cframe (4 bytes per component, 12 components, 12 * 4 = 48 bytes)
+                local b = buffer.create(29) -- 1 byte for id + 12 bytes for position + 12 bytes for rotation axis + 4 bytes for angle = 29 bytes
                 buffer.writeu8(b, 0, BufferTag.CFrame)
-                local Components = table.pack(ValueToCompress:GetComponents())
 
-                local Offset = 1
-                for _, Component in ipairs(Components) do
-                    buffer.writef32(b, Offset, Component)
-                    Offset += 4
-                end
+                local pos = ValueToCompress.Position
+                local axis, angle = ValueToCompress:ToAxisAngle()
+
+                --write le position
+                buffer.writef32(b, 1, pos.X)
+                buffer.writef32(b, 5, pos.Y)
+                buffer.writef32(b, 9, pos.Z)
+
+                --write le axis
+                buffer.writef32(b, 13, axis.X)
+                buffer.writef32(b, 17, axis.Y)
+                buffer.writef32(b, 21, axis.Z)
+
+                --write le angle
+                buffer.writef32(b, 25, angle)
                 
                 return b
             end,
             Decode = function(Buffer: buffer): CFrame
-                local Components = {}
-                --read every component (reminder that 12 * 4 is 48 so we read starting from 1 all the way up to 45, which is the 1st byte of the last 4-byte component)
-                for Index = 1, 45, 4 do
-                    table.insert(Components, buffer.readf32(Buffer, Index))
+                --read le position
+                local px = buffer.readf32(Buffer, 1)
+                local py = buffer.readf32(Buffer, 5)
+                local pz = buffer.readf32(Buffer, 9)
+
+                --read le axis
+                local ax = buffer.readf32(Buffer, 13)
+                local ay = buffer.readf32(Buffer, 17)
+                local az = buffer.readf32(Buffer, 21)
+
+                --read le angle
+                local angle = buffer.readf32(Buffer, 25)
+
+                --remake the axis vector
+                local axis = Vector3.new(ax, ay, az)
+                
+                --if angle is 0 we can just return a default rotation cframe
+                if angle == 0 then
+                    return CFrame.new(px, py, pz)
+                else
+                    return CFrame.fromAxisAngle(axis, angle) + Vector3.new(px, py, pz)
                 end
-                --then unpack all of the components into the cframe
-                return CFrame.new(table.unpack(Components))
             end,
         },
         --vector2
@@ -366,19 +400,15 @@ return {
             end,
             Decode = function(Buffer: buffer): ColorSequence
                 local Count = buffer.readu8(Buffer, 1)
-                local Keypoints = table.create(Count)
+                local Keypoints = {}
                 local Offset = 2
 
                 for _ = 1, Count do
                     local Time = buffer.readf32(Buffer, Offset)
-                    Offset += 4
+                    local R, G, B = buffer.readf32(Buffer, Offset + 4), buffer.readf32(Buffer, Offset + 8), buffer.readf32(Buffer, Offset + 12)
+                    Offset += 16
 
-                    local ColorValues = {}
-                    for _ = 1, 3 do
-                        table.insert(ColorValues, buffer.readf32(Buffer, Offset))
-                        Offset += 4
-                    end
-                    table.insert(Keypoints, ColorSequenceKeypoint.new(Time, Color3.new(table.unpack(ColorValues))))
+                    table.insert(Keypoints, ColorSequenceKeypoint.new(Time, Color3.new(R, G, B)))
                 end
                 
                 return ColorSequence.new(Keypoints)
@@ -407,7 +437,7 @@ return {
             end,
             Decode = function(Buffer: buffer): NumberSequence
                 local Count = buffer.readu8(Buffer, 1)
-                local Keypoints = table.create(Count)
+                local Keypoints = {}
                 local Offset = 2
                 
                 for _ = 1, Count do
@@ -465,8 +495,8 @@ return {
                 )
             end,
         },
-    }),
-} :: {
+    },
+}) :: {
     Enum: typeof(BufferTag),
     Behaviour: {[number]: {
         Encode: (ValueToCompress: any) -> buffer,
