@@ -28,6 +28,7 @@ local DataTypes = {
         NumberSequence = 21,
         TweenInfo = 22,
         Instance = 23,
+        Map = 24,
     },
 }
 
@@ -74,29 +75,105 @@ local function DeepFreezeTable<T>(Target: T & {}): T & {}
     return table.freeze(Target)
 end
 
+local function IsNumberAnInt(Value: number): boolean
+    return Value % 1 == 0
+end
+
+local function IsNumberBetweenBounds(Value: number, Minimum: number, Maximum: number): boolean
+    return Value >= Minimum and Value <= Maximum
+end
+
+local function IsNumberAnInt8(Value: number): boolean
+    return IsNumberBetweenBounds(Value, -128, 127)
+end
+
+local function IsNumberAnInt16(Value: number): boolean
+    return IsNumberBetweenBounds(Value, -32768, 32767)
+end
+
+local function IsNumberAnInt32(Value: number): boolean
+    return IsNumberBetweenBounds(Value, -2147483648, 2147483647)
+end
+
+local function IsNumberAFloat32(Value: number): boolean
+    return math.abs(Value) < 1000000
+end
+
+function DataTypes.GetTagFromValue(Value: any): number
+    local Type = typeof(Value)
+    
+    if DataTypes.Enum[Type] then
+        return DataTypes.Enum[Type]
+    end
+
+    if Type == "number" then
+        if IsNumberAnInt(Value) then
+
+            if IsNumberAnInt8(Value) then
+                return DataTypes.Enum.Int8
+            end
+
+            if IsNumberAnInt16(Value) then
+                return DataTypes.Enum.Int16
+            end
+
+            if IsNumberAnInt32(Value) then
+                return DataTypes.Enum.Int32
+            end
+
+        end
+
+        if IsNumberAFloat32(Value) then
+            return DataTypes.Enum.Float32
+        end
+
+        return DataTypes.Enum.Float64
+    end
+
+    if Type == "table" then
+        return DataTypes.Enum.Map
+    end
+
+    return DataTypes.Enum.JSON
+end
+
 function DataTypes.GetPayloadSize(tag: string, value: any): number
     --if it has a fixed size, return that
     if FixedSizes[tag] then
         return FixedSizes[tag]
     end
 
+    if tag == DataTypes.Enum.Map then
+        --yuh you kinda get the point
+        --iterate through every item blah blah add their size to the total blah blah BORING.
+        local total = 2 
+        for Key, Value in value do
+            local KeyTag = DataTypes.GetTag(Key)
+            local ValueTag = DataTypes.GetTag(Value)
+
+            total += (1 + DataTypes.GetPayloadSize(KeyTag, Key))
+            total += (1 + DataTypes.GetPayloadSize(ValueTag, Value))
+        end
+        return total
+    end
+
     if tag == DataTypes.Enum.string then
         return 4 + #value
-    
+
     elseif tag == DataTypes.Enum.JSON then
         local encoded = HttpService:JSONEncode(value)
         return 4 + #encoded 
-        
+
     elseif tag == DataTypes.Enum.buffer then
         return 4 + buffer.len(value)
-        
+
     elseif tag == DataTypes.Enum.ColorSequence then
         return 1 + (#value.Keypoints * 16)
-        
+
     elseif tag == DataTypes.Enum.NumberSequence then
         return 1 + (#value.Keypoints * 12)
     end
-    
+
     return 0 --fallback even if it isn't possible to get here (fuck you selene!!!!!)
 end
 
@@ -271,38 +348,69 @@ DataTypes.Writers = {
         return Count + 15
     end,
 
-    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, Value: number): number
-        buffer.writeu16(Buffer, Count, Value)
+    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, Value: Instance, InstanceList: {Instance}): number
+        table.insert(InstanceList, Value)
+        local Length = #InstanceList
+
+        buffer.writeu16(Buffer, Count, Length)
         return Count + 2
+    end,
+
+    [DataTypes.Enum.Map] = function(Buffer: buffer, Count: number, Value: {any}, InstanceList: {Instance}): number
+        --not using utils here just in case i wanna reuse this for a different game
+        local TableCount = 0
+        for _, _ in Value do
+            TableCount += 1
+        end
+        
+        buffer.writeu16(Buffer, Count, TableCount) --write le count
+        Count += 2
+        
+        for key, val in Value do
+            local KeyTag = DataTypes.GetTag(key)
+            local ValueTag = DataTypes.GetTag(val)
+            
+            --write le key
+            buffer.writeu8(Buffer, Count, KeyTag)
+            Count += 1
+            Count = DataTypes.Writers[KeyTag](Buffer, Count, key, InstanceList)
+            
+            --write le value after le key
+            buffer.writeu8(Buffer, Count, ValueTag)
+            Count += 1
+            Count = DataTypes.Writers[ValueTag](Buffer, Count, val, InstanceList)
+        end
+
+        return Count
     end,
 }
 
 DataTypes.Readers = {
-    [DataTypes.Enum.boolean] = function(Buffer: buffer, Count: number): boolean
+    [DataTypes.Enum.boolean] = function(Buffer: buffer, Count: number): (boolean, number)
         return buffer.readu8(Buffer, Count) == 1, Count + 1
     end,
 
-    [DataTypes.Enum.Int8] = function(Buffer: buffer, Count: number): number
+    [DataTypes.Enum.Int8] = function(Buffer: buffer, Count: number): (number, number)
         return buffer.readi8(Buffer, Count), Count + 1
     end,
 
-    [DataTypes.Enum.Int16] = function(Buffer: buffer, Count: number): number
+    [DataTypes.Enum.Int16] = function(Buffer: buffer, Count: number):(number, number)
         return buffer.readi16(Buffer, Count), Count + 2
     end,
 
-    [DataTypes.Enum.Int32] = function(Buffer: buffer, Count: number): number
+    [DataTypes.Enum.Int32] = function(Buffer: buffer, Count: number): (number, number)
         return buffer.readi32(Buffer, Count), Count + 4
     end,
 
-    [DataTypes.Enum.Float32] = function(Buffer: buffer, Count: number): number
+    [DataTypes.Enum.Float32] = function(Buffer: buffer, Count: number): (number, number)
         return buffer.readf32(Buffer, Count), Count + 4
     end,
 
-    [DataTypes.Enum.Float64] = function(Buffer: buffer, Count: number): number
+    [DataTypes.Enum.Float64] = function(Buffer: buffer, Count: number): (number, number)
         return buffer.readf64(Buffer, Count), Count + 8
     end,
 
-    [DataTypes.Enum.Vector3] = function(Buffer: buffer, Count: number): Vector3
+    [DataTypes.Enum.Vector3] = function(Buffer: buffer, Count: number): (Vector3, number)
         return Vector3.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)), Count + 12
     end,
 
@@ -312,19 +420,19 @@ DataTypes.Readers = {
         return HttpService:JSONDecode(content), Count + 4 + len
     end,
 
-    [DataTypes.Enum.buffer] = function(Buffer: buffer, Count: number): buffer
+    [DataTypes.Enum.buffer] = function(Buffer: buffer, Count: number): (buffer, number)
         local len = buffer.readu32(Buffer, Count)
         local newBuf = buffer.create(len)
         buffer.copy(newBuf, 0, Buffer, Count + 4, len)
         return newBuf, Count + 4 + len
     end,
 
-    [DataTypes.Enum.string] = function(Buffer: buffer, Count: number): string
+    [DataTypes.Enum.string] = function(Buffer: buffer, Count: number): (string, number)
         local len = buffer.readu32(Buffer, Count)
         return buffer.readstring(Buffer, Count + 4, len), Count + 4 + len
     end,
 
-    [DataTypes.Enum.CFrame] = function(Buffer: buffer, Count: number): CFrame
+    [DataTypes.Enum.CFrame] = function(Buffer: buffer, Count: number): (CFrame, number)
         local px, py, pz = buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)
         local ax, ay, az = buffer.readf32(Buffer, Count + 12), buffer.readf32(Buffer, Count + 16), buffer.readf32(Buffer, Count + 20)
         local ang = buffer.readf32(Buffer, Count + 24)
@@ -336,45 +444,45 @@ DataTypes.Readers = {
         return CFrame.fromAxisAngle(axis, ang) + pos, Count + 28
     end,
 
-    [DataTypes.Enum.Vector2] = function(Buffer: buffer, Count: number): Vector2
+    [DataTypes.Enum.Vector2] = function(Buffer: buffer, Count: number): (Vector2, number)
         return Vector2.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4)), Count + 8
     end,
 
-    [DataTypes.Enum.Color3] = function(Buffer: buffer, Count: number): Color3
+    [DataTypes.Enum.Color3] = function(Buffer: buffer, Count: number): (Color3, number)
         return Color3.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)), Count + 12
     end,
 
-    [DataTypes.Enum.UDim2] = function(Buffer: buffer, Count: number): UDim2
+    [DataTypes.Enum.UDim2] = function(Buffer: buffer, Count: number): (UDim2, number)
         return UDim2.new(
             buffer.readf32(Buffer, Count), buffer.readi32(Buffer, Count + 4),
             buffer.readf32(Buffer, Count + 8), buffer.readi32(Buffer, Count + 12)
         ), Count + 16
     end,
 
-    [DataTypes.Enum.BrickColor] = function(Buffer: buffer, Count: number): BrickColor
+    [DataTypes.Enum.BrickColor] = function(Buffer: buffer, Count: number): (BrickColor, number)
         return BrickColor.new(buffer.readu16(Buffer, Count)), Count + 2
     end,
 
-    [DataTypes.Enum.Rect] = function(Buffer: buffer, Count: number): Rect
+    [DataTypes.Enum.Rect] = function(Buffer: buffer, Count: number): (Rect, number)
         return Rect.new(
             buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4),
             buffer.readf32(Buffer, Count + 8), buffer.readf32(Buffer, Count + 12)
         ), Count + 16
     end,
 
-    [DataTypes.Enum.NumberRange] = function(Buffer: buffer, Count: number): NumberRange
+    [DataTypes.Enum.NumberRange] = function(Buffer: buffer, Count: number): (NumberRange, number)
         return NumberRange.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4)), Count + 8
     end,
 
-    [DataTypes.Enum.UDim] = function(Buffer: buffer, Count: number): UDim
+    [DataTypes.Enum.UDim] = function(Buffer: buffer, Count: number): (UDim, number)
         return UDim.new(buffer.readf32(Buffer, Count), buffer.readi32(Buffer, Count + 4)), Count + 8
     end,
 
-    [DataTypes.Enum.DateTime] = function(Buffer: buffer, Count: number): DateTime
+    [DataTypes.Enum.DateTime] = function(Buffer: buffer, Count: number): (DateTime, number)
         return DateTime.fromUnixTimestamp(buffer.readf64(Buffer, Count)), Count + 8
     end,
 
-    [DataTypes.Enum.ColorSequence] = function(Buffer: buffer, Count: number): ColorSequence
+    [DataTypes.Enum.ColorSequence] = function(Buffer: buffer, Count: number): (ColorSequence, number)
         local count = buffer.readu8(Buffer, Count)
         Count += 1
         local keypoints = {}
@@ -387,7 +495,7 @@ DataTypes.Readers = {
         return ColorSequence.new(keypoints), Count
     end,
 
-    [DataTypes.Enum.NumberSequence] = function(Buffer: buffer, Count: number): NumberSequence
+    [DataTypes.Enum.NumberSequence] = function(Buffer: buffer, Count: number): (NumberSequence, number)
         local count = buffer.readu8(Buffer, Count)
         Count += 1
         local keypoints = {}
@@ -401,7 +509,7 @@ DataTypes.Readers = {
         return NumberSequence.new(keypoints), Count
     end,
 
-    [DataTypes.Enum.TweenInfo] = function(Buffer: buffer, Count: number): TweenInfo
+    [DataTypes.Enum.TweenInfo] = function(Buffer: buffer, Count: number): (TweenInfo, number)
         local Time = buffer.readf32(Buffer, Count)
         local StyleId = buffer.readu8(Buffer, Count + 4)
         local DirectionId = buffer.readu8(Buffer, Count + 5)
@@ -415,8 +523,35 @@ DataTypes.Readers = {
         return TweenInfo.new(Time, style, dir, count, reverses, Delay), Count + 15
     end,
 
-    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number): number
-        return buffer.readu16(Buffer, Count), Count + 2
+    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (number, number)
+        local index = buffer.readu16(Buffer, Count)
+        local inst = InstanceList and InstanceList[index] or nil
+        return inst, Count + 2
+    end,
+
+    [DataTypes.Enum.Map] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (number, number)
+        local count = buffer.readu16(Buffer, Count)
+        Count += 2
+        
+        local Table = {}
+        for _ = 1, count do
+            --read le key
+            local KeyTag = buffer.readu8(Buffer, Count)
+            Count += 1
+            local Key
+            Key, Count = DataTypes.Readers[KeyTag](Buffer, Count, InstanceList)
+            
+            --read le value
+            local ValueTag = buffer.readu8(Buffer, Count :: any)
+            Count += 1
+            local Value
+            Value, Count = DataTypes.Readers[ValueTag](Buffer, Count, InstanceList)
+            
+            --set the damn thing
+            Table[Key] = Value
+        end
+
+        return Table, Count
     end,
 }
 

@@ -339,64 +339,6 @@ function Network:_FoldersAvailable()
     return availableIndex == #self._FolderNames
 end
 
-local function IsNumberAnInt(Value: number): boolean
-    return Value % 1 == 0
-end
-
-local function IsNumberBetweenBounds(Value: number, Minimum: number, Maximum: number): boolean
-    return Value >= Minimum and Value <= Maximum
-end
-
-local function IsNumberAnInt8(Value: number): boolean
-    return IsNumberBetweenBounds(Value, -128, 127)
-end
-
-local function IsNumberAnInt16(Value: number): boolean
-    return IsNumberBetweenBounds(Value, -32768, 32767)
-end
-
-local function IsNumberAnInt32(Value: number): boolean
-    return IsNumberBetweenBounds(Value, -2147483648, 2147483647)
-end
-
-local function IsNumberAFloat32(Value: number): boolean
-    return math.abs(Value) < 1000000
-end
-
-function Network:_GetTagFromValue(Value)
-    local Type = typeof(Value)
-    
-    if DataTypes.Enum[Type] then
-        return DataTypes.Enum[Type]
-    end
-
-    if Type == "number" then
-        if IsNumberAnInt(Value) then
-
-            if IsNumberAnInt8(Value) then
-                return DataTypes.Enum.Int8
-            end
-
-            if IsNumberAnInt16(Value) then
-                return DataTypes.Enum.Int16
-            end
-
-            if IsNumberAnInt32(Value) then
-                return DataTypes.Enum.Int32
-            end
-
-        end
-
-        if IsNumberAFloat32(Value) then
-            return DataTypes.Enum.Float32
-        end
-
-        return DataTypes.Enum.Float64
-    end
-
-    return DataTypes.Enum.JSON
-end
-
 function Network:_PackArgumentsForNetwork(Arguments: {any})
     --calculate the total size of the buffer
     local TotalSize = 0
@@ -407,12 +349,7 @@ function Network:_PackArgumentsForNetwork(Arguments: {any})
         local WriteValue = Value --JUST IN FUCKING CASE.
 
         --get le tag
-        local Tag = self:_GetTagFromValue(WriteValue)-- SPECIAL HANDLING FOR INSTANCES
-
-        if Tag == DataTypes.Enum.Instance then
-            table.insert(InstanceList, Value) --store it in the cache
-            WriteValue = #InstanceList --get le index of le instance
-        end
+        local Tag = DataTypes.GetTagFromValue(WriteValue)
         
         --get le size
         local PayloadSize = DataTypes.GetPayloadSize(Tag, WriteValue)
@@ -436,7 +373,7 @@ function Network:_PackArgumentsForNetwork(Arguments: {any})
         Offset += 1
         
         --fucking write it and increment the offset based on it
-        Offset = DataTypes.Writers[Item.Tag](PacketBuffer, Offset, Item.Value)
+        Offset = DataTypes.Writers[Item.Tag](PacketBuffer, Offset, Item.Value, InstanceList)
     end
 
     --return as a table prematurely to prevent roblox's networking from doing it itself
@@ -463,7 +400,7 @@ function Network:_UnpackArgumentsFromNetwork(Arguments: {any})
         Offset += 1
         
         --get the shit
-        local Value, NewCursor = DataTypes.Readers[Tag](PacketBuffer, Offset)
+        local Value, NewCursor = DataTypes.Readers[Tag](PacketBuffer, Offset, InstanceList)
 
         --get the damn instance from the list
         if Tag == DataTypes.Enum.Instance then
