@@ -146,7 +146,7 @@ function CardRenderer.SetupItemCard(Shop: any, Module: ModuleScript, Type: "Emot
         end
 
         Sounds.PlaySound(Sounds.CommonSounds.ButtonPress, {Volume = 0.8})
-        Shop.OnCharButtonPress(Module, Type, Card)
+        Shop:OnCharButtonPress(Module, Type, Card)
     end))
 
     if not (Info.Config.Origin and Info.Config.Origin.Icon) then

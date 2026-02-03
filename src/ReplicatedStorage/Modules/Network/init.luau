@@ -40,7 +40,6 @@
 ]]
 
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
 
 local DataTypes = require(script.DataTypes)
 
@@ -340,50 +339,6 @@ function Network:_FoldersAvailable()
     return availableIndex == #self._FolderNames
 end
 
---- Internal function to decode a buffer based on its tag.
-function Network:_UnpackBuffer(Buffer: buffer)
-    if buffer.len(Buffer) == 0 then return nil end
-    
-    local Tag = buffer.readu8(Buffer, 0)
-    local Behaviour = DataTypes.Behaviour[Tag]
-    if Behaviour == nil then
-        --just in case, try to decode le thing
-        local content = buffer.tostring(Buffer)
-        local success, result = pcall(function() 
-            return HttpService:JSONDecode(content) 
-        end)
-        
-        if success then
-            --if it was decoded, go for it
-            return result
-        end
-
-        --return the stuff directly
-        return content
-    end
-    return Behaviour.Decode(Buffer)
-end
-
---- Internal function to recursively decompress values (Buffer -> Table/Value).
-function Network:_DecompressValue(ValueToDecompress: any)
-    if typeof(ValueToDecompress) == "buffer" then
-        local Success, Decompressed = pcall(function()
-            return self:_UnpackBuffer(ValueToDecompress)
-        end)
-        return if Success then Decompressed else ValueToDecompress
-    end
-    
-    if typeof(ValueToDecompress) == "table" then
-        local NewValue = {}
-        for Key, Value in ValueToDecompress do
-            NewValue[Key] = self:_DecompressValue(Value)
-        end
-        return NewValue
-    end
-
-    return ValueToDecompress
-end
-
 local function IsNumberAnInt(Value: number): boolean
     return Value % 1 == 0
 end
@@ -408,82 +363,121 @@ local function IsNumberAFloat32(Value: number): boolean
     return math.abs(Value) < 1000000
 end
 
-type NumberType = "Int8" | "Int16" | "Int32" | "Float32" | "Float64"
-local function GetNumberType(Value: number): NumberType
-    if IsNumberAnInt(Value) then
-        if IsNumberAnInt8(Value) then
-            return "Int8"
-        end
-
-        if IsNumberAnInt16(Value) then
-            return "Int16"
-        end
-
-        if IsNumberAnInt32(Value) then
-            return "Int32"
-        end
-    end
-
-    if IsNumberAFloat32(Value) then
-        return "Float32"
-    end
-
-    return "Float64"
-end
-
---- Internal function to recursively compress values (Value -> Binary/JSON -> Buffer).
-function Network:_CompressValue(ValueToCompress: any)
-    local Type = typeof(ValueToCompress)
-
-    --instances can't be compressed in a buffer
-    --and buffers shouldn't be compressed at all
-    if Type == "Instance" then
-        return ValueToCompress
-
-    --tables will be recursively compressed
-    elseif Type == "table" then
-        local NewValue = {}
-        for Key, Value in ValueToCompress do
-            NewValue[Key] = self:_CompressValue(Value)
-        end
-        return NewValue
+function Network:_GetTagFromValue(Value)
+    local Type = typeof(Value)
     
-    --the rest are handled in DataTypes
-    else
-        if DataTypes.Enum[Type] ~= nil then
-            return DataTypes.Behaviour[DataTypes.Enum[Type]].Encode(ValueToCompress)
-
-        elseif Type == "number" then
-            local NumberType = GetNumberType(ValueToCompress)
-            return DataTypes.Behaviour[DataTypes.Enum[NumberType]].Encode(ValueToCompress)
-
-        --if it's not there, just encode it as json
-        else
-            return DataTypes.Behaviour[DataTypes.Enum.JSON].Encode(ValueToCompress)
-        end
+    if DataTypes.Enum[Type] then
+        return DataTypes.Enum[Type]
     end
+
+    if Type == "number" then
+        if IsNumberAnInt(Value) then
+
+            if IsNumberAnInt8(Value) then
+                return DataTypes.Enum.Int8
+            end
+
+            if IsNumberAnInt16(Value) then
+                return DataTypes.Enum.Int16
+            end
+
+            if IsNumberAnInt32(Value) then
+                return DataTypes.Enum.Int32
+            end
+
+        end
+
+        if IsNumberAFloat32(Value) then
+            return DataTypes.Enum.Float32
+        end
+
+        return DataTypes.Enum.Float64
+    end
+
+    return DataTypes.Enum.JSON
 end
 
---- Internal function to prepare argument lists for network transmission.
 function Network:_PackArgumentsForNetwork(Arguments: {any})
-    local PackedArguments = {}
+    --calculate the total size of the buffer
+    local TotalSize = 0
+    local PreparedArgs = {} --param cache
+    local InstanceList = {} --instance cache
 
-    for Key, Value in Arguments do
-        if Key ~= "n" then
-            PackedArguments[Key] = self:_CompressValue(Value)
+    for _, Value in ipairs(Arguments) do
+        local WriteValue = Value --JUST IN FUCKING CASE.
+
+        --get le tag
+        local Tag = self:_GetTagFromValue(WriteValue)-- SPECIAL HANDLING FOR INSTANCES
+
+        if Tag == DataTypes.Enum.Instance then
+            table.insert(InstanceList, Value) --store it in the cache
+            WriteValue = #InstanceList --get le index of le instance
         end
+        
+        --get le size
+        local PayloadSize = DataTypes.GetPayloadSize(Tag, WriteValue)
+        
+        --add le size to total + 1 for the tag
+        TotalSize += (1 + PayloadSize)
+        
+        table.insert(PreparedArgs, {
+            Tag = Tag,
+            Value = WriteValue,
+        })
     end
 
-    return PackedArguments
+    --create the damn buffer
+    local PacketBuffer = buffer.create(TotalSize)
+    local Offset = 0
+
+    for _, Item in ipairs(PreparedArgs) do
+        --write le tag first
+        buffer.writeu8(PacketBuffer, Offset, Item.Tag)
+        Offset += 1
+        
+        --fucking write it and increment the offset based on it
+        Offset = DataTypes.Writers[Item.Tag](PacketBuffer, Offset, Item.Value)
+    end
+
+    --return as a table prematurely to prevent roblox's networking from doing it itself
+    return {PacketBuffer, InstanceList}
 end
 
---- Internal function to decode argument lists received from network.
 function Network:_UnpackArgumentsFromNetwork(Arguments: {any})
-    local UnpackedArguments = {}
-    for Key, Value in Arguments do
-        UnpackedArguments[Key] = self:_DecompressValue(Value)
+    --the only argument should be the buffer
+    local PacketBuffer = Arguments[1]
+    local InstanceList = Arguments[2] or {}
+    --if it's not, FUCK YOU YOU DEAL WITH IT
+    if typeof(PacketBuffer) ~= "buffer" then
+        return Arguments
+    end
+
+    local Offset = 0
+    local BufLength = buffer.len(PacketBuffer)
+    local Unpacked = {}
+
+    --loop until the whole buffer is read
+    while Offset < BufLength do
+        --le tag
+        local Tag = buffer.readu8(PacketBuffer, Offset)
+        Offset += 1
+        
+        --get the shit
+        local Value, NewCursor = DataTypes.Readers[Tag](PacketBuffer, Offset)
+
+        --get the damn instance from the list
+        if Tag == DataTypes.Enum.Instance then
+            Value = InstanceList[Value]
         end
-    return UnpackedArguments
+        
+        --put it in the param table
+        table.insert(Unpacked, Value)
+        --increase the shit
+        Offset = NewCursor
+    end
+
+    --FINALLY return the thing for usage
+    return Unpacked
 end
 
 return Network

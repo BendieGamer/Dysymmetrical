@@ -46,7 +46,7 @@ function ShopUtils.CreateBuyWindow(Shop: any, Module: ModuleScript, Card: Frame)
         Card.Container.Owned.TextLabel.TextTransparency = 0
     end), "Disconnect")
     Window.JanitorInstance:Add(Window.Removed:Connect(function()
-        Shop._ReloadPurchaseButton()
+        Shop:_ReloadPurchaseButton()
 
         Shop.BuyWindow = nil
     end))

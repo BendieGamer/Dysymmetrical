@@ -1,28 +1,56 @@
+--i would comment this but i already wrote a whole commented DataTypes module that didn't do shit to optimize networking so now i'm too lazy to comment its entirety again
+--figure out what's here i'm done 😭 -dys
+
 local HttpService = game:GetService("HttpService")
 
-local BufferTag = {
-    boolean = 1,
-    Int8 = 2,
-    Int16 = 3,
-    Int32 = 4,
-    Float32 = 5,
-    Float64 = 6,
-    Vector3 = 7,
-    JSON = 8,
-    buffer = 9,
-    string = 10,
-    CFrame = 11,
-    Vector2 = 12,
-    Color3 = 13,
-    UDim2 = 14,
-    BrickColor = 15,
-    Rect = 16,
-    NumberRange = 17,
-    UDim = 18,
-    DateTime = 19,
-    ColorSequence = 20,
-    NumberSequence = 21,
-    TweenInfo = 22,
+local DataTypes = {
+    Enum = {
+        boolean = 1,
+        Int8 = 2,
+        Int16 = 3,
+        Int32 = 4,
+        Float32 = 5,
+        Float64 = 6,
+        Vector3 = 7,
+        JSON = 8,
+        buffer = 9,
+        string = 10,
+        CFrame = 11,
+        Vector2 = 12,
+        Color3 = 13,
+        UDim2 = 14,
+        BrickColor = 15,
+        Rect = 16,
+        NumberRange = 17,
+        UDim = 18,
+        DateTime = 19,
+        ColorSequence = 20,
+        NumberSequence = 21,
+        TweenInfo = 22,
+        Instance = 23,
+    },
+}
+
+--setting the size of every type beforehand to not have to calculate it unless it's necessary
+local FixedSizes = {
+    [DataTypes.Enum.boolean] = 1,
+    [DataTypes.Enum.Int8] = 1,
+    [DataTypes.Enum.Int16] = 2,
+    [DataTypes.Enum.Int32] = 4,
+    [DataTypes.Enum.Float32] = 4,
+    [DataTypes.Enum.Float64] = 8,
+    [DataTypes.Enum.Vector3] = 12,
+    [DataTypes.Enum.CFrame] = 28,
+    [DataTypes.Enum.Vector2] = 8,
+    [DataTypes.Enum.Color3] = 12,
+    [DataTypes.Enum.UDim2] = 16,
+    [DataTypes.Enum.BrickColor] = 2,
+    [DataTypes.Enum.Rect] = 16,
+    [DataTypes.Enum.NumberRange] = 8,
+    [DataTypes.Enum.UDim] = 8,
+    [DataTypes.Enum.DateTime] = 8,
+    [DataTypes.Enum.TweenInfo] = 16,
+    [DataTypes.Enum.Instance] = 2,
 }
 
 --tweeninfo stuffs
@@ -46,460 +74,350 @@ local function DeepFreezeTable<T>(Target: T & {}): T & {}
     return table.freeze(Target)
 end
 
-return DeepFreezeTable({
-    Enum = BufferTag,
+function DataTypes.GetPayloadSize(tag: string, value: any): number
+    --if it has a fixed size, return that
+    if FixedSizes[tag] then
+        return FixedSizes[tag]
+    end
 
-    Behaviour = {
-        --boolean
-        {
-            Encode = function(ValueToCompress: boolean): buffer
-                local b = buffer.create(2) --1 byte for id + 1 byte for value (0 or 1)
-                buffer.writeu8(b, 0, BufferTag.boolean)
-                buffer.writeu8(b, 1, ValueToCompress and 1 or 0) --
-                return b
-            end,
-            Decode = function(Buffer: buffer): boolean
-                local val = buffer.readu8(Buffer, 1)
-                return val == 1 --as in binary code, 1 is true, 0 is false
-            end,
-        },
-        --int8
-        {
-            Encode = function(ValueToCompress: number): buffer
-                local b = buffer.create(2) --1 byte for id + 1 for an int8
-                buffer.writeu8(b, 0, BufferTag.Int8)
-                buffer.writei8(b, 1, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): number
-                return buffer.readi8(Buffer, 1)
-            end,
-        },
-        --int16
-        {
-            Encode = function(ValueToCompress: number): buffer
-                local b = buffer.create(3) --1 byte for id + 2 for an int16
-                buffer.writeu8(b, 0, BufferTag.Int16)
-                buffer.writei16(b, 1, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): number
-                return buffer.readi16(Buffer, 1)
-            end,
-        },
-        --int32
-        {
-            Encode = function(ValueToCompress: number): buffer
-                local b = buffer.create(5) --1 byte for id + 4 for an int32
-                buffer.writeu8(b, 0, BufferTag.Int32)
-                buffer.writei32(b, 1, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): number
-                return buffer.readi32(Buffer, 1)
-            end,
-        },
-        --float32
-        {
-            Encode = function(ValueToCompress: number): buffer
-                local b = buffer.create(5) --1 byte for id + 4 for a float32
-                buffer.writeu8(b, 0, BufferTag.Float32)
-                buffer.writef32(b, 1, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): number
-                return buffer.readf32(Buffer, 1)
-            end,
-        },
-        --float64
-        {
-            Encode = function(ValueToCompress: number): buffer
-                local b = buffer.create(9) --1 byte for id + 8 for a float64
-                buffer.writeu8(b, 0, BufferTag.Float64)
-                buffer.writef64(b, 1, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): number
-                return buffer.readf64(Buffer, 1)
-            end,
-        },
-        --vector3
-        {
-            Encode = function(ValueToCompress: Vector3): buffer
-                local b = buffer.create(13) --1 byte for id + 12 for a vector3 (4 bytes per float32 / vector component)
-                buffer.writeu8(b, 0, BufferTag.Vector3)
-                buffer.writef32(b, 1, ValueToCompress.X)
-                buffer.writef32(b, 5, ValueToCompress.Y)
-                buffer.writef32(b, 9, ValueToCompress.Z)
-                return b
-            end,
-            Decode = function(Buffer: buffer): Vector3
-                return Vector3.new(
-                    buffer.readf32(Buffer, 1),
-                    buffer.readf32(Buffer, 5),
-                    buffer.readf32(Buffer, 9)
-                )
-            end,
-        },
-        --JSON
-        {
-            Encode = function(ValueToCompress: any): buffer
-                local encoded = HttpService:JSONEncode(ValueToCompress)
-                if encoded == "null" then
-                    if workspace:GetAttribute("DebugAllowed") == true then
-                        warn(`[DysNetworking:_CompressValue()]: Data Type {typeof(ValueToCompress)} cannot be converted to JSON.`)
-                    end
-                    return
-                end
-                
-                local len = #encoded
-                local b = buffer.create(len + 1) -- 1 byte for id + length of JSON string
-                buffer.writeu8(b, 0, BufferTag.JSON)
-                buffer.writestring(b, 1, encoded)
-                return b
-            end,
-            Decode = function(Buffer: buffer): any
-                local content = buffer.readstring(Buffer, 1, buffer.len(Buffer) - 1)
-                return HttpService:JSONDecode(content)
-            end,
-        },
-        --buffer
-        {
-            Encode = function(ValueToCompress: buffer): buffer
-                local Length = buffer.len(ValueToCompress :: any)
-                local b = buffer.create(Length + 1)
-                buffer.writeu8(b, 0, BufferTag.buffer)
-                buffer.copy(b, 1, ValueToCompress :: any, 0, Length)
-                return b
-            end,
-            Decode = function(Buffer: buffer): buffer
-                local Length = buffer.len(Buffer) - 1
-                local b = buffer.create(Length)
-                --copy everything over except for the tag to maintain order
-                buffer.copy(b, 0, Buffer, 1, Length)
-                return b
-            end,
-        },
-        --string
-        {
-            Encode = function(ValueToCompress: string): buffer
-                local len = #ValueToCompress
-                local b = buffer.create(5 + len)  --1 byte for id + 4 bytes for an unsigned int32 (length) + as many bytes as needed
-                buffer.writeu8(b, 0, BufferTag.string)
-                buffer.writeu32(b, 1, len)
-                buffer.writestring(b, 5, ValueToCompress)
-                return b
-            end,
-            Decode = function(Buffer: buffer): string
-                --get the length of the string
-                local len = buffer.readu32(Buffer, 1)
-                --read the entirety of it
-                return buffer.readstring(Buffer, 5, len)
-            end,
-        },
-        --cframe
-        {
-            Encode = function(ValueToCompress: CFrame): buffer
-                local b = buffer.create(29) -- 1 byte for id + 12 bytes for position + 12 bytes for rotation axis + 4 bytes for angle = 29 bytes
-                buffer.writeu8(b, 0, BufferTag.CFrame)
+    if tag == DataTypes.Enum.string then
+        return 4 + #value
+    
+    elseif tag == DataTypes.Enum.JSON then
+        local encoded = HttpService:JSONEncode(value)
+        return 4 + #encoded 
+        
+    elseif tag == DataTypes.Enum.buffer then
+        return 4 + buffer.len(value)
+        
+    elseif tag == DataTypes.Enum.ColorSequence then
+        return 1 + (#value.Keypoints * 16)
+        
+    elseif tag == DataTypes.Enum.NumberSequence then
+        return 1 + (#value.Keypoints * 12)
+    end
+    
+    return 0 --fallback even if it isn't possible to get here (fuck you selene!!!!!)
+end
 
-                local pos = ValueToCompress.Position
-                local axis, angle = ValueToCompress:ToAxisAngle()
+DataTypes.Writers = {
+    [DataTypes.Enum.boolean] = function(Buffer: buffer, Count: number, Value: boolean): number
+        buffer.writeu8(Buffer, Count, Value and 1 or 0)
+        return Count + 1
+    end,
+    
+    [DataTypes.Enum.Int8] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writei8(Buffer, Count, Value)
+        return Count + 1
+    end,
+    
+    [DataTypes.Enum.Int16] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writei16(Buffer, Count, Value)
+        return Count + 2
+    end,
+    
+    [DataTypes.Enum.Int32] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writei32(Buffer, Count, Value)
+        return Count + 4
+    end,
 
-                --write le position
-                buffer.writef32(b, 1, pos.X)
-                buffer.writef32(b, 5, pos.Y)
-                buffer.writef32(b, 9, pos.Z)
+    [DataTypes.Enum.Float32] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writef32(Buffer, Count, Value)
+        return Count + 4
+    end,
+    
+    [DataTypes.Enum.Float64] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writef64(Buffer, Count, Value)
+        return Count + 8
+    end,
+    
+    [DataTypes.Enum.Vector3] = function(Buffer: buffer, Count: number, Value: Vector3): number
+        buffer.writef32(Buffer, Count, Value.X)
+        buffer.writef32(Buffer, Count + 4, Value.Y)
+        buffer.writef32(Buffer, Count + 8, Value.Z)
+        return Count + 12
+    end,
+    
+    [DataTypes.Enum.JSON] = function(Buffer: buffer, Count: number, Value: any): number
+        local encoded = HttpService:JSONEncode(Value)
+        local len = #encoded
+        buffer.writeu32(Buffer, Count, len)
+        buffer.writestring(Buffer, Count + 4, encoded)
+        return Count + 4 + len
+    end,
+    
+    [DataTypes.Enum.buffer] = function(Buffer: buffer, Count: number, Value: buffer): number
+        local len = buffer.len(Value)
+        buffer.writeu32(Buffer, Count, len)
+        buffer.copy(Buffer, Count + 4, Value, 0, len)
+        return Count + 4 + len
+    end,
+    
+    [DataTypes.Enum.string] = function(Buffer: buffer, Count: number, Value: string): number
+        local len = #Value
+        buffer.writeu32(Buffer, Count, len)
+        buffer.writestring(Buffer, Count + 4, Value)
+        return Count + 4 + len
+    end,
+    
+    [DataTypes.Enum.CFrame] = function(Buffer: buffer, Count: number, Value: CFrame): number
+        local pos = Value.Position
+        local axis, angle = Value:ToAxisAngle()
+        
+        --position
+        buffer.writef32(Buffer, Count, pos.X)
+        buffer.writef32(Buffer, Count + 4, pos.Y)
+        buffer.writef32(Buffer, Count + 8, pos.Z)
+        
+        --rotation axis
+        buffer.writef32(Buffer, Count + 12, axis.X)
+        buffer.writef32(Buffer, Count + 16, axis.Y)
+        buffer.writef32(Buffer, Count + 20, axis.Z)
+        
+        --rotation angle
+        buffer.writef32(Buffer, Count + 24, angle)
 
-                --write le axis
-                buffer.writef32(b, 13, axis.X)
-                buffer.writef32(b, 17, axis.Y)
-                buffer.writef32(b, 21, axis.Z)
+        return Count + 28
+    end,
+    
+    [DataTypes.Enum.Vector2] = function(Buffer: buffer, Count: number, Value: Vector2): number
+        buffer.writef32(Buffer, Count, Value.X)
+        buffer.writef32(Buffer, Count + 4, Value.Y)
+        return Count + 8
+    end,
+    
+    [DataTypes.Enum.Color3] = function(Buffer: buffer, Count: number, Value: Color3): number
+        buffer.writef32(Buffer, Count, Value.R)
+        buffer.writef32(Buffer, Count + 4, Value.G)
+        buffer.writef32(Buffer, Count + 8, Value.B)
+        return Count + 12
+    end,
+    
+    [DataTypes.Enum.UDim2] = function(Buffer: buffer, Count: number, Value: UDim2): number
+        buffer.writef32(Buffer, Count, Value.X.Scale)
+        buffer.writei32(Buffer, Count + 4, Value.X.Offset)
+        buffer.writef32(Buffer, Count + 8, Value.Y.Scale)
+        buffer.writei32(Buffer, Count + 12, Value.Y.Offset)
+        return Count + 16
+    end,
+    
+    [DataTypes.Enum.BrickColor] = function(Buffer: buffer, Count: number, Value: BrickColor): number
+        buffer.writeu16(Buffer, Count, Value.Number)
+        return Count + 2
+    end,
+    
+    [DataTypes.Enum.Rect] = function(Buffer: buffer, Count: number, Value: Rect): number
+        buffer.writef32(Buffer, Count, Value.Min.X)
+        buffer.writef32(Buffer, Count + 4, Value.Min.Y)
+        buffer.writef32(Buffer, Count + 8, Value.Max.X)
+        buffer.writef32(Buffer, Count + 12, Value.Max.Y)
+        return Count + 16
+    end,
+    
+    [DataTypes.Enum.NumberRange] = function(Buffer: buffer, Count: number, Value: NumberRange): number
+        buffer.writef32(Buffer, Count, Value.Min)
+        buffer.writef32(Buffer, Count + 4, Value.Max)
+        return Count + 8
+    end,
+    
+    [DataTypes.Enum.UDim] = function(Buffer: buffer, Count: number, Value: UDim): number
+        buffer.writef32(Buffer, Count, Value.Scale)
+        buffer.writei32(Buffer, Count + 4, Value.Offset)
+        return Count + 8
+    end,
+    
+    [DataTypes.Enum.DateTime] = function(Buffer: buffer, Count: number, Value: DateTime): number
+        buffer.writef64(Buffer, Count, Value.UnixTimestamp)
+        return Count + 8
+    end,
+    
+    [DataTypes.Enum.ColorSequence] = function(Buffer: buffer, Count: number, Value: ColorSequence): number
+        local keypoints = Value.Keypoints
+        local count = #keypoints
+        buffer.writeu8(Buffer, Count, count)
+        Count += 1
+        for _, kp in ipairs(keypoints) do
+            buffer.writef32(Buffer, Count, kp.Time)
+            buffer.writef32(Buffer, Count + 4, kp.Value.R)
+            buffer.writef32(Buffer, Count + 8, kp.Value.G)
+            buffer.writef32(Buffer, Count + 12, kp.Value.B)
+            Count += 16
+        end
+        return Count
+    end,
+    
+    [DataTypes.Enum.NumberSequence] = function(Buffer: buffer, Count: number, Value: NumberSequence): number
+        local keypoints = Value.Keypoints
+        local count = #keypoints
+        buffer.writeu8(Buffer, Count, count)
+        Count += 1
+        for _, kp in ipairs(keypoints) do
+            buffer.writef32(Buffer, Count, kp.Time)
+            buffer.writef32(Buffer, Count + 4, kp.Value)
+            buffer.writef32(Buffer, Count + 8, kp.Envelope)
+            Count += 12
+        end
+        return Count
+    end,
+    
+    [DataTypes.Enum.TweenInfo] = function(Buffer: buffer, Count: number, Value: TweenInfo): number
+        buffer.writef32(Buffer, Count, Value.Time)
+        buffer.writeu8(Buffer, Count + 4, Value.EasingStyle.Value)
+        buffer.writeu8(Buffer, Count + 5, Value.EasingDirection.Value)
+        buffer.writei32(Buffer, Count + 6, Value.RepeatCount)
+        buffer.writeu8(Buffer, Count + 10, Value.Reverses and 1 or 0)
+        buffer.writef32(Buffer, Count + 11, Value.DelayTime)
 
-                --write le angle
-                buffer.writef32(b, 25, angle)
-                
-                return b
-            end,
-            Decode = function(Buffer: buffer): CFrame
-                --read le position
-                local px = buffer.readf32(Buffer, 1)
-                local py = buffer.readf32(Buffer, 5)
-                local pz = buffer.readf32(Buffer, 9)
+        return Count + 15
+    end,
 
-                --read le axis
-                local ax = buffer.readf32(Buffer, 13)
-                local ay = buffer.readf32(Buffer, 17)
-                local az = buffer.readf32(Buffer, 21)
-
-                --read le angle
-                local angle = buffer.readf32(Buffer, 25)
-
-                --remake the axis vector
-                local axis = Vector3.new(ax, ay, az)
-                
-                --if angle is 0 we can just return a default rotation cframe
-                if angle == 0 then
-                    return CFrame.new(px, py, pz)
-                else
-                    return CFrame.fromAxisAngle(axis, angle) + Vector3.new(px, py, pz)
-                end
-            end,
-        },
-        --vector2
-        {
-            Encode = function(ValueToCompress: Vector2): buffer
-                local b = buffer.create(9) --1 byte for id + 8 bytes for components (4 bytes per float32, 2 float32s)
-                buffer.writeu8(b, 0, BufferTag.Vector2)
-                buffer.writef32(b, 1, ValueToCompress.X)
-                buffer.writef32(b, 5, ValueToCompress.Y)
-                return b
-            end,
-            Decode = function(Buffer: buffer): Vector2
-                return Vector2.new(
-                    buffer.readf32(Buffer, 1),
-                    buffer.readf32(Buffer, 5)
-                )
-            end,
-        },
-        --color3
-        {
-            Encode = function(ValueToCompress: Color3): buffer
-                local b = buffer.create(13) ----1 byte for id + 12 bytes for components (4 bytes per float32, 3 float32s)
-                buffer.writeu8(b, 0, BufferTag.Color3)
-                buffer.writef32(b, 1, ValueToCompress.R)
-                buffer.writef32(b, 5, ValueToCompress.G)
-                buffer.writef32(b, 9, ValueToCompress.B)
-                return b
-            end,
-            Decode = function(Buffer: buffer): Color3
-                return Color3.new(
-                    buffer.readf32(Buffer, 1),
-                    buffer.readf32(Buffer, 5),
-                    buffer.readf32(Buffer, 9)
-                )
-            end,
-        },
-        --udim2
-        {
-            Encode = function(ValueToCompress: UDim2): buffer
-                local b = buffer.create(17)  --1 byte for id + 16 bytes for all components (offsets are int32s, scales are float32s, 4 bytes each)
-                buffer.writeu8(b, 0, BufferTag.UDim2)
-                buffer.writef32(b, 1, ValueToCompress.X.Scale)
-                buffer.writei32(b, 5, ValueToCompress.X.Offset)
-                buffer.writef32(b, 9, ValueToCompress.Y.Scale)
-                buffer.writei32(b, 13, ValueToCompress.Y.Offset)
-                return b
-            end,
-            Decode = function(Buffer: buffer): UDim2
-                return UDim2.new(
-                    buffer.readf32(Buffer, 1), --x scale
-                    buffer.readi32(Buffer, 5), --x offset
-                    buffer.readf32(Buffer, 9), --y scale
-                    buffer.readi32(Buffer, 13) --y offset
-                )
-            end,
-        },
-        --brickcolor
-        {
-            Encode = function(ValueToCompress: BrickColor): buffer
-                local b = buffer.create(3) --1 byte for id + 2 bytes for an unsigned int16 since they're always int ids and they don't go that far
-                buffer.writeu8(b, 0, BufferTag.BrickColor)
-                buffer.writeu16(b, 1, ValueToCompress.Number)
-                return b
-            end,
-            Decode = function(Buffer: buffer): BrickColor
-                return BrickColor.new(buffer.readu16(Buffer, 1))
-            end,
-        },
-        --rect
-        {
-            Encode = function(ValueToCompress: Rect): buffer
-                local b = buffer.create(17) --1 byte for id + 16 bytes for 2 vector2s (4 bytes per float32, 4 float32s)
-                buffer.writeu8(b, 0, BufferTag.Rect)
-                buffer.writef32(b, 1, ValueToCompress.Min.X)
-                buffer.writef32(b, 5, ValueToCompress.Min.Y)
-                buffer.writef32(b, 9, ValueToCompress.Max.X)
-                buffer.writef32(b, 13, ValueToCompress.Max.Y)
-                return b
-            end,
-            Decode = function(Buffer: buffer): Rect
-                return Rect.new(
-                    buffer.readf32(Buffer, 1), --min x
-                    buffer.readf32(Buffer, 5), --min y
-                    buffer.readf32(Buffer, 9), --max x
-                    buffer.readf32(Buffer, 13) --max y
-                )
-            end,
-        },
-        --numberrange
-        {
-            Encode = function(ValueToCompress: NumberRange): buffer
-                local b = buffer.create(9) -- 1 byte for id + 8 bytes (2 floats)
-                buffer.writeu8(b, 0, BufferTag.NumberRange)
-                buffer.writef32(b, 1, ValueToCompress.Min)
-                buffer.writef32(b, 5, ValueToCompress.Max)
-                return b
-            end,
-            Decode = function(Buffer: buffer): NumberRange
-                return NumberRange.new(
-                    buffer.readf32(Buffer, 1),
-                    buffer.readf32(Buffer, 5)
-                )
-            end,
-        },
-        --udim
-        {
-            Encode = function(ValueToCompress: UDim): buffer
-                local b = buffer.create(9) -- 1 byte id + 8 bytes (float + int)
-                buffer.writeu8(b, 0, BufferTag.UDim)
-                buffer.writef32(b, 1, ValueToCompress.Scale)
-                buffer.writei32(b, 5, ValueToCompress.Offset)
-                return b
-            end,
-            Decode = function(Buffer: buffer): UDim
-                return UDim.new(
-                    buffer.readf32(Buffer, 1),
-                    buffer.readi32(Buffer, 5)
-                )
-            end,
-        },
-        --datetime
-        {
-            Encode = function(ValueToCompress: DateTime): buffer
-                local b = buffer.create(9) -- 1 byte id + 8 bytes (float64)
-                buffer.writeu8(b, 0, BufferTag.DateTime)
-                buffer.writef64(b, 1, ValueToCompress.UnixTimestamp)
-                return b
-            end,
-            Decode = function(Buffer: buffer): DateTime
-                return DateTime.fromUnixTimestamp(buffer.readf64(Buffer, 1))
-            end,
-        },
-        --colorsequence
-        {
-            Encode = function(ValueToCompress: ColorSequence): buffer
-                local Keypoints = ValueToCompress.Keypoints
-                local Count = #Keypoints
-                local Offset = 2
-                -- 1 byte for id + 1 byte for count + (16 bytes per keypoint * count, 4 bytes per keypoint component, 4 components per keypoint)
-                local b = buffer.create(Offset + (Count * 16))
-                
-                buffer.writeu8(b, 0, BufferTag.ColorSequence)
-                buffer.writeu8(b, 1, Count)
-                
-                for _, Keypoint in ipairs(Keypoints) do
-                    buffer.writef32(b, Offset, Keypoint.Time)
-                    Offset += 4
-                    for _, ColorValue in {"R", "G", "B"} do
-                        buffer.writef32(b, Offset, Keypoint.Value[ColorValue])
-                        Offset += 4
-                    end
-                end
-                return b
-            end,
-            Decode = function(Buffer: buffer): ColorSequence
-                local Count = buffer.readu8(Buffer, 1)
-                local Keypoints = {}
-                local Offset = 2
-
-                for _ = 1, Count do
-                    local Time = buffer.readf32(Buffer, Offset)
-                    local R, G, B = buffer.readf32(Buffer, Offset + 4), buffer.readf32(Buffer, Offset + 8), buffer.readf32(Buffer, Offset + 12)
-                    Offset += 16
-
-                    table.insert(Keypoints, ColorSequenceKeypoint.new(Time, Color3.new(R, G, B)))
-                end
-                
-                return ColorSequence.new(Keypoints)
-            end,
-        },
-        --numbersequence
-        {
-            Encode = function(ValueToCompress: NumberSequence): buffer
-                local Keypoints = ValueToCompress.Keypoints
-                local Count = #Keypoints
-                -- 1 byte id + 1 byte count + (12 bytes per keypoint * count)
-                -- 12 bytes = Time(4) + Value(4) + Envelope(4)
-                local b = buffer.create(2 + (Count * 12))
-                
-                buffer.writeu8(b, 0, BufferTag.NumberSequence)
-                buffer.writeu8(b, 1, Count)
-                
-                local Offset = 2
-                for _, Kp in ipairs(Keypoints) do
-                    buffer.writef32(b, Offset, Kp.Time)
-                    buffer.writef32(b, Offset + 4, Kp.Value)
-                    buffer.writef32(b, Offset + 8, Kp.Envelope)
-                    Offset += 12
-                end
-                return b
-            end,
-            Decode = function(Buffer: buffer): NumberSequence
-                local Count = buffer.readu8(Buffer, 1)
-                local Keypoints = {}
-                local Offset = 2
-                
-                for _ = 1, Count do
-                    local Time = buffer.readf32(Buffer, Offset)
-                    local Value = buffer.readf32(Buffer, Offset + 4)
-                    local Envelope = buffer.readf32(Buffer, Offset + 8)
-                    
-                    table.insert(Keypoints, NumberSequenceKeypoint.new(Time, Value, Envelope))
-                    Offset += 12
-                end
-                
-                return NumberSequence.new(Keypoints)
-            end,
-        },
-        --tweeninfo
-        {
-            Encode = function(ValueToCompress: TweenInfo): buffer
-                -- Layout:
-                -- 1 byte (id)
-                -- 4 bytes (Time / float32)
-                -- 1 byte (EasingStyle ID / u8)
-                -- 1 byte (EasingDirection ID / u8)
-                -- 4 bytes (RepeatCount / i32)
-                -- 1 byte (Reverses / boolean)
-                -- 4 bytes (DelayTime / float32)
-                -- Total: 16 bytes
-
-                local b = buffer.create(16)
-                buffer.writeu8(b, 0, BufferTag.TweenInfo)
-                
-                buffer.writef32(b, 1, ValueToCompress.Time)
-                buffer.writeu8(b, 5, ValueToCompress.EasingStyle.Value)
-                buffer.writeu8(b, 6, ValueToCompress.EasingDirection.Value)
-                buffer.writei32(b, 7, ValueToCompress.RepeatCount)
-                buffer.writeu8(b, 11, ValueToCompress.Reverses and 1 or 0)
-                buffer.writef32(b, 12, ValueToCompress.DelayTime)
-                
-                return b
-            end,
-            Decode = function(Buffer: buffer): TweenInfo
-                local Time = buffer.readf32(Buffer, 1)
-                local StyleID = buffer.readu8(Buffer, 5)
-                local DirectionID = buffer.readu8(Buffer, 6)
-                local RepeatCount = buffer.readi32(Buffer, 7)
-                local Reverses = buffer.readu8(Buffer, 11) == 1
-                local DelayTime = buffer.readf32(Buffer, 12)
-
-                return TweenInfo.new(
-                    Time,
-                    StyleMap[StyleID] or Enum.EasingStyle.Linear,
-                    DirectionMap[DirectionID] or Enum.EasingDirection.Out,
-                    RepeatCount,
-                    Reverses,
-                    DelayTime
-                )
-            end,
-        },
-    },
-}) :: {
-    Enum: typeof(BufferTag),
-    Behaviour: {[number]: {
-        Encode: (ValueToCompress: any) -> buffer,
-        Decode: (Buffer: buffer) -> any,
-    }}
+    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, Value: number): number
+        buffer.writeu16(Buffer, Count, Value)
+        return Count + 2
+    end,
 }
+
+DataTypes.Readers = {
+    [DataTypes.Enum.boolean] = function(Buffer: buffer, Count: number): boolean
+        return buffer.readu8(Buffer, Count) == 1, Count + 1
+    end,
+
+    [DataTypes.Enum.Int8] = function(Buffer: buffer, Count: number): number
+        return buffer.readi8(Buffer, Count), Count + 1
+    end,
+
+    [DataTypes.Enum.Int16] = function(Buffer: buffer, Count: number): number
+        return buffer.readi16(Buffer, Count), Count + 2
+    end,
+
+    [DataTypes.Enum.Int32] = function(Buffer: buffer, Count: number): number
+        return buffer.readi32(Buffer, Count), Count + 4
+    end,
+
+    [DataTypes.Enum.Float32] = function(Buffer: buffer, Count: number): number
+        return buffer.readf32(Buffer, Count), Count + 4
+    end,
+
+    [DataTypes.Enum.Float64] = function(Buffer: buffer, Count: number): number
+        return buffer.readf64(Buffer, Count), Count + 8
+    end,
+
+    [DataTypes.Enum.Vector3] = function(Buffer: buffer, Count: number): Vector3
+        return Vector3.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)), Count + 12
+    end,
+
+    [DataTypes.Enum.JSON] = function(Buffer: buffer, Count: number): any
+        local len = buffer.readu32(Buffer, Count)
+        local content = buffer.readstring(Buffer, Count + 4, len)
+        return HttpService:JSONDecode(content), Count + 4 + len
+    end,
+
+    [DataTypes.Enum.buffer] = function(Buffer: buffer, Count: number): buffer
+        local len = buffer.readu32(Buffer, Count)
+        local newBuf = buffer.create(len)
+        buffer.copy(newBuf, 0, Buffer, Count + 4, len)
+        return newBuf, Count + 4 + len
+    end,
+
+    [DataTypes.Enum.string] = function(Buffer: buffer, Count: number): string
+        local len = buffer.readu32(Buffer, Count)
+        return buffer.readstring(Buffer, Count + 4, len), Count + 4 + len
+    end,
+
+    [DataTypes.Enum.CFrame] = function(Buffer: buffer, Count: number): CFrame
+        local px, py, pz = buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)
+        local ax, ay, az = buffer.readf32(Buffer, Count + 12), buffer.readf32(Buffer, Count + 16), buffer.readf32(Buffer, Count + 20)
+        local ang = buffer.readf32(Buffer, Count + 24)
+        local pos = Vector3.new(px, py, pz)
+        local axis = Vector3.new(ax, ay, az)
+        if ang == 0 then
+            return CFrame.new(pos), Count + 28
+        end
+        return CFrame.fromAxisAngle(axis, ang) + pos, Count + 28
+    end,
+
+    [DataTypes.Enum.Vector2] = function(Buffer: buffer, Count: number): Vector2
+        return Vector2.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4)), Count + 8
+    end,
+
+    [DataTypes.Enum.Color3] = function(Buffer: buffer, Count: number): Color3
+        return Color3.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8)), Count + 12
+    end,
+
+    [DataTypes.Enum.UDim2] = function(Buffer: buffer, Count: number): UDim2
+        return UDim2.new(
+            buffer.readf32(Buffer, Count), buffer.readi32(Buffer, Count + 4),
+            buffer.readf32(Buffer, Count + 8), buffer.readi32(Buffer, Count + 12)
+        ), Count + 16
+    end,
+
+    [DataTypes.Enum.BrickColor] = function(Buffer: buffer, Count: number): BrickColor
+        return BrickColor.new(buffer.readu16(Buffer, Count)), Count + 2
+    end,
+
+    [DataTypes.Enum.Rect] = function(Buffer: buffer, Count: number): Rect
+        return Rect.new(
+            buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4),
+            buffer.readf32(Buffer, Count + 8), buffer.readf32(Buffer, Count + 12)
+        ), Count + 16
+    end,
+
+    [DataTypes.Enum.NumberRange] = function(Buffer: buffer, Count: number): NumberRange
+        return NumberRange.new(buffer.readf32(Buffer, Count), buffer.readf32(Buffer, Count + 4)), Count + 8
+    end,
+
+    [DataTypes.Enum.UDim] = function(Buffer: buffer, Count: number): UDim
+        return UDim.new(buffer.readf32(Buffer, Count), buffer.readi32(Buffer, Count + 4)), Count + 8
+    end,
+
+    [DataTypes.Enum.DateTime] = function(Buffer: buffer, Count: number): DateTime
+        return DateTime.fromUnixTimestamp(buffer.readf64(Buffer, Count)), Count + 8
+    end,
+
+    [DataTypes.Enum.ColorSequence] = function(Buffer: buffer, Count: number): ColorSequence
+        local count = buffer.readu8(Buffer, Count)
+        Count += 1
+        local keypoints = {}
+        for _ = 1, count do
+            local Time = buffer.readf32(Buffer, Count)
+            local r, g, b = buffer.readf32(Buffer, Count + 4), buffer.readf32(Buffer, Count + 8), buffer.readf32(Buffer, Count + 12)
+            table.insert(keypoints, ColorSequenceKeypoint.new(Time, Color3.new(r, g, b)))
+            Count += 16
+        end
+        return ColorSequence.new(keypoints), Count
+    end,
+
+    [DataTypes.Enum.NumberSequence] = function(Buffer: buffer, Count: number): NumberSequence
+        local count = buffer.readu8(Buffer, Count)
+        Count += 1
+        local keypoints = {}
+        for _ = 1, count do
+            local t = buffer.readf32(Buffer, Count)
+            local Value = buffer.readf32(Buffer, Count + 4)
+            local env = buffer.readf32(Buffer, Count + 8)
+            table.insert(keypoints, NumberSequenceKeypoint.new(t, Value, env))
+            Count += 12
+        end
+        return NumberSequence.new(keypoints), Count
+    end,
+
+    [DataTypes.Enum.TweenInfo] = function(Buffer: buffer, Count: number): TweenInfo
+        local Time = buffer.readf32(Buffer, Count)
+        local StyleId = buffer.readu8(Buffer, Count + 4)
+        local DirectionId = buffer.readu8(Buffer, Count + 5)
+        local count = buffer.readi32(Buffer, Count + 6)
+        local reverses = buffer.readu8(Buffer, Count + 10) == 1
+        local Delay = buffer.readf32(Buffer, Count + 11)
+        
+        local style = StyleMap[StyleId] or Enum.EasingStyle.Linear
+        local dir = DirectionMap[DirectionId] or Enum.EasingDirection.Out
+        
+        return TweenInfo.new(Time, style, dir, count, reverses, Delay), Count + 15
+    end,
+
+    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number): number
+        return buffer.readu16(Buffer, Count), Count + 2
+    end,
+}
+
+return DataTypes
