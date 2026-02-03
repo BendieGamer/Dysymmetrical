@@ -395,6 +395,7 @@ function Network:_FoldersAvailable()
     return availableIndex == #self._FolderNames
 end
 
+--- Packs every argument of a fire to lower network usage when sending them.
 function Network:_PackArgumentsForNetwork(Arguments: {any})
     --calculate the total size of the buffer
     local TotalSize = 0
@@ -436,6 +437,7 @@ function Network:_PackArgumentsForNetwork(Arguments: {any})
     return {PacketBuffer, InstanceList}
 end
 
+--- Unpacks packed arguments from a fire to use properly in a connection.
 function Network:_UnpackArgumentsFromNetwork(Arguments: {any})
     --the only argument should be the buffer
     local PacketBuffer = Arguments[1]
