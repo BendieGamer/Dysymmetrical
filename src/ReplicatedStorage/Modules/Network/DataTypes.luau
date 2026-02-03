@@ -148,8 +148,8 @@ function DataTypes.GetPayloadSize(tag: string, value: any): number
         --iterate through every item blah blah add their size to the total blah blah BORING.
         local total = 2 
         for Key, Value in value do
-            local KeyTag = DataTypes.GetTag(Key)
-            local ValueTag = DataTypes.GetTag(Value)
+            local KeyTag = DataTypes.GetTagFromValue(Key)
+            local ValueTag = DataTypes.GetTagFromValue(Value)
 
             total += (1 + DataTypes.GetPayloadSize(KeyTag, Key))
             total += (1 + DataTypes.GetPayloadSize(ValueTag, Value))
@@ -367,8 +367,8 @@ DataTypes.Writers = {
         Count += 2
         
         for key, val in Value do
-            local KeyTag = DataTypes.GetTag(key)
-            local ValueTag = DataTypes.GetTag(val)
+            local KeyTag = DataTypes.GetTagFromValue(key)
+            local ValueTag = DataTypes.GetTagFromValue(val)
             
             --write le key
             buffer.writeu8(Buffer, Count, KeyTag)

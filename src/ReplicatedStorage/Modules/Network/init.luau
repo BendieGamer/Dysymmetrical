@@ -459,11 +459,6 @@ function Network:_UnpackArgumentsFromNetwork(Arguments: {any})
         
         --get the shit
         local Value, NewCursor = DataTypes.Readers[Tag](PacketBuffer, Offset, InstanceList)
-
-        --get the damn instance from the list
-        if Tag == DataTypes.Enum.Instance then
-            Value = InstanceList[Value]
-        end
         
         --put it in the param table
         table.insert(Unpacked, Value)
