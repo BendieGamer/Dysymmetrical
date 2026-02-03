@@ -41,31 +41,8 @@
 
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
-local DataTypes = require(script.DataTypes)
 
-local BufferTag = table.freeze({
-    Boolean = 0,
-    Int8 = 1,
-    Int16 = 2,
-    Int32 = 3,
-    Float32 = 4,
-    Float64 = 5,
-    Vector3 = 6,
-    JSON = 7,
-    Buffer = 8,
-    String = 9,
-    CFrame = 10,
-    Vector2 = 11,
-    Color3 = 12,
-    UDim2 = 13,
-    BrickColor = 14,
-    Rect = 15,
-    NumberRange = 16,
-    UDim = 17,
-    DateTime = 18,
-    ColorSequence = 19,
-    NumberSequence = 20
-})
+local DataTypes = require(script.DataTypes)
 
 --- Class used to connect the server and the clients more efficiently by encapsulating everything in a single place.
 local Network = {
@@ -462,14 +439,6 @@ function Network:_CompressValue(ValueToCompress: any)
     --and buffers shouldn't be compressed at all
     if Type == "Instance" then
         return ValueToCompress
-
-    --custom buffers will have their own tag to prevent interferences with the rest of the buffers
-    elseif Type == "buffer" then
-        local Length = buffer.len(ValueToCompress :: any)
-        local b = buffer.create(Length + 1)
-        buffer.writeu8(b, 0, BufferTag.Buffer)
-        buffer.copy(b, 1, ValueToCompress :: any, 0, Length)
-        return b
 
     --tables will be recursively compressed
     elseif Type == "table" then

@@ -22,7 +22,19 @@ local BufferTag = table.freeze({
     DateTime = 19,
     ColorSequence = 20,
     NumberSequence = 21,
+    TweenInfo = 22,
 })
+
+--tweeninfo stuffs
+local StyleMap = {}
+for _, enumItem in ipairs(Enum.EasingStyle:GetEnumItems()) do
+    StyleMap[enumItem.Value] = enumItem
+end
+
+local DirectionMap = {}
+for _, enumItem in ipairs(Enum.EasingDirection:GetEnumItems()) do
+    DirectionMap[enumItem.Value] = enumItem
+end
 
 return {
     Enum = BufferTag,
@@ -408,6 +420,49 @@ return {
                 end
                 
                 return NumberSequence.new(Keypoints)
+            end,
+        },
+        --tweeninfo
+        {
+            Encode = function(ValueToCompress: TweenInfo): buffer
+                -- Layout:
+                -- 1 byte (id)
+                -- 4 bytes (Time / float32)
+                -- 1 byte (EasingStyle ID / u8)
+                -- 1 byte (EasingDirection ID / u8)
+                -- 4 bytes (RepeatCount / i32)
+                -- 1 byte (Reverses / boolean)
+                -- 4 bytes (DelayTime / float32)
+                -- Total: 16 bytes
+
+                local b = buffer.create(16)
+                buffer.writeu8(b, 0, BufferTag.TweenInfo)
+                
+                buffer.writef32(b, 1, ValueToCompress.Time)
+                buffer.writeu8(b, 5, ValueToCompress.EasingStyle.Value)
+                buffer.writeu8(b, 6, ValueToCompress.EasingDirection.Value)
+                buffer.writei32(b, 7, ValueToCompress.RepeatCount)
+                buffer.writeu8(b, 11, ValueToCompress.Reverses and 1 or 0)
+                buffer.writef32(b, 12, ValueToCompress.DelayTime)
+                
+                return b
+            end,
+            Decode = function(Buffer: buffer): TweenInfo
+                local Time = buffer.readf32(Buffer, 1)
+                local StyleID = buffer.readu8(Buffer, 5)
+                local DirectionID = buffer.readu8(Buffer, 6)
+                local RepeatCount = buffer.readi32(Buffer, 7)
+                local Reverses = buffer.readu8(Buffer, 11) == 1
+                local DelayTime = buffer.readf32(Buffer, 12)
+
+                return TweenInfo.new(
+                    Time,
+                    StyleMap[StyleID] or Enum.EasingStyle.Linear,
+                    DirectionMap[DirectionID] or Enum.EasingDirection.Out,
+                    RepeatCount,
+                    Reverses,
+                    DelayTime
+                )
             end,
         },
     }),
