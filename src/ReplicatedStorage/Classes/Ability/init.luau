@@ -72,7 +72,7 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
 
         Init = function(self: Types.Ability, charModule: Types.Killer | Types.Survivor, plr: Player)
             self.Owner = plr
-            self.CharModule = charModule
+            self.CharacterModule = charModule
             self.UsesLeft = self.UseSettings.InitialUses
 
             self.Janitor = Janitor.new()
@@ -109,10 +109,10 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
                 Humanoid = self.Owner.Character:FindFirstChildWhichIsA("Humanoid"),
                 HRP = Utils.Character.GetRootPart(self.Owner),
                 InputManager = require(self.Owner.PlayerScripts.InputManager),
-                FOVManager = require(self.Owner.Character.PlayerAttributeScripts.FOVManager),
-                EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
-                EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
-                TurnToMoveDirection = require(self.Owner.PlayerScripts.Miscellaneous.TurnToMoveDirection),
+                FOVManager = require(self.Owner.Character.PlayerAttributeManagers.FOVManager),
+                -- EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
+                -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
+                TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
             }
 
             --executes any extra initialization code that the ability might need
@@ -272,10 +272,10 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             Humanoid = self.Owner.Character:FindFirstChildWhichIsA("Humanoid"),
             HRP = Utils.Character.GetRootPart(self.Owner),
             InputManager = require(self.Owner.PlayerScripts.InputManager),
-            FOVManager = require(self.Owner.Character.PlayerAttributeScripts.FOVManager),
-            EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
-            EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
-            TurnToMoveDirection = require(self.Owner.PlayerScripts.Miscellaneous.TurnToMoveDirection),
+            FOVManager = require(self.Owner.Character.PlayerAttributeManagers.FOVManager),
+            -- EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
+            -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
+            TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
             AnimationManager = require(self.Owner.Character.AnimationManager),
         }
 

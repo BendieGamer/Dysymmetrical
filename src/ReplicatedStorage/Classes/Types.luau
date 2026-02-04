@@ -18,7 +18,7 @@ export type Ability = {
     Passive: boolean,
 
     --- Internal function to initialize the ability's generally used variables and connections.
-    Init: (self: Ability, charModule: Killer | Survivor, owner: Player) -> (),
+    Init: (self: Ability, Player: Player, CharacterInfo: Killer | Survivor) -> (),
     --- Empty function to execute extra code right after the ability is initialized using `Init`.
     OnInit: (self: Ability) -> (),
     --- Empty function to execute extra code right before the ability gets destroyed using `Destroy`.
@@ -174,8 +174,8 @@ export type Ability = {
         --- See `StarterCharacterScripts.AnimationManager`.
         AnimationManager: any, --too lazy to copy all of the func definitions in here, would be clutter imo
     },
-    --- The source module where the ability comes from. Contains all character info.
-    CharModule: Killer | Survivor,
+    --- The source module where the ability comes from. Contains all character info and may be used to access other variables in different abilities and such.
+    CharacterModule: Killer | Survivor,
 }
 
 --- Type used for survivor characters.

@@ -2,11 +2,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local CharacterManager = require(script.Parent.CharacterManager)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local PlayerRespawnManager = {
     PendingAutoRespawns = {},
+
+    DefaultAttributes = {
+        Sprinting = false,
+        AnimationTransitionTime = 0.1,
+        Role = "Spectator",
+        MaxStamina = 100,
+        Stamina = 100,
+        StaminaGain = 18,
+        StaminaDrain = 10,
+    },
 }
 
 function PlayerRespawnManager:Init()
@@ -35,6 +44,30 @@ function PlayerRespawnManager.CancelAutoRespawn(Player: Player)
     end
 end
 
+--- Sets up any missing attributes from a character.
+function PlayerRespawnManager._SetupDefaultAttributes(Character: Model)
+    for Name, Value in PlayerRespawnManager.DefaultAttributes do
+        if Character:GetAttribute(Name) ~= nil then
+            continue
+        end
+
+        Character:SetAttribute(Name, Value)
+    end
+end
+
+type RigSettings = {
+    --- The character rig to load onto the player.
+    Character: Model,
+    --- A function to execute right when the character is loaded.
+    --- 
+    --- Default attributes will already be set and everything.
+    Callback: ((Character: Model, Humanoid: Humanoid) -> ())?,
+    --- If `false`, the `Player.Character` property won't be set to the rig yet.
+    --- 
+    --- This is useful in case you want to do something before the character is actually assigned, thus firing `Player.CharacterAdded` later.
+    AutoSetPlayerCharacter: boolean?,
+}
+
 --- Loads a rig to a player to replace its custom player model.
 --- 
 --- All of the needed attributes for it to work will be automatically set just in case.
@@ -44,10 +77,12 @@ end
 --- If not, every single script inside of the rig will be automatically destroyed.
 --- 
 --- @return The rig that ended up loading into the player.
-function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, Character: Model, Callback: ((Character: Model, Humanoid: Humanoid) -> ())?): Model
+function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, RigSettings: RigSettings): Model
     if not Player.Parent then
         return
     end
+
+    local Character = RigSettings.Character
 
     --prevent next automatic respawn
     PlayerRespawnManager.CancelAutoRespawn(Player)
@@ -74,14 +109,16 @@ function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, Character: Model
     Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
     Humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
     --add missing core attributes
-    CharacterManager._SetupDefaultAttributes(Character)
+    PlayerRespawnManager._SetupDefaultAttributes(Character)
     --parent the character to the folder properly
     Character.Parent = workspace.Players
-    --actually sets the character and fires CharacterAdded
-    Player.Character = Character
+    --actually sets the character if possible and fires CharacterAdded
+    if RigSettings.AutoSetPlayerCharacter then
+        Player.Character = Character
+    end
 
-    if Callback then
-        Callback(Character, Humanoid)
+    if RigSettings.Callback then
+        RigSettings.Callback(Character, Humanoid)
     end
 
     return Character
@@ -144,7 +181,7 @@ function PlayerRespawnManager.LoadCharacter(Player: Player, FuncSettings: LoadCh
     --load default rig if there is nothing to find or if it's a spectator
     --this last condition can be removed if spectators have a custom preset rig
     if not FuncSettings.Role or not FuncSettings.Name or FuncSettings.Role == "Spectator" then
-        return PlayerRespawnManager.LoadRigOntoPlayer(Player, Players:CreateHumanoidModelFromUserIdAsync(Player.UserId))
+        return PlayerRespawnManager.LoadRigOntoPlayer(Player, {Character = Players:CreateHumanoidModelFromUserIdAsync(Player.UserId)})
     end
 
     --find a character rig
@@ -155,7 +192,10 @@ function PlayerRespawnManager.LoadCharacter(Player: Player, FuncSettings: LoadCh
     end
     --load the character
     --if the rig isn't found, load the default player rig
-    local Character = PlayerRespawnManager.LoadRigOntoPlayer(Player, CharacterRig or Players:CreateHumanoidModelFromUserIdAsync(Player.UserId), FuncSettings.LoadCallback)
+    local Character = PlayerRespawnManager.LoadRigOntoPlayer(Player, {
+        Character = CharacterRig or Players:CreateHumanoidModelFromUserIdAsync(Player.UserId),
+        Callback = FuncSettings.LoadCallback,
+    })
     --set the role beforehand to make sure everything works fine
     Character:SetAttribute("Role", FuncSettings.Role)
     --set the character specific attributes
