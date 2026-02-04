@@ -1,10 +1,12 @@
 --i would comment this but i already wrote a whole commented DataTypes module that didn't do shit to optimize networking so now i'm too lazy to comment its entirety again
 --figure out what's here i'm done 😭 -dys
 
+--!native
+
 local HttpService = game:GetService("HttpService")
 
 local DataTypes = {
-    Enum = {
+    Enum = table.freeze({
         boolean = 1,
         Int8 = 2,
         Int16 = 3,
@@ -29,7 +31,7 @@ local DataTypes = {
         TweenInfo = 22,
         Instance = 23,
         Map = 24,
-    },
+    }),
 }
 
 --setting the size of every type beforehand to not have to calculate it unless it's necessary
@@ -107,26 +109,29 @@ function DataTypes.GetTagFromValue(Value: any): number
     end
 
     if Type == "number" then
-        if IsNumberAnInt(Value) then
+        if not IsNumberAnInt(Value) then
 
-            if IsNumberAnInt8(Value) then
-                return DataTypes.Enum.Int8
+            if IsNumberAFloat32(Value) then
+                return DataTypes.Enum.Float32
             end
 
-            if IsNumberAnInt16(Value) then
-                return DataTypes.Enum.Int16
-            end
-
-            if IsNumberAnInt32(Value) then
-                return DataTypes.Enum.Int32
-            end
+            return DataTypes.Enum.Float64
 
         end
 
-        if IsNumberAFloat32(Value) then
-            return DataTypes.Enum.Float32
+        if IsNumberAnInt8(Value) then
+            return DataTypes.Enum.Int8
         end
 
+        if IsNumberAnInt16(Value) then
+            return DataTypes.Enum.Int16
+        end
+
+        if IsNumberAnInt32(Value) then
+            return DataTypes.Enum.Int32
+        end
+
+        --fall back to your typical float64
         return DataTypes.Enum.Float64
     end
 
@@ -365,6 +370,8 @@ DataTypes.Writers = {
         
         buffer.writeu16(Buffer, Count, TableCount) --write le count
         Count += 2
+
+        local Writers = DataTypes.Writers
         
         for key, val in Value do
             local KeyTag = DataTypes.GetTagFromValue(key)
@@ -373,12 +380,12 @@ DataTypes.Writers = {
             --write le key
             buffer.writeu8(Buffer, Count, KeyTag)
             Count += 1
-            Count = DataTypes.Writers[KeyTag](Buffer, Count, key, InstanceList)
+            Count = Writers[KeyTag](Buffer, Count, key, InstanceList)
             
             --write le value after le key
             buffer.writeu8(Buffer, Count, ValueTag)
             Count += 1
-            Count = DataTypes.Writers[ValueTag](Buffer, Count, val, InstanceList)
+            Count = Writers[ValueTag](Buffer, Count, val, InstanceList)
         end
 
         return Count
@@ -532,6 +539,8 @@ DataTypes.Readers = {
     [DataTypes.Enum.Map] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (number, number)
         local count = buffer.readu16(Buffer, Count)
         Count += 2
+
+        local Readers = DataTypes.Readers
         
         local Table = {}
         for _ = 1, count do
@@ -539,13 +548,13 @@ DataTypes.Readers = {
             local KeyTag = buffer.readu8(Buffer, Count)
             Count += 1
             local Key
-            Key, Count = DataTypes.Readers[KeyTag](Buffer, Count, InstanceList)
+            Key, Count = Readers[KeyTag](Buffer, Count, InstanceList)
             
             --read le value
             local ValueTag = buffer.readu8(Buffer, Count :: any)
             Count += 1
             local Value
-            Value, Count = DataTypes.Readers[ValueTag](Buffer, Count, InstanceList)
+            Value, Count = Readers[ValueTag](Buffer, Count, InstanceList)
             
             --set the damn thing
             Table[Key] = Value

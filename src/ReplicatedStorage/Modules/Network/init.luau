@@ -39,6 +39,8 @@
 	That's it! :>
 ]]
 
+--!native
+
 local RunService = game:GetService("RunService")
 
 local DataTypes = require(script.DataTypes)
