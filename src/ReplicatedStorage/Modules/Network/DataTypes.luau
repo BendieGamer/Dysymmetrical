@@ -6,7 +6,7 @@
 local HttpService = game:GetService("HttpService")
 
 local DataTypes = {
-    Enum = table.freeze({
+    Enum = {
         boolean = 1,
         Int8 = 2,
         Int16 = 3,
@@ -31,7 +31,7 @@ local DataTypes = {
         TweenInfo = 22,
         Instance = 23,
         Map = 24,
-    }),
+    },
 }
 
 --setting the size of every type beforehand to not have to calculate it unless it's necessary
@@ -564,4 +564,4 @@ DataTypes.Readers = {
     end,
 }
 
-return DataTypes
+return DeepFreezeTable(DataTypes)

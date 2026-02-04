@@ -82,6 +82,10 @@ function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, RigSettings: Rig
         return
     end
 
+    if RigSettings.AutoSetPlayerCharacter == nil then
+        RigSettings.AutoSetPlayerCharacter = true
+    end
+
     local Character = RigSettings.Character
 
     --prevent next automatic respawn
