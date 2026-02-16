@@ -204,7 +204,7 @@ function Network:Init()
             end
 
             Inst.OnServerEvent:Connect(function(Player: Player, Args: {any})
-                if not self:_CheckRateLimit(Player) then
+                if not self:_CheckPlayerRateLimit(Player) then
                     if self.Debug.RateLimitExceeded then
                         warn(`[DysNetworking (DEBUG)] Player "{Player.Name}" with ID "{Player.UserId}" is suspected to be exhausting the remote calls rate limit! Cancelling current remote...`)
                     end
