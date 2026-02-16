@@ -2,6 +2,9 @@
   "name": "Dysymmetrical",
   "tree": {
     "$className": "DataModel",
+    "Lighting": {
+      "$path": "src/Lighting"
+    },
     "ReplicatedFirst": {
       "$path": "src/ReplicatedFirst"
     },
