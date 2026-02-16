@@ -1,0 +1,9 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "DisplayTitle": "Killer Losses",
+      "LayoutOrder": 2
+    }
+  }
+}

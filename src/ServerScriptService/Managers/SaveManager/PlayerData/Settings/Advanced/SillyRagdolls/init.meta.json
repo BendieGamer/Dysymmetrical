@@ -1,0 +1,10 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "DisplayTitle": "Silly Ragdolls",
+      "LayoutOrder": 3,
+      "DisplayDescription": "Adds a slightly big force to ragdolls when instanced (LOCAL ONLY)."
+    }
+  }
+}

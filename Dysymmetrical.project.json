@@ -1,0 +1,43 @@
+{
+  "name": "Dysymmetrical",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedFirst": {
+      "$path": "src/ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$path": "src/ReplicatedStorage",
+      "Packages": {
+        "$path": "Packages"
+      }
+    },
+    "ServerScriptService": {
+      "$path": "src/ServerScriptService"
+    },
+    "ServerStorage": {
+      "$path": "src/ServerStorage"
+    },
+    "SoundService": {
+      "$path": "src/SoundService"
+    },
+    "StarterGui": {
+      "$path": "src/StarterGui"
+    },
+    "StarterPlayer": {
+      "StarterCharacterScripts": {
+        "$path": "src/StarterCharacterScripts"
+      },
+      "StarterPlayerScripts": {
+        "$path": "src/StarterPlayerScripts"
+      },
+      "$properties": {
+        "CameraMaxZoomDistance": 15,
+        "CharacterWalkSpeed": 7,
+        "CharacterMaxSlopeAngle": 80
+      }
+    },
+    "Workspace": {
+      "$path": "src/Workspace"
+    }
+  }
+}

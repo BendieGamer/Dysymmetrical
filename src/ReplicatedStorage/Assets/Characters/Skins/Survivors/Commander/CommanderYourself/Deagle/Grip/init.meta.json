@@ -1,0 +1,17 @@
+{
+  "className": "Part",
+  "properties": {
+    "BottomSurface": "Smooth",
+    "CFrame": [1.2939, -0.7927, -0.4251, 1, 0, 0, 0, 0, 1, 0, -1, 0],
+    "CanCollide": false,
+    "CanQuery": false,
+    "CanTouch": false,
+    "Color": [99, 95, 98],
+    "Massless": true,
+    "Material": "SmoothPlastic",
+    "Size": [0.2, 0.2, 0.2],
+    "Tags": ["Transparent"],
+    "TopSurface": "Smooth",
+    "Transparency": 1
+  }
+}

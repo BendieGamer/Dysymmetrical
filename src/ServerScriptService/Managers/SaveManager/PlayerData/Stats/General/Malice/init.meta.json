@@ -1,0 +1,11 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 2,
+      "DisplayInLeaderstats": true,
+      "DisplayTitle": "Chance to Become Killer"
+    },
+    "Value": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "BackgroundColor3": [1, 1, 1],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/Balthazar.json",
+      "weight": "Regular",
+      "style": "Normal",
+      "cachedFaceId": null
+    },
+    "Position": [[0.2253, 0.0], [0.4427, 0.0]],
+    "Size": [[0.7616, 0.0], [0.5177, 0.0]],
+    "Text": "This person did this stuff in the project",
+    "TextColor3": [1, 1, 1],
+    "TextScaled": true,
+    "TextSize": 14,
+    "TextStrokeTransparency": 0,
+    "TextWrapped": true,
+    "TextXAlignment": "Left",
+    "TextYAlignment": "Top"
+  }
+}

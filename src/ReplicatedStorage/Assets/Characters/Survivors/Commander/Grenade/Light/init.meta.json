@@ -1,0 +1,9 @@
+{
+  "className": "PointLight",
+  "properties": {
+    "Brightness": 10,
+    "Enabled": false,
+    "Range": 25,
+    "Shadows": true
+  }
+}

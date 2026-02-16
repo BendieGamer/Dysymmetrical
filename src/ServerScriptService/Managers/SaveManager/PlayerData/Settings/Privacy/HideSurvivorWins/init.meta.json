@@ -1,0 +1,10 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 3,
+      "DisplayTitle": "Hide Survivor Wins",
+      "DisplayDescription": "Hides the amount of times you've won as Survivor."
+    }
+  }
+}

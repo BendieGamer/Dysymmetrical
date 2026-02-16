@@ -1,0 +1,16 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "AnchorPoint": [0.5, 0.5],
+    "AutomaticSize": "XY",
+    "BackgroundColor3": [0, 0, 0],
+    "BackgroundTransparency": 0.8,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "Position": [[0.5, 0.0], [0.5, 0.0]],
+    "ScaleType": "Slice",
+    "Size": [[0.0, 200.0], [0.0, 80.0]],
+    "SliceCenter": [18, 16, 378, 62],
+    "ZIndex": 9999
+  }
+}

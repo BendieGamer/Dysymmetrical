@@ -1,0 +1,9 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 2,
+      "DisplayTitle": "Survivor Losses"
+    }
+  }
+}

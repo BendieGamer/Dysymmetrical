@@ -1,0 +1,11 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "FormatTime": true,
+      "PostDisplayTitle": "[D:]H:M:S",
+      "LayoutOrder": 1,
+      "DisplayTitle": "Time Played"
+    }
+  }
+}

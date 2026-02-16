@@ -1,0 +1,11 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "BackgroundColor3": [0.0784, 0.0784, 0.0784],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "ScaleType": "Crop",
+    "Size": [[1.0, 0.0], [1.0, 0.0]]
+  }
+}

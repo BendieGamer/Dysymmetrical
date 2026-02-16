@@ -1,0 +1,11 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "CFrame": [-3.6, 7.3777, 33.1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "InitialSize": [0.7475, 2.4651, 1.002],
+    "MeshContent": "http://www.roblox.com/asset/?id=16975131",
+    "RenderFidelity": "Precise",
+    "Size": [0.45, 1.5, 0.6],
+    "TextureContent": "http://www.roblox.com/asset/?id=16975111"
+  }
+}

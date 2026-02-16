@@ -1,0 +1,14 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 1,
+      "MaxValue": 200,
+      "MinValue": 0,
+      "DisplayTitle": "Music Volume",
+      "PostDisplayTitle": "%",
+      "DisplayDescription": "How loud the music (e. g. lobby music, ambience...) is."
+    },
+    "Value": 100
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "DisplayTitle": "Objectives Completed As Survivor",
+      "LayoutOrder": 3
+    }
+  }
+}

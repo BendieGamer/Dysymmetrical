@@ -1,0 +1,8 @@
+{
+  "className": "Humanoid",
+  "properties": {
+    "DisplayDistanceType": "None",
+    "HealthDisplayType": "AlwaysOff",
+    "JumpPower": 0
+  }
+}

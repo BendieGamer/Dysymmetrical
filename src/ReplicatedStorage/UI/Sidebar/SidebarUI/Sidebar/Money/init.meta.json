@@ -1,0 +1,12 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "AutomaticSize": "X",
+    "BackgroundColor3": [0, 0, 0],
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "LayoutOrder": 1,
+    "Position": [[0.0, 0.0], [0.09, 0.0]],
+    "Size": [[0.9507, 0.0], [0.07, 0.0]]
+  }
+}

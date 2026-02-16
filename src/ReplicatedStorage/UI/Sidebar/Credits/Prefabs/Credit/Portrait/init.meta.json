@@ -1,0 +1,12 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "BackgroundColor3": [1, 1, 1],
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "ImageContent": "rbxasset://textures/ui/GuiImagePlaceholder.png",
+    "Position": [[0.0102, 0.0], [0.038, 0.0]],
+    "ScaleType": "Crop",
+    "Size": [[0.1974, 0.0], [0.9229, 0.0]]
+  }
+}

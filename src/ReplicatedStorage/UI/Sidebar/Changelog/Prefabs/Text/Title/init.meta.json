@@ -1,0 +1,26 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AnchorPoint": [0.5, 0],
+    "AutomaticSize": "Y",
+    "BackgroundColor3": [1, 1, 1],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/Balthazar.json",
+      "weight": "Regular",
+      "style": "Normal",
+      "cachedFaceId": null
+    },
+    "Position": [[0.5, 0.0], [0.0, 0.0]],
+    "RichText": true,
+    "Size": [[1.0, 0.0], [0.0, 0.0]],
+    "Text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur elementum non ante eu mollis. Sed aliquam maximus mi lobortis mattis. Sed consectetur justo vel ligula lobortis, at commodo felis tristique.",
+    "TextColor3": [1, 1, 1],
+    "TextSize": 55,
+    "TextStrokeTransparency": 0,
+    "TextWrapped": true,
+    "TextXAlignment": "Left"
+  }
+}

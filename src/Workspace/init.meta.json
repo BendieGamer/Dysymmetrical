@@ -1,3 +1,17 @@
 {
-    "ignoreUnknownInstances": true
+  "className": "Workspace",
+  "properties": {
+    "Attributes": {
+      "KillersAllowed": 1,
+      "FreezeTime": false,
+      "DebugAllowed": false,
+      "LMS": false,
+      "CooldownsEnabled": true,
+      "ServerLoaded": false,
+      "ChargesEnabled": true,
+      "ClientLoaded": false
+    },
+    "ClientAnimatorThrottling": "Enabled"
+  },
+  "keepUnknowns": true
 }

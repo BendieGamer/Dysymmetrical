@@ -1,0 +1,16 @@
+{
+  "className": "Part",
+  "properties": {
+    "Attributes": {
+      "RBXRefinementScale": {
+        "Vector3": [1.0, 1.0, 1.0]
+      }
+    },
+    "BottomSurface": "Smooth",
+    "CFrame": [0.015, 2.2, 0.03, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CanCollide": false,
+    "EnableFluidForces": false,
+    "Size": [3, 4, 3],
+    "TopSurface": "Smooth"
+  }
+}

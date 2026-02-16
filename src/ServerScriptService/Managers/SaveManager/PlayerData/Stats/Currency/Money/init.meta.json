@@ -1,0 +1,12 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "DisplayInLeaderstats": true,
+      "DisplayTitle": "Player Points",
+      "LayoutOrder": 1,
+      "PostDisplayTitle": "$"
+    },
+    "Value": 5000
+  }
+}

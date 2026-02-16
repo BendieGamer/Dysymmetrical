@@ -1,0 +1,7 @@
+{
+  "className": "UIAspectRatioConstraint",
+  "properties": {
+    "AspectRatio": 2.69,
+    "AspectType": "ScaleWithParentSize"
+  }
+}

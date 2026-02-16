@@ -1,0 +1,11 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 1,
+      "DisplayDescription": "Makes all attack hitboxes visible to you",
+      "DisplayTitle": "Visible Attack Hitboxes"
+    },
+    "Value": true
+  }
+}

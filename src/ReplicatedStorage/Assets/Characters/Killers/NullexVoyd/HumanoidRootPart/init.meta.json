@@ -1,0 +1,15 @@
+{
+  "className": "Part",
+  "properties": {
+    "BottomSurface": "Smooth",
+    "CanCollide": false,
+    "FormFactor": "Symmetric",
+    "LeftParamA": 0,
+    "LeftParamB": 0,
+    "RightParamA": 0,
+    "RightParamB": 0,
+    "Size": [2.4, 2.4, 1.2],
+    "TopSurface": "Smooth",
+    "Transparency": 1
+  }
+}

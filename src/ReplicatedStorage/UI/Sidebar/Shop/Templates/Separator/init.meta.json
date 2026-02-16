@@ -1,0 +1,11 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "AnchorPoint": [0.5, 0.5],
+    "BackgroundColor3": [0, 0, 0],
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "Position": [[0.5, 0.0], [0.63, 0.0]],
+    "Size": [[0.99, 0.0], [0.0, 60.0]]
+  }
+}

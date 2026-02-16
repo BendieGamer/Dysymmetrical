@@ -1,0 +1,9 @@
+{
+  "className": "NumberValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 3,
+      "DisplayTitle": "Total Kills"
+    }
+  }
+}

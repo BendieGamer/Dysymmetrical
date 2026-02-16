@@ -1,0 +1,10 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "LayoutOrder": 2,
+      "DisplayTitle": "Hide Killer Wins",
+      "DisplayDescription": "Hides the amount of times you've won as Killer."
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "className": "Humanoid",
+  "properties": {
+    "DisplayDistanceType": "None",
+    "HealthDisplayDistance": 120.0,
+    "HealthDisplayType": "AlwaysOff",
+    "JumpHeight": 8.64,
+    "JumpPower": 54.7723,
+    "NameDisplayDistance": 120.0,
+    "WalkSpeed": 19.2
+  }
+}

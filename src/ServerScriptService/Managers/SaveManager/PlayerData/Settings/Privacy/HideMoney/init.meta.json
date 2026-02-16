@@ -1,0 +1,10 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "DisplayDescription": "Hides the money you currently have in your player list label in others' screens.",
+      "DisplayTitle": "Hide Money",
+      "LayoutOrder": 4
+    }
+  }
+}

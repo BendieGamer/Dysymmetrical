@@ -1,0 +1,12 @@
+{
+  "className": "Part",
+  "properties": {
+    "CFrame": [1.5, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CanCollide": false,
+    "CanQuery": false,
+    "CanTouch": false,
+    "EnableFluidForces": false,
+    "FormFactor": "Symmetric",
+    "Size": [1, 2, 1]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "className": "BillboardGui",
+  "properties": {
+    "AlwaysOnTop": true,
+    "ClipsDescendants": true,
+    "Size": [[4.0, 0.0], [1.95, 0.0]],
+    "ZIndexBehavior": "Sibling"
+  }
+}
