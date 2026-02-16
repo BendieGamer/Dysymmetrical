@@ -41,6 +41,7 @@
 
 --!native
 
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local DataTypes = require(script.DataTypes)
@@ -53,19 +54,29 @@ local Network = {
         -- UREMOTE_EVENT = nil,
         -- BINDABLE_EVENT = nil,
     },
+
     _Equivalents = {
         REMOTE_EVENT = "RemoteEvent",
         REMOTE_FUNCTION = "RemoteFunction",
         UREMOTE_EVENT = "UnreliableRemoteEvent",
         BINDABLE_EVENT = "BindableEvent",
     },
+
     Connections = {},
-    -- InstanceCreator = nil,
+    
     ServiceLive = false,
+
     Debug = {
         ReceivedPackets = true,
-        SentPackets = true,
+        SentPackets = false,
+        RateLimitExceeded = true,
     },
+
+    ExhaustionDetection = {
+        RateLimit = 50,
+        RateDropPerSecond = 10,
+    },
+    PlayerExhaustionLogs = {},
 }
 
 --- Waits until the networking service is live for usage.
@@ -75,6 +86,32 @@ function Network:WaitForInit()
     while not self:IsLive() do
         task.wait()
     end
+end
+
+function Network:_CheckPlayerRateLimit(Player: Player): boolean
+    local Now = time()
+
+    if not self.PlayerExhaustionLogs[Player.UserId] then
+        self.PlayerExhaustionLogs[Player.UserId] = {Total = 0, Last = Now}
+    end
+
+    local Data = self.PlayerExhaustionLogs[Player.UserId]
+
+    local Elapsed = Now - Data.Last
+    --check how many remotes it's fired before the second passes
+    local Used = Elapsed * self.ExhaustionDetection.RateDropPerSecond
+
+    Data.Total = math.max(0, Data.Total - Used)
+    Data.Last = Now
+
+    --check if it exceeds the limit
+    if Data.Total >= self.ExhaustionDetection.RateLimit then
+        return false
+    end
+
+    Data.Total += 1
+
+    return true
 end
 
 --- Initializes the networking system in the current environment.
@@ -167,9 +204,22 @@ function Network:Init()
             end
 
             Inst.OnServerEvent:Connect(function(Player: Player, Args: {any})
+                if not self:_CheckRateLimit(Player) then
+                    if self.Debug.RateLimitExceeded then
+                        warn(`[DysNetworking (DEBUG)] Player "{Player.Name}" with ID "{Player.UserId}" is suspected to be exhausting the remote calls rate limit! Cancelling current remote...`)
+                    end
+
+                    return
+                end
+
                 OnRemoteEventPacket(Player, Args, Name)
             end)
         end
+
+        Players.PlayerRemoving:Connect(function(Player: Player)
+            --cleanup
+            self.PlayerExhaustionLogs[Player.UserId] = nil
+        end)
     else
         local EventFolder = script:FindFirstChild("Types") or script:WaitForChild("Types")
 
