@@ -166,6 +166,10 @@ type LoadCharacterSettings = {
     Name: string?,
     Skin: string?,
     LoadCallback: ((Character: Model, Humanoid: Humanoid) -> ())?,
+    --- If `false`, the `Player.Character` property won't be set to the rig yet.
+    --- 
+    --- This is useful in case you want to do something before the character is actually assigned, thus firing `Player.CharacterAdded` later.
+    AutoSetPlayerCharacter: boolean?,
 }
 --- Loads a character onto a player.
 --- 
@@ -199,6 +203,7 @@ function PlayerRespawnManager.LoadCharacter(Player: Player, FuncSettings: LoadCh
     local Character = PlayerRespawnManager.LoadRigOntoPlayer(Player, {
         Character = CharacterRig or Players:CreateHumanoidModelFromUserIdAsync(Player.UserId),
         Callback = FuncSettings.LoadCallback,
+        AutoSetPlayerCharacter = FuncSettings.AutoSetPlayerCharacter,
     })
     --set the role beforehand to make sure everything works fine
     Character:SetAttribute("Role", FuncSettings.Role)

@@ -37,6 +37,7 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
         Role = CharacterSettings.Role,
         Name = CharacterSettings.Name,
         Skin = CharacterSettings.Skin,
+        AutoSetPlayerCharacter = false,
     })
 
     local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
@@ -61,6 +62,8 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
     end)
 
     Utils.Misc.PreloadAssets(CharacterModule.Config)
+
+    Player.Character = Character
 
     local CharacterContainer = require(Character.CharacterModule)
     CharacterContainer.Module = CharacterModule
