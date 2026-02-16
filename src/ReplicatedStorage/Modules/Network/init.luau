@@ -155,7 +155,7 @@ function Network:Init()
         local Name, DecodedArgs = self:_UnpackArgumentsFromNetwork(Args)
 
         if self.Debug.ReceivedPackets then
-            print(`[DysNetworking (DEBUG)] Received "REMOTE_FUNCTION" event with name "{Name}" and size "{buffer.len(Args[1])}".`)
+            print(`[DysNetworking (DEBUG)] Received event of type "REMOTE_FUNCTION" with name "{Name}" and a size of {buffer.len(Args[1])} bytes.`)
         end
 
         local Callback = self.Connections["REMOTE_FUNCTION"][Name]
