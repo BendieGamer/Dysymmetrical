@@ -2,11 +2,6 @@ name: Discord Commit Action
 
 on:
   push:
-    branches:
-      - main
-      - dev
-      - rewrite
-      - argon
   pull_request:
 
 jobs:
