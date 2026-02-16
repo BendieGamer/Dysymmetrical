@@ -45,7 +45,7 @@ function ShopManager:Init()
         Product.Parent = Parent
 
         --tell the player "yo you got yo stuff cuh, see it!"
-        Network:FireClientConnection(Player, "ShowRewardNotification", "REMOTE_EVENT", Module, `Quoted{ProductType}`)
+        Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", Module, `Quoted{ProductType}`)
 
         --confirm the purchase
         return true

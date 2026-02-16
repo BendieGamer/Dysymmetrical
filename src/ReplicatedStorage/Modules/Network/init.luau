@@ -62,6 +62,10 @@ local Network = {
     Connections = {},
     -- InstanceCreator = nil,
     ServiceLive = false,
+    Debug = {
+        ReceivedPackets = true,
+        SentPackets = true,
+    },
 }
 
 --- Waits until the networking service is live for usage.
@@ -80,7 +84,16 @@ function Network:Init()
     end
 
     local function OnRemoteEventPacket(Player: Player?, Args: {any}, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "BINDABLE_EVENT")
+        --safety first gng
+        if RunService:IsServer() and not Player then
+            return
+        end
+
         local Name, DecodedArgs = self:_UnpackArgumentsFromNetwork(Args)
+
+        if self.Debug.ReceivedPackets then
+            print(`[DysNetworking (DEBUG)] Received event of type "{Type}" with name "{Name}" and a size of {buffer.len(Args[1])} bytes.`)
+        end
 
         local CallbackList = self.Connections[Type][Name]
         if not CallbackList then
@@ -97,7 +110,16 @@ function Network:Init()
     end
 
     local function OnRemoteFunctionPacket(Player: Player?, Args: {any}): any
+        --safety first gng
+        if RunService:IsServer() and not Player then
+            return
+        end
+
         local Name, DecodedArgs = self:_UnpackArgumentsFromNetwork(Args)
+
+        if self.Debug.ReceivedPackets then
+            print(`[DysNetworking (DEBUG)] Received "REMOTE_FUNCTION" event with name "{Name}" and size "{buffer.len(Args[1])}".`)
+        end
 
         local Callback = self.Connections["REMOTE_FUNCTION"][Name]
         if not Callback then
@@ -105,7 +127,7 @@ function Network:Init()
         end
 
         local Results = Player ~= nil and { Callback(Player, unpack(DecodedArgs)) } or { Callback(unpack(DecodedArgs)) }
-        local CompressedResults = self:_PackArgumentsForNetwork("r", Results) --using a dummy name, ignore
+        local CompressedResults = self:_PackArgumentsForNetwork("", Results) --using a dummy name, ignore
 
         return CompressedResults
     end
@@ -185,6 +207,11 @@ end
 --- @param Callback                (`function`):    The code that will run when the connection is fired.
 --- @return `RBXScriptConnection`                   The set connection for further usage in the script from where this is called.
 function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION" | "BINDABLE_EVENT", Callback: (...any) -> (...any)): RBXScriptConnection
+    if #name > 255 then
+        warn(`[DysNetworking:SetConnection()] Can't assign connection with name "{name}" because it's too long! Try to shorten it a bit.`)
+        return
+    end
+    
     self:WaitForInit()
 
     if self.Connections[Type][name] == nil and Type ~= "REMOTE_FUNCTION" then
@@ -230,6 +257,11 @@ end
 --- @param Type    (`string`):  The type of instance to fire the connections of
 --- @param ...                  Any parameters to pass to the connection
 function Network:FireClientConnection(target: Player | {Player}, name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION", ...): any | nil
+    if #name > 255 then
+        warn(`[DysNetworking:FireClientConnection()] Can't fire connection with name "{name}" because it's too long! Try to shorten it a bit.`)
+        return
+    end
+
     self:WaitForInit()
 
     if not RunService:IsServer() then
@@ -247,6 +279,10 @@ function Network:FireClientConnection(target: Player | {Player}, name: string, T
     local CompressedArguments = self:_PackArgumentsForNetwork(name, Arguments)
 
     local function Fire(player: Player, ...)
+        if self.Debug.SentPackets then
+            print(`[DysNetworking (DEBUG)] Fired event of type "{Type}" with name "{name}".\n{debug.traceback()}`)
+        end
+
         if Type == "REMOTE_FUNCTION" then
             local Results = event:InvokeClient(player, ...)
             local DecompressedResults = self:_UnpackArgumentsFromNetwork(Results)
@@ -273,6 +309,11 @@ end
 --- @param Type    (`string`):  The type of the event (Reliable / Unreliable)
 --- @param ...                  Any parameters to pass to the connection
 function Network:FireAllClientConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT", ...)
+    if #name > 255 then
+        warn(`[DysNetworking:FireAllClientConnection()] Can't fire connection with name "{name}" because it's too long! Try to shorten it a bit.`)
+        return
+    end
+
     self:WaitForInit()
 
     if not RunService:IsServer() then
@@ -294,6 +335,10 @@ function Network:FireAllClientConnection(name: string, Type: "REMOTE_EVENT" | "U
     local Arguments = {...}
     local CompressedArguments = self:_PackArgumentsForNetwork(name, Arguments)
 
+    if self.Debug.SentPackets then
+        print(`[DysNetworking (DEBUG)] Fired event of type "{Type}" with name "{name}".\n{debug.traceback()}`)
+    end
+
     instance:FireAllClients(CompressedArguments)
 end
 
@@ -302,6 +347,11 @@ end
 --- @param Type    (`string`):  The type of instance to fire the connections of
 --- @param ...                  Any parameters to pass to the connection
 function Network:FireServerConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION", ...): any | nil
+    if #name > 255 then
+        warn(`[DysNetworking:FireServerConnection()] Can't fire connection with name "{name}" because it's too long! Try to shorten it a bit.`)
+        return
+    end
+
     self:WaitForInit()
 
     if not RunService:IsClient() then
@@ -318,6 +368,10 @@ function Network:FireServerConnection(name: string, Type: "REMOTE_EVENT" | "UREM
     local Arguments = {...}
     local CompressedArguments = self:_PackArgumentsForNetwork(name, Arguments)
 
+    if self.Debug.SentPackets then
+        print(`[DysNetworking (DEBUG)] Fired event of type "{Type}" with name "{name}".\n{debug.traceback()}`)
+    end
+
     if Type == "REMOTE_FUNCTION" then
         local Results = instance:InvokeServer(CompressedArguments)
         local _, DecompressedResults = self:_UnpackArgumentsFromNetwork(Results)
@@ -333,6 +387,11 @@ end
 --- @param name (`string`): The name of the desired BindableEvent
 --- @param ...              Any parameters to pass to the connection
 function Network:FireConnection(name: string, ...)
+    if #name > 255 then
+        warn(`[DysNetworking:FireConnection()] Can't fire connection with name "{name}" because it's too long! Try to shorten it a bit.`)
+        return
+    end
+
     self:WaitForInit()
 
     local Bindable = self.Instances["BINDABLE_EVENT"]
@@ -343,6 +402,10 @@ function Network:FireConnection(name: string, ...)
 
     local Arguments = {...}
     local CompressedArguments = self:_PackArgumentsForNetwork(name, Arguments)
+
+    if self.Debug.SentPackets then
+        print(`[DysNetworking (DEBUG)] Fired event of type "BINDABLE_EVENT" with name "{name}".\n{debug.traceback()}`)
+    end
 
     Bindable:Fire(CompressedArguments)
 end

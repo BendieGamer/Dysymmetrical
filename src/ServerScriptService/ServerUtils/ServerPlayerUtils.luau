@@ -143,7 +143,7 @@ function ServerPlayerUtils.GrantCharacterItemToPlayer(Player: Player, Type: "Kil
 	Value.Parent = Parent
 
 	--display the reward notification
-	Network:FireClientConnection(Player, "ShowRewardNotification", "REMOTE_EVENT", CharacterModule, "QuotedGranted"..(SkinName and "Skin" or "Character"))
+	Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", CharacterModule, "QuotedGranted"..(SkinName and "Skin" or "Character"))
 end
 
 --- Grants an emote to a player.
@@ -172,7 +172,7 @@ function ServerPlayerUtils.GrantEmoteToPlayer(Player: Player, EmoteName: string)
 	Value.Parent = Parent
 
 	--display the reward notification
-	Network:FireClientConnection(Player, "ShowRewardNotification", "REMOTE_EVENT", EmoteModule, "QuotedGrantedEmote")
+	Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", EmoteModule, "QuotedGrantedEmote")
 end
 
 --- Gets a player's permission rank.
