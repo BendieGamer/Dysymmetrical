@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - rewrite
+      - argon
   pull_request:
 
 jobs:
