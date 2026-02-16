@@ -530,13 +530,13 @@ DataTypes.Readers = {
         return TweenInfo.new(Time, style, dir, count, reverses, Delay), Count + 15
     end,
 
-    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (number, number)
+    [DataTypes.Enum.Instance] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (Instance, number)
         local index = buffer.readu16(Buffer, Count)
         local inst = InstanceList and InstanceList[index] or nil
         return inst, Count + 2
     end,
 
-    [DataTypes.Enum.Map] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): (number, number)
+    [DataTypes.Enum.Map] = function(Buffer: buffer, Count: number, InstanceList: {Instance}): ({any}, number)
         local count = buffer.readu16(Buffer, Count)
         Count += 2
 
