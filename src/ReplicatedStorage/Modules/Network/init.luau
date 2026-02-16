@@ -424,6 +424,11 @@ function Network:FireServerConnection(name: string, Type: "REMOTE_EVENT" | "UREM
 
     if Type == "REMOTE_FUNCTION" then
         local Results = instance:InvokeServer(CompressedArguments)
+
+        if self.Debug.ReceivedPackets then
+            print(`[DysNetworking (DEBUG)] Received back results from a "REMOTE_FUNCTION" with name "{name}" and a size of {buffer.len(Results[1])} bytes.`)
+        end
+
         local _, DecompressedResults = self:_UnpackArgumentsFromNetwork(Results)
         return unpack(DecompressedResults)
     end
