@@ -18,39 +18,46 @@ local CharacterInitter = {
 
 function CharacterInitter:Init()
     Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Character: Model)
-        --set attributes n shit
+        CharacterInitter._InitializeGameCharacter(Character)
 
-        if Character:GetAttribute("Role") ~= "Spectator" then
-            CharacterInitter._InitializeGameCharacter(Character)
-        end
-
+        --init all character scripts themselves
         require(Character:FindFirstChild("Initter")):Init(Character)
     end)
 end
 
 function CharacterInitter._InitializeGameCharacter(Character: Model)
-    if not Character:GetAttribute("CharacterName") then
+    if Character:GetAttribute("Role") == "Spectator" or not Character:GetAttribute("CharacterName") then
         return
     end
 
+    --disable the reset button
     CharacterInitter._ResetButtonCycle()
 
+    --make a new char table for this character
     local Info: Types.Killer | Types.Survivor = Utils.Type.CopyTable(require(Utils.Instance.GetCharacterModule(Character:GetAttribute("Role"), Character:GetAttribute("CharacterName"), Character:GetAttribute("CharacterSkin"))))
     Info.Owner = Players.LocalPlayer
 
+    --preload le stuff
     Utils.Misc.PreloadAssets(Info.Config)
 
+    --load all animations in a deferred thread
     task.defer(CharacterInitter._LoadCharacterAnimations, Character, Info)
 
+    --set the anim transition time
     Character:SetAttribute("AnimationTransitionTime", Info.Config.AnimationTransitionTime)
 
+    --init all char abilities
     CharacterInitter._InitializeCharacterAbilities(Character, Info)
 
+    --oninit callback
     if Info.OnInit then
         Info:OnInit(Character)
     end
 end
 
+--- Disables the reset button for 5 seconds.
+--- 
+--- If called while waiting, the 5 second counter will reset and take another 5 seconds.
 function CharacterInitter._ResetButtonCycle()
     if CharacterInitter.ResetButtonThread then
         task.cancel(CharacterInitter.ResetButtonThread)
@@ -63,6 +70,7 @@ function CharacterInitter._ResetButtonCycle()
     end)
 end
 
+--- Initializes a character's abilities if the table for it is provided.
 function CharacterInitter._InitializeCharacterAbilities(Character: Model, Info: Types.Killer | Types.Survivor)
     local CharacterModule = require(Character.CharacterModule)
     CharacterModule.Module = Info
@@ -73,6 +81,9 @@ function CharacterInitter._InitializeCharacterAbilities(Character: Model, Info: 
     end
 end
 
+--- Loads all animations from a character module onto a character's model.
+--- 
+--- Also calls `CharacterInitter._SetupStunAnimations()` at the end.
 function CharacterInitter._LoadCharacterAnimations(Character: Model, Info: Types.Killer | Types.Survivor)
     local AnimationManager = require(Character:FindFirstChild("AnimationManager"))
     AnimationManager:LoadAnimation("Idle", Info.Config.AnimationIDs.IdleAnimation)
@@ -90,22 +101,27 @@ function CharacterInitter._LoadCharacterAnimations(Character: Model, Info: Types
     CharacterInitter._SetupStunAnimations(Character, AnimationManager, Info)
 end
 
+--- Sets up stun animations to play automatically.
 function CharacterInitter._SetupStunAnimations(Character: Model, AnimationManager: any, Info: Types.Killer | Types.Survivor)
     Utils.Instance.ObserveChildren(Character.Effects, function(Effect: Instance)
         if Effect.Name ~= "Stunned" then
             return
         end
 
+        --gets the duration of the stun
         local Duration = Effect:GetAttribute("Duration")
 
+        --gets all animations
         local Stunned = AnimationManager.AnimationTracks.Stunned
         local StunnedLoop = AnimationManager.AnimationTracks.StunnedLoop
         local StunnedEnd = AnimationManager.AnimationTracks.StunnedEnd
 
+        --plays the stun
         if Stunned then
             Stunned:Play(0)
         end
 
+        --if there is a stun loop, play it after the stun animation
         if StunnedLoop then
             if Stunned then
                 task.wait(Stunned.Length - 0.1)
@@ -116,6 +132,7 @@ function CharacterInitter._SetupStunAnimations(Character: Model, AnimationManage
             end
         end
 
+        --if there's an ending animation, play it before the stun ends
         if StunnedEnd then
             task.delay(Duration - StunnedEnd.Length - 0.1, function()
                 if StunnedLoop and StunnedLoop.IsPlaying then
@@ -126,6 +143,7 @@ function CharacterInitter._SetupStunAnimations(Character: Model, AnimationManage
             return
         end
 
+        --if the stun loop is there, wait until the end to stop it
         if not StunnedLoop then
             return
         end
