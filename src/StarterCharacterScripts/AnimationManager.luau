@@ -22,9 +22,9 @@ local DefaultAnimations: {[string]: string} = {
 }
 
 local SpectatorOnly = {
-	"Fall",
-	"Climb",
-	"Sit",
+	Fall = true,
+	Climb = true,
+	Sit = true,
 }
 
 function AnimationManager:Init()
@@ -46,7 +46,7 @@ function AnimationManager:Init()
 		end
 
 		--if this default animation should only be automatically loaded onto spectators, do so
-		if self.Character:GetAttribute("Role") ~= "Spectator" and table.find(SpectatorOnly, Name) then
+		if self.Character:GetAttribute("Role") ~= "Spectator" and SpectatorOnly[Name] then
 			continue
 		end
 
