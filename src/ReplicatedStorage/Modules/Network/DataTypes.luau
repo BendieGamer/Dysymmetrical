@@ -134,8 +134,8 @@ function DataTypes.GetTagFromValue(Value: any): number
             return DataTypes.Enum.Int32
         end
 
-        --fall back to your typical float64
-        return DataTypes.Enum.Float64
+        --fall back to your typical float32
+        return DataTypes.Enum.Float32
     end
 
     if Type == "table" then

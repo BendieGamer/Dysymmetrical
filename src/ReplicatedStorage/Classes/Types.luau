@@ -939,14 +939,20 @@ export type HitboxDetails = {
     Damage: number,
     --- The time that's passed since the creation of the hitbox.
     TimePast: number,
+    --- If the hitbox is supposed to be linked to a projectile.
+    IsProjectile: boolean,
     --- If the hitbox has been cancelled.
     Cancelled: boolean,
-    --- The multiple connections of this hitbox to detect if the character gets stunned or destroyed.
-    Connections: {RBXScriptConnection},
+    --- Any callbacks assigned to this hitbox through `HitboxSettings.Connections`.
+    Callbacks: {[string]: (any?) -> ()}?,
     --- Cancels the hitbox and destroys it.
     --- 
     --- Call this with a `:`.
     Cancel: (self: HitboxDetails) -> (),
+    --- This hitbox's `Janitor` instance.
+    --- 
+    --- Cleans up stuff.
+    _Janitor: Janitor,
 }
 
 --- Holds data for any given projectile

@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService = game:GetService("TweenService")
 
+local Hitbox = require(ServerScriptService.Classes.Hitbox)
 local PlayerSpeedManager = require(ServerScriptService.Managers.PlayerManager.CharacterManager.PlayerSpeedManager)
 local ServerUtils = require(ServerScriptService.ServerUtils)
 local Types = require(ReplicatedStorage.Classes.Types)
@@ -30,25 +31,25 @@ function Commander.BlindsideBehaviour(self: Types.Ability)
     
         self:AddConnection(task.delay(self.TriggerDelay, function()
             task.spawn(function()
-                -- Hitbox.New(self.Owner, {
-                --     CFrame = CFrame.new(FunctionalGrenade.Position),
-                --     Size = Vector3.new(35, 35, 35),
-                --     Damage = 0,
-                --     Time = 1/40 * 3,
-                --     Shape = Enum.PartType.Ball,
-                --     EffectsToApply = {
-                --         {
-                --             Name = "Blindness",
-                --             Duration = 4,
-                --             Level = 1,
-                --         },
-                --     },
-                --     Connections = {
-                --         PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
-                --             ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 10, EXP = 20, Reason = "blinding the killer with Blindside"})
-                --         end,
-                --     }
-                -- })
+                Hitbox.New(self.Owner, {
+                    CFrame = CFrame.new(FunctionalGrenade.Position),
+                    Size = Vector3.new(35, 35, 35),
+                    Damage = 0,
+                    Time = 1/40 * 3,
+                    Shape = Enum.PartType.Ball,
+                    EffectsToApply = {
+                        {
+                            Name = "Blindness",
+                            Duration = 4,
+                            Level = 1,
+                        },
+                    },
+                    Connections = {
+                        PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
+                            ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 10, EXP = 20, Reason = "blinding the killer with Blindside"})
+                        end,
+                    }
+                })
             end)
         
             local Light = FunctionalGrenade:FindFirstChildWhichIsA("PointLight")
@@ -86,26 +87,26 @@ function Commander.JusticeBehaviour(self: Types.Ability)
     --Shot Sound & Hitbox
     self:AddConnection(task.delay(1.17, function()
         task.spawn(function()
-            -- Hitbox.New(self.Owner, {
-            --     CFrameOffset = CFrame.new(0, 0, -(self.HitboxLength / 2)),
-            --     Size = Vector3.new(3, 1.5, self.HitboxLength),
-            --     Time = self.Duration,
-            --     Reason = "The Gun Shot",
-            --     Damage = self.Damage,
-            --     EffectsToApply = {
-            --         {
-            --             Name = "Stunned",
-            --             Level = 1,
-            --             Duration = self.StunTime,
-            --             Subfolder = "KillerSpecific"
-            --         },
-            --     },
-            --     Connections = {
-            --         PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
-            --             ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 6, EXP = 14, Reason = "stunning the killer with Justice"})
-            --         end,
-            --     }
-            -- })
+            Hitbox.New(self.Owner, {
+                CFrameOffset = CFrame.new(0, 0, -(self.HitboxLength / 2)),
+                Size = Vector3.new(3, 1.5, self.HitboxLength),
+                Time = self.Duration,
+                Reason = "The Gun Shot",
+                Damage = self.Damage,
+                EffectsToApply = {
+                    {
+                        Name = "Stunned",
+                        Level = 1,
+                        Duration = self.StunTime,
+                        Subfolder = "KillerSpecific"
+                    },
+                },
+                Connections = {
+                    PostHit = function(Config: Types.HitboxSettings, Hum: Humanoid)
+                        ServerUtils.Player.GrantRewardToPlayer(self.Owner, {Money = 6, EXP = 14, Reason = "stunning the killer with Justice"})
+                    end,
+                }
+            })
         end)
     
         local FirePart = self.JusticeModel.FirePart

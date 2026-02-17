@@ -8,6 +8,17 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local ServerPlayerDataUtils = {}
 
+--- Updates a player's stat specified by a `string` path.
+--- Stats are all either `int`s or `number`s.
+function ServerPlayerDataUtils.UpdatePlayerStat(Player: Player, path: string, amount: number)
+    local Stat = Utils.Instance.FindFirstChild(Player, "PlayerData.Stats."..path)
+	if Stat then
+		Stat.Value += amount
+	else
+		warn("[CommonFunctions.UpdatePlayerStat()] Couldn't find stat "..path.."!")
+	end
+end
+
 --- Sets a player's progress of a specific achievement.
 --- 
 --- Useful for milestone achievements.
