@@ -70,6 +70,7 @@ local Network = {
         ReceivedPackets = true,
         SentPackets = false,
         RateLimitExceeded = true,
+        Strict = true,
     },
 
     ExhaustionDetection = {
@@ -495,6 +496,10 @@ function Network:_PackArgumentsForNetwork(Name: string, Arguments: {any})
     for _, Value in ipairs(Arguments) do
         --get le tag
         local Tag = DataTypes.GetTagFromValue(Value)
+
+        if self.Debug.Strict and Tag == DataTypes.Enum.JSON then
+            warn(`[DysNetworking (DEBUG)] Data type "{typeof(Value)}" isn't officially supported by DysNetworking to auto-optimize into a buffer! Falling back to JSON strings...`)
+        end
         
         --get le size
         local PayloadSize = DataTypes.GetPayloadSize(Tag, Value)

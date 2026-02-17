@@ -31,7 +31,7 @@ local DataTypes = {
         TweenInfo = 22,
         Instance = 23,
         Map = 24,
-    },
+    } :: {[string]: number},
 }
 
 --setting the size of every type beforehand to not have to calculate it unless it's necessary
