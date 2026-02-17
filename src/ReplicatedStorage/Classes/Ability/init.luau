@@ -228,14 +228,6 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
         }
 
         self:AddConnection(Network:SetConnection("UsePlayerAbility", "REMOTE_EVENT", function(player: Player, abilityName: string)
-            if player ~= self.Owner or abilityName ~= self.Name then
-                return
-            end
-
-            if not self:CanUse() then
-                return
-            end
-
             task.defer(function()
                 if self.CharModule.Config.Voicelines and self.CharModule.Config.Voicelines[self.Name] then
                     Sounds.PlayVoiceline(self.Owner.Character, self.CharModule.Config.Voicelines[self.Name])
@@ -265,6 +257,8 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             if self.Behaviour then
                 self:Behaviour()
             end
+        end, function(player: Player, abilityName: string): boolean
+            return not (player ~= self.Owner or abilityName ~= self.Name or not self:CanUse())
         end))
     else
         self.OwnerProperties = {
@@ -296,13 +290,11 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             if abilityName == self.Name then
                 self:ChangeAbilityCharges(Type, amount)
             end
-        end)) 
+        end, function(abilityName: string): boolean
+            return abilityName == self.Name
+        end))
 
         self:AddConnection(Network:SetConnection("UsePlayerAbility", "REMOTE_EVENT", function(abilityName: string)
-            if abilityName ~= self.Name then
-                return
-            end
-
             --disables ability keys for preventing the usage of a different ability while using it
             if self.DisableOtherAbilitiesOnPerform then
                 self:DisableAllAbilities()
@@ -325,6 +317,8 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             if self.Behaviour then
                 self:Behaviour()
             end
+        end, function(abilityName: string)
+            return abilityName == self.Name
         end))
     end
 

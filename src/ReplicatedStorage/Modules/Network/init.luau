@@ -138,8 +138,22 @@ function Network:Init()
             return
         end
 
-        for callback, _ in CallbackList do
-            if Type ~= "BINDABLE_EVENT" and Player then
+        for callback, meta in CallbackList do
+            local ServerCheck = Type ~= "BINDABLE_EVENT" and Player ~= nil
+
+            if meta.Predicate then
+                local Valid =
+                    if ServerCheck then
+                        meta.Predicate(Player, unpack(DecodedArgs))
+                    else
+                        meta.Predicate(unpack(DecodedArgs))
+                
+                if not Valid then
+                    continue
+                end
+            end
+
+            if ServerCheck then
                 task.spawn(callback, Player, unpack(DecodedArgs))
             else
                 task.spawn(callback, unpack(DecodedArgs))
@@ -159,12 +173,26 @@ function Network:Init()
             print(`[DysNetworking (DEBUG)] Received event of type "REMOTE_FUNCTION" with name "{Name}" and a size of {buffer.len(Args[1])} bytes.`)
         end
 
-        local Callback = self.Connections["REMOTE_FUNCTION"][Name]
-        if not Callback then
+        local Meta = self.Connections["REMOTE_FUNCTION"][Name]
+        if not Meta then
             return
         end
 
-        local Results = Player ~= nil and { Callback(Player, unpack(DecodedArgs)) } or { Callback(unpack(DecodedArgs)) }
+        local ServerCheck = Player ~= nil
+
+        if Meta.Predicate then
+            local Valid =
+                if ServerCheck then
+                    Meta.Predicate(Player, unpack(DecodedArgs))
+                else
+                    Meta.Predicate(unpack(DecodedArgs))
+            
+            if not Valid then
+                return
+            end
+        end
+
+        local Results = if ServerCheck then { Meta.Callback(Player, unpack(DecodedArgs)) } else { Meta.Callback(unpack(DecodedArgs)) }
         local CompressedResults = self:_PackArgumentsForNetwork("", Results) --using a dummy name, ignore
 
         return CompressedResults
@@ -257,7 +285,7 @@ end
 --- @param Type                    (`string`):      The type of the instance.
 --- @param Callback                (`function`):    The code that will run when the connection is fired.
 --- @return `RBXScriptConnection`                   The set connection for further usage in the script from where this is called.
-function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION" | "BINDABLE_EVENT", Callback: (...any) -> (...any)): RBXScriptConnection
+function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVENT" | "REMOTE_FUNCTION" | "BINDABLE_EVENT", Callback: (...any) -> (...any), Predicate: ((...any) -> boolean)?): RBXScriptConnection
     if #name > 255 then
         warn(`[DysNetworking:SetConnection()] Can't assign connection with name "{name}" because it's too long! Try to shorten it a bit.`)
         return
@@ -269,9 +297,14 @@ function Network:SetConnection(name: string, Type: "REMOTE_EVENT" | "UREMOTE_EVE
         self.Connections[Type][name] = {}
     end
     if Type == "REMOTE_FUNCTION" then
-        self.Connections[Type][name] = Callback
+        self.Connections[Type][name] = {
+            Callback = Callback,
+            Predicate = Predicate,
+        }
     else
-        self.Connections[Type][name][Callback] = true
+        self.Connections[Type][name][Callback] = {
+            Predicate = Predicate,
+        }
     end
 
     return {

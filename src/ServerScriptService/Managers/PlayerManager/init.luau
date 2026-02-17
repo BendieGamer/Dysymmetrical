@@ -7,7 +7,9 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 local PlayerManager = {}
 
 function PlayerManager:Init()
-    Network:SetConnection("AddLoadedPlayer", "REMOTE_EVENT", PlayerManager._OnPlayerLoaded)
+    Network:SetConnection("AddLoadedPlayer", "REMOTE_EVENT", PlayerManager._OnPlayerLoaded, function(Player: Player): boolean
+        return not ReplicatedStorage.LoadedPlayers:FindFirstChild(Player.Name)
+    end)
 
     Utils.Player.ObservePlayers(function(Player: Player)
         PlayerRespawnManager.LoadCharacter(Player)
@@ -15,11 +17,6 @@ function PlayerManager:Init()
 end
 
 function PlayerManager._OnPlayerLoaded(Player: Player)
-    --prevent remote spam
-    if ReplicatedStorage.LoadedPlayers:FindFirstChild(Player.Name) then
-        return
-    end
-
     --wait for a while to make sure the player doesn't get sent to a round directly if it starts as they join
     --also to make sure that the changelog appears on next boot if the player leaves before these 3 seconds just in case
     task.wait(3)

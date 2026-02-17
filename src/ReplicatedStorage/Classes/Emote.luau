@@ -82,11 +82,6 @@ function Emote:Init(player: Player)
         --i just noticed that forsaken uses a whole data array to store everything from a player and get the index of it instead of checking it for everyone.
         --it makes more sense.
         self:AddConnection(Network:SetConnection("PlayEmote", "REMOTE_EVENT", function(plr: Player, emoteName: string, soundId: string)
-            --if the player or the emote name isn't the same as in self, or if the player is already emoting, halt
-            if not (CheckRequestParams(plr, emoteName) and self.Owner.Character:GetAttribute("Emoting") ~= true) then
-                return
-            end
-
             --if there's a soundid available, play it
             if soundId and #soundId > 0 then
                 Sounds.PlaySound(soundId, {Name = "Emote", Parent = Utils.Character.GetRootPart(self.Owner), Looped = true})
@@ -104,13 +99,10 @@ function Emote:Init(player: Player)
             if self.Behaviour then
                 self:Behaviour(self.Owner.Character)
             end
+        end, function(plr: Player, emoteName: string, _soundId: string): boolean
+            return CheckRequestParams(plr, emoteName) and self.Owner.Character:GetAttribute("Emoting") ~= true
         end))
         self:AddConnection(Network:SetConnection("StopEmote", "REMOTE_EVENT", function(plr: Player, emoteName: string)
-            --if the player or the emote name isn't the same as in self, or if the player isn't emoting, halt
-            if not (CheckRequestParams(plr, emoteName) and self.Owner.Character == true) then
-                return
-            end
-
             --removing existing emote using `do ... end` to limit the scope of the variables used here
             do
                 local HRP = Utils.Character.GetRootPart(self.Owner)
@@ -132,6 +124,8 @@ function Emote:Init(player: Player)
             if self.OnStop then
                 self:OnStop(self.Owner.Character)
             end
+        end, function(plr: Player, emoteName: string, _soundId: string): boolean
+            return CheckRequestParams(plr, emoteName) and self.Owner.Character:GetAttribute("Emoting") == true
         end))
 
         --halt before the server executes client code
@@ -179,16 +173,6 @@ function Emote:Init(player: Player)
 
     --setup connections from the server to play emote animations n stuff
     self:AddConnection(Network:SetConnection("PlayEmote", "REMOTE_EVENT", function(emoteName: string)
-        --if the emote to play isn't this one, halt
-        if self.Config.Name ~= emoteName then
-            return
-        end
-        
-        --if the emote is already playing, halt
-        if self.TrackPlaying and self.TrackPlaying.Animation.IsPlaying then
-            return
-        end
-
         --play the emote
         self.TrackPlaying.Animation:Play(0)
         --prevent head turning
@@ -198,11 +182,12 @@ function Emote:Init(player: Player)
         if self.Behaviour then
             self:Behaviour(self.Owner.Character)
         end
+    end, function(emoteName: string): boolean
+        return not (self.Config.Name ~= emoteName or (self.TrackPlaying and self.TrackPlaying.Animation.IsPlaying))
     end))
 
     --same with stopping
     self:AddConnection(Network:SetConnection("StopEmote", "REMOTE_EVENT", function(emoteName: string)
-        --if the emote to play isn't this one, or there is no track playing, or if the track playing doesn't have an animation, halt
         if not (emoteName == self.Config.Name and self.TrackPlaying and self.TrackPlaying.Animation) then
             return
         end
@@ -220,6 +205,9 @@ function Emote:Init(player: Player)
         if self.OnStop then
             self:OnStop(self.Owner.Character)
         end
+    end, function(emoteName: string): boolean
+        --if the emote to play isn't this one, or there is no track playing, or if the track playing doesn't have an animation, halt
+        return emoteName == self.Config.Name and self.TrackPlaying and self.TrackPlaying.Animation
     end))
 end
 

@@ -44,11 +44,7 @@ function ServerUtils:Init()
 		return ServerUtils.Player.PlayerHasPermissionRank(Player, Rank)
 	end)
 	Network:SetConnection("ExecuteCommand", "REMOTE_FUNCTION", function(Player: Player, CommandName: string, ...)
-        if ServerUtils.CommandDebounce[Player.UserId] and not ServerUtils.Player.PlayerHasPermissionRank(Player, ServerUtils.Commands[CommandName].RankRequired or Utils.Ranks.ServerOwner) or ServerUtils.Commands[CommandName] == nil then
-            return
-        end
-		
-		task.defer(function()
+        task.defer(function()
 			ServerUtils.CommandDebounce[Player.UserId] = 0.5
 
             repeat
@@ -59,6 +55,8 @@ function ServerUtils:Init()
 		end)
         
         return ServerUtils.Commands[CommandName]:Executed(...)
+    end, function(Player: Player, CommandName: string, ...): boolean
+		return not (ServerUtils.CommandDebounce[Player.UserId] and not ServerUtils.Player.PlayerHasPermissionRank(Player, ServerUtils.Commands[CommandName].RankRequired or Utils.Ranks.ServerOwner) or ServerUtils.Commands[CommandName] == nil)
     end)
 end
 
