@@ -98,7 +98,8 @@ local function IsNumberAnInt32(Value: number): boolean
 end
 
 local function IsNumberAFloat32(Value: number): boolean
-    return math.abs(Value) < 1000000
+    --rounds the value to the 6th decimal and checks bounds
+    return math.abs(Value - tonumber(string.format("%.6f", Value))) < 0.000001 --1e-6 | 1 * 10^-6
 end
 
 function DataTypes.GetTagFromValue(Value: any): number
