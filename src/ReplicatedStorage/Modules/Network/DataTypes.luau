@@ -31,7 +31,7 @@ local DataTypes = {
         TweenInfo = 22,
         Instance = 23,
         Map = 24,
-    } :: {[string]: number},
+    },
 }
 
 --setting the size of every type beforehand to not have to calculate it unless it's necessary
@@ -97,10 +97,10 @@ local function IsNumberAnInt32(Value: number): boolean
     return IsNumberBetweenBounds(Value, -2147483648, 2147483647)
 end
 
-local function IsNumberAFloat32(Value: number): boolean
-    --rounds the value to the 6th decimal and checks bounds
-    return math.abs(Value - tonumber(string.format("%.6f", Value))) < 0.000001 --1e-6 | 1 * 10^-6
-end
+-- local function IsNumberAFloat32(Value: number): boolean
+--     --rounds the value to the 6th decimal and checks bounds
+--     return math.abs(Value - tonumber(string.format("%.6f", Value))) < 0.000001 --1e-6 | 1 * 10^-6
+-- end
 
 function DataTypes.GetTagFromValue(Value: any): number
     local Type = typeof(Value)
@@ -112,11 +112,13 @@ function DataTypes.GetTagFromValue(Value: any): number
     if Type == "number" then
         if not IsNumberAnInt(Value) then
 
-            if IsNumberAFloat32(Value) then
-                return DataTypes.Enum.Float32
-            end
+            -- if IsNumberAFloat32(Value) then
+            --     return DataTypes.Enum.Float32
+            -- end
 
-            return DataTypes.Enum.Float64
+            -- return DataTypes.Enum.Float64
+
+            return DataTypes.Enum.Float32
 
         end
 
