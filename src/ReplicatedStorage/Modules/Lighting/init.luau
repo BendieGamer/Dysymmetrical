@@ -58,14 +58,18 @@ end
 
 --- **CLIENT FUNCTION:** Fetches the server's current lighting and copies it over to the client.
 function LightingModule.ReplicateServerLighting()
+    --client only function bleh
     if RunService:IsServer() then
         return
     end
 
+    --get the lighting
     local Current = Network:FireServerConnection("GetCurrentLighting", "REMOTE_FUNCTION")
+    --if it doesn't return anything then halt (trust me, it will, this is unnecessary)
     if not Current then
         return
     end
+    --set it
     LightingModule.SetCustomLighting(Current)
 end
 
@@ -74,38 +78,49 @@ end
 --- If it's called from server, it'll be set in every client as well.
 function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
     if RunService:IsServer() then
+        --table means only properties
         if typeof(Properties) == "table" then
+            --ze client props
             Network:FireAllClientConnection("SetCustomLighting", "REMOTE_EVENT", Properties)
 
-            Properties = Properties or {}
+            --assign all values
             for name, value in Properties do
                 Lighting[name] = value
             end
 
+            --stop
             return
         end
 
+        --folder means objects like atmosphere and maybe some properties if there is a submodule (though these properties will be set in client for some reason i'm lazy to change it)
         if Properties:IsA("Folder") then
+            --destroy existing if applicable
             local Current = ReplicatedStorage:FindFirstChild("CurrentReplicatedLighting")
             if Current then
                 Current:Destroy()
             end
 
+            --clone
             Properties = Properties:Clone()
             Properties.Name = "CurrentReplicatedLighting"
             Properties.Parent = ReplicatedStorage
         end
 
+        --set it as current and replicate it
         LightingModule.CurrentLighting = Properties
         Network:FireAllClientConnection("SetCustomLighting", "REMOTE_EVENT", Properties)
 
         return
     end
 
+    --instance is either a prop table or a bunch of objects
     if typeof(Properties) == "Instance" then
+        --bunch of objects
         if Properties:IsA("Folder") then
+            --clear the lighting
             Lighting:ClearAllChildren()
 
+            --iterate over everything to check if any of the children is a module to set its properties instead of copying it over
             for _, Child in Properties:GetChildren() do
                 if Child:IsA("ModuleScript") then
                     LightingModule.SetCustomLighting(require(Child))
@@ -117,7 +132,9 @@ function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
             return
         end
 
+        --prop table
         if Properties:IsA("ModuleScript") then
+            --if the module has children, copy them over
             if #Properties:GetChildren() > 0 then
                 Lighting:ClearAllChildren()
 
@@ -126,6 +143,7 @@ function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
                 end
             end
 
+            --set le properties
             LightingModule.SetCustomLighting(require(Properties))
 
             return
