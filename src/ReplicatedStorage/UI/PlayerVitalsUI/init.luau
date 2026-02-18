@@ -15,7 +15,7 @@ return {
             end
 
             --clone the prefab over to the ui
-            local UI = UIPrefab:Clone()
+            local UI = script.PlayerVitals:Clone()
             UI.Parent = UIManager.FetchScreenGui("PlayerVitals")
 
             --destroy ui when the character is destroyed

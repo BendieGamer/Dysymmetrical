@@ -152,7 +152,9 @@ function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
         return
     end
 
+    --fallback (suppose it's a prop table now)
     Properties = Properties or {}
+    --assign all values
     for name, value in Properties do
         Lighting[name] = value
     end

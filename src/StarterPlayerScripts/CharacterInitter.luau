@@ -4,6 +4,7 @@ local StarterGui = game:GetService("StarterGui")
 
 local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
+local PlayerAbilitiesUI = require(ReplicatedStorage.UI.PlayerAbilitiesUI)
 
 local AnimLoadPrevented = {
     IdleAnimation = true, --doing it like this to not use `table.find()` and save a bit in overhead
@@ -79,6 +80,9 @@ function CharacterInitter._InitializeCharacterAbilities(Character: Model, Info: 
         CharacterModule.Abilities[Ability.Name] = Ability
         Ability:Init(Players.LocalPlayer, Info)
     end
+
+    --init le ui
+    PlayerAbilitiesUI.Instantiate()
 end
 
 --- Loads all animations from a character module onto a character's model.
