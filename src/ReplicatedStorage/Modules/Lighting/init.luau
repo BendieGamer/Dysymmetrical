@@ -40,7 +40,7 @@ function LightingModule:Init()
             return {}
         end)
     else
-        Network:SetConnection("SetCustomLighting", "REMOTE_EVENT", function(Properties: {[string]: any})
+        Network:SetConnection("SetCustomLighting", "REMOTE_EVENT", function(Properties: {[string]: any} | Folder)
             LightingModule.SetCustomLighting(Properties)
         end)
         Network:SetConnection("SetDefaultLighting", "REMOTE_EVENT", function()
@@ -65,7 +65,18 @@ end
 
 function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
     if RunService:IsServer() then
-        if typeof(Properties) == "Instance" and Properties:IsA("Folder") then
+        if typeof(Properties) == "table" then
+            Network:FireAllClientConnection("SetCustomLighting", "REMOTE_EVENT", Properties)
+
+            Properties = Properties or {}
+            for name, value in Properties do
+                Lighting[name] = value
+            end
+
+            return
+        end
+
+        if Properties:IsA("Folder") then
             local Current = ReplicatedStorage:FindFirstChild("CurrentReplicatedLighting")
             if Current then
                 Current:Destroy()
@@ -121,6 +132,9 @@ function LightingModule.SetCustomLighting(Properties: {[string]: any} | Folder)
 end
 
 function LightingModule.SetDefaultLighting()
+    LightingModule.SetCustomLighting(DefaultProperties)
+    LightingModule.SetCustomLighting(script.DefaultLighting)
+    
     if RunService:IsServer() then
         if typeof(LightingModule.CurrentLighting) == "Instance" then
             LightingModule.CurrentLighting:Destroy()
@@ -131,8 +145,6 @@ function LightingModule.SetDefaultLighting()
 
         return
     end
-
-    LightingModule.SetCustomLighting(DefaultProperties)
 end
 
 return LightingModule

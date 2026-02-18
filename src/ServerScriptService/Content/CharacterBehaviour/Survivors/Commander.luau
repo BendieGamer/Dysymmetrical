@@ -1,9 +1,10 @@
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService = game:GetService("TweenService")
 
-local Hitbox = require(ServerScriptService.Classes.Hitbox)
+local Hitbox = RunService:IsServer() and require(ServerScriptService.Classes.Hitbox) or nil
 local PlayerSpeedManager = require(ServerScriptService.Managers.PlayerManager.CharacterManager.PlayerSpeedManager)
 local ServerUtils = require(ServerScriptService.ServerUtils)
 local Types = require(ReplicatedStorage.Classes.Types)

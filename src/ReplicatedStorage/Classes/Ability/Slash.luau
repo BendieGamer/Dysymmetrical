@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Hitbox = require(ServerScriptService.Classes.Hitbox)
+local Hitbox = RunService:IsServer() and require(ServerScriptService.Classes.Hitbox) or nil
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Ability = require(ReplicatedStorage.Classes.Ability)
 local Types = require(ReplicatedStorage.Classes.Types)
