@@ -130,7 +130,10 @@ function Network:Init()
         local Name, DecodedArgs = self:_UnpackArgumentsFromNetwork(Args)
 
         if self.Debug.ReceivedPackets then
-            print(`[DysNetworking (DEBUG)] Received event of type "{Type}" with name "{Name}" and a size of {buffer.len(Args[1])} bytes.`)
+            local BufferLength = buffer.len(Args[1])
+            local NameLength = #Name
+            local ArgsLength = BufferLength - NameLength
+            print(`[DysNetworking (DEBUG)] Received event of type "{Type}" with name "{Name}" and a size of {buffer.len(Args[1])} bytes ({#NameLength} bytes for the name, {ArgsLength} bytes for the arguments).`)
         end
 
         local CallbackList = self.Connections[Type][Name]
@@ -170,7 +173,10 @@ function Network:Init()
         local Name, DecodedArgs = self:_UnpackArgumentsFromNetwork(Args)
 
         if self.Debug.ReceivedPackets then
-            print(`[DysNetworking (DEBUG)] Received event of type "REMOTE_FUNCTION" with name "{Name}" and a size of {buffer.len(Args[1])} bytes.`)
+            local BufferLength = buffer.len(Args[1])
+            local NameLength = #Name
+            local ArgsLength = BufferLength - NameLength
+            print(`[DysNetworking (DEBUG)] Received event of type "REMOTE_FUNCTION" with name "{Name}" and a size of {buffer.len(Args[1])} bytes ({#NameLength} bytes for the name, {ArgsLength} bytes for the arguments).`)
         end
 
         local Meta = self.Connections["REMOTE_FUNCTION"][Name]
