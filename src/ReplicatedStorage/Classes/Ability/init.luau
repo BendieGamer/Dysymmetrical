@@ -227,7 +227,7 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             HRP = Utils.Character.GetRootPart(self.Owner),
         }
 
-        self:AddConnection(Network:SetConnection("UsePlayerAbility", "REMOTE_EVENT", function(player: Player, abilityName: string)
+        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(player: Player, abilityName: string)
             task.defer(function()
                 if self.CharModule.Config.Voicelines and self.CharModule.Config.Voicelines[self.Name] then
                     Sounds.PlayVoiceline(self.Owner.Character, self.CharModule.Config.Voicelines[self.Name])
@@ -247,7 +247,7 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             end
 
             self.Signals.Used:Fire()
-            Network:FireClientConnection(self.Owner, "UsePlayerAbility", "REMOTE_EVENT", self.Name)
+            Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name)
 
             if self.ServerBehaviour then
                 self:ServerBehaviour()
@@ -294,7 +294,7 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             return abilityName == self.Name
         end))
 
-        self:AddConnection(Network:SetConnection("UsePlayerAbility", "REMOTE_EVENT", function(abilityName: string)
+        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(abilityName: string)
             --disables ability keys for preventing the usage of a different ability while using it
             if self.DisableOtherAbilitiesOnPerform then
                 self:DisableAllAbilities()
@@ -366,7 +366,7 @@ function MetaAbility:AttemptUse()
 
     --NOTE: this is handled this way (by making separate cooldowns in both server and client) so that it's possible to prevent network calls if it's impossible to use the ability in client
     if self:CanUse() then
-        Network:FireServerConnection("UsePlayerAbility", "REMOTE_EVENT", self.Name) --i know this is insecure but sue me lol
+        Network:FireServerConnection("UseAbility", "REMOTE_EVENT", self.Name) --i know this is insecure but sue me lol
     end
 end
 

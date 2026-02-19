@@ -54,7 +54,7 @@ local function Finish()
     end
     
     task.spawn(function()
-        require(game:GetService("ReplicatedStorage").Modules.Network):FireServerConnection("AddLoadedPlayer", "REMOTE_EVENT")
+        require(game:GetService("ReplicatedStorage").Modules.Network):FireServerConnection("PlayerLoad", "REMOTE_EVENT")
     end)
 
     loaded = true

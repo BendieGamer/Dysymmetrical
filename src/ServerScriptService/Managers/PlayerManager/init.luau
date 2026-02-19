@@ -7,7 +7,7 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 local PlayerManager = {}
 
 function PlayerManager:Init()
-    Network:SetConnection("AddLoadedPlayer", "REMOTE_EVENT", PlayerManager._OnPlayerLoaded, function(Player: Player): boolean
+    Network:SetConnection("PlayerLoad", "REMOTE_EVENT", PlayerManager._OnPlayerLoaded, function(Player: Player): boolean
         return not ReplicatedStorage.LoadedPlayers:FindFirstChild(Player.Name)
     end)
 

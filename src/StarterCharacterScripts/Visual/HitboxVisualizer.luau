@@ -63,7 +63,7 @@ return {
         end))
         
         --use the same janitor again to add the network connection
-        JanitorInstance:Add(Network:SetConnection("UpdateHitboxPosition", "UREMOTE_EVENT", function(Buffer: buffer)
+        JanitorInstance:Add(Network:SetConnection("UpdHitboxPos", "UREMOTE_EVENT", function(Buffer: buffer)
             --start from 1 to skip the buffer's counter header at first
             local Offset = 1
 	

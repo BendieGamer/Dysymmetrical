@@ -92,23 +92,23 @@ function Utils:Init()
             Utils.Player._Fade(FadeType, Duration, Yield, StartTransparency, FadeColor)
         end)
 
-        Network:SetConnection("GetMousePosition", "REMOTE_FUNCTION", function(LockToClosestPlayer)
+        Network:SetConnection("GetMousePos", "REMOTE_FUNCTION", function(LockToClosestPlayer)
             return Utils.Player._GetMousePosition(LockToClosestPlayer)
         end)
-        Network:SetConnection("ShakeCamera", "REMOTE_EVENT", function(Magnitude: number, Duration: number)
+        Network:SetConnection("ShakeCam", "REMOTE_EVENT", function(Magnitude: number, Duration: number)
             return Utils.Player.ShakeCamera(Magnitude, Duration)
         end)
 
         return
     end
 
-    Network:SetConnection("CreateMissingSkinValue", "REMOTE_FUNCTION", function(SourcePlayer: Player, name: string)
+    Network:SetConnection("CreateSkinVal", "REMOTE_FUNCTION", function(SourcePlayer: Player, name: string)
         return Utils.PlayerData.CreateMissingSkinValue(SourcePlayer, name)
     end)
-    Network:SetConnection("CreateMissingPurchasedSkinValue", "REMOTE_FUNCTION", function(SourcePlayer: Player, name: string)
+    Network:SetConnection("CreateBoughtSkinVal", "REMOTE_FUNCTION", function(SourcePlayer: Player, name: string)
         return Utils.PlayerData.CreateMissingPurchasedSkinValue(SourcePlayer, name)
     end)
-    Network:SetConnection("GetMousePosition", "REMOTE_FUNCTION", function(LockToClosestPlayer)
+    Network:SetConnection("GetMousePos", "REMOTE_FUNCTION", function(LockToClosestPlayer)
         return Utils.Player._GetMousePosition(LockToClosestPlayer)
     end)
 end

@@ -121,7 +121,7 @@ function PlayerSprintManager:Init()
                 SetAttributeSafely("Sprinting", ManagedPlayer.SpeedApplied)
             end))
 
-            CharacterJanitor:Add(Network:SetConnection("ChangeSprintState", "REMOTE_EVENT", function(plr: Player, Pressed: boolean)
+            CharacterJanitor:Add(Network:SetConnection("Sprint", "REMOTE_EVENT", function(plr: Player, Pressed: boolean)
                 ManagedPlayer.AttemptingSprint = Pressed
                 ManagedPlayer.PressingSprintWhileRecovering = ManagedPlayer.Exhausted and Pressed
             end, function(plr: Player)

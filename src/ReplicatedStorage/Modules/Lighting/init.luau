@@ -31,7 +31,7 @@ local DefaultProperties = {
 
 function LightingModule:Init()
     if RunService:IsServer() then
-        Network:SetConnection("GetCurrentLighting", "REMOTE_FUNCTION", function(Player: Player)
+        Network:SetConnection("GetCurLighting", "REMOTE_FUNCTION", function(Player: Player)
             --if there's a set lighting to return, clone it all and return it
             if LightingModule.CurrentLighting then
                 local Props = LightingModule.CurrentLighting:Clone()
@@ -64,7 +64,7 @@ function LightingModule.ReplicateServerLighting()
     end
 
     --get the lighting
-    local Current = Network:FireServerConnection("GetCurrentLighting", "REMOTE_FUNCTION")
+    local Current = Network:FireServerConnection("GetCurLighting", "REMOTE_FUNCTION")
     --if it doesn't return anything then halt (trust me, it will, this is unnecessary)
     if not Current then
         return

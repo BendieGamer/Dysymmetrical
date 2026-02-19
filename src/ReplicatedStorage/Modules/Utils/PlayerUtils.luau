@@ -121,7 +121,7 @@ end
 --- Gets a player's mouse position from any side.
 function PlayerUtils.GetPlayerMousePosition(Player: Player, LockToClosestPlayer: boolean): Vector3
     if RunService:IsServer() then
-        return Network:FireClientConnection(Player, "GetMousePosition", "REMOTE_FUNCTION", LockToClosestPlayer)
+        return Network:FireClientConnection(Player, "GetMousePos", "REMOTE_FUNCTION", LockToClosestPlayer)
     end
 
     return PlayerUtils._GetMousePosition(LockToClosestPlayer)
@@ -408,11 +408,11 @@ function PlayerUtils.ShakeCameraOf(Target: Player | {Player}, Magnitude: number,
 
     if typeof(Target) == "table" then
         for _, Player in Target do
-            Network:FireClientConnection(Player, "ShakeCamera", "REMOTE_EVENT", Magnitude, Duration)
+            Network:FireClientConnection(Player, "ShakeCam", "REMOTE_EVENT", Magnitude, Duration)
         end
         return
     end
-    Network:FireClientConnection(Target, "ShakeCamera", "REMOTE_EVENT", Magnitude, Duration)
+    Network:FireClientConnection(Target, "ShakeCam", "REMOTE_EVENT", Magnitude, Duration)
 end
 
 return PlayerUtils

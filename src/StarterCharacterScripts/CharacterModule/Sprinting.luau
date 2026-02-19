@@ -39,10 +39,10 @@ return {
         --key press connections
         local Key = InputManager:GetInputAction("Default.Sprint")
         JanitorInstance:Add(Key.Pressed:Connect(function()
-            Network:FireServerConnection("ChangeSprintState", "REMOTE_EVENT", true)
+            Network:FireServerConnection("Sprint", "REMOTE_EVENT", true)
         end))
         JanitorInstance:Add(Key.Released:Connect(function()
-            Network:FireServerConnection("ChangeSprintState", "REMOTE_EVENT", false)
+            Network:FireServerConnection("Sprint", "REMOTE_EVENT", false)
         end))
     end,
 }

@@ -154,7 +154,7 @@ function PlayerHitboxCreator._SetupHitboxViewConnections(Player: Player, Charact
         end
 
         --send it to the client to update
-        Network:FireClientConnection(Player, "UpdateHitboxPosition", "UREMOTE_EVENT", Buffer)
+        Network:FireClientConnection(Player, "UpdHitboxPos", "UREMOTE_EVENT", Buffer)
     end))
 end
 

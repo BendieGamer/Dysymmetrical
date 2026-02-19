@@ -43,7 +43,7 @@ function ServerUtils:Init()
 	Network:SetConnection("HasPermRank", "REMOTE_FUNCTION", function(Player: Player, Rank: string | number): boolean
 		return ServerUtils.Player.PlayerHasPermissionRank(Player, Rank)
 	end)
-	Network:SetConnection("ExecuteCommand", "REMOTE_FUNCTION", function(Player: Player, CommandName: string, ...)
+	Network:SetConnection("ExecCmd", "REMOTE_FUNCTION", function(Player: Player, CommandName: string, ...)
         task.defer(function()
 			ServerUtils.CommandDebounce[Player.UserId] = 0.5
 

@@ -57,7 +57,7 @@ function PlayerDataUtils.GetPlayerEquipped(Player: Player, path: string, value: 
                     if RunService:IsServer() then
                         Child = PlayerDataUtils.CreateMissingSkinValue(Player, step)
                     else
-                        Child = Network:FireServerConnection("CreateMissingSkinValue", "REMOTE_FUNCTION", step)
+                        Child = Network:FireServerConnection("CreateSkinVal", "REMOTE_FUNCTION", step)
                     end
                 end
 
