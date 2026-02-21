@@ -6,6 +6,7 @@ local Types = require(ReplicatedStorage.Classes.Types)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local RewardNotifications = require(ReplicatedStorage.UI.RewardNotifications)
 local Signal = require(ReplicatedStorage.Utils.Signal)
 
 local BuyWindow = {}
@@ -66,6 +67,8 @@ function BuyWindow.New(Shop, Module: ModuleScript): BuyWindow
             self.JanitorInstance:Add(task.delay(0.75, function()
                 self:Hide()
             end), true)
+
+            RewardNotifications.ShowNotification(Module, Utils.Enum.RewardNotifications[Utils.Instance.GetTypeOfItemModule(Module)], true)
         else
             --visual cue to indicate poorness
             self.Instance.Buy.TextLabel.Text = "you're too poor."

@@ -48,7 +48,8 @@ function ShopManager._RequestPurchase(Player: Player, Module: ModuleScript, Quot
     Product.Parent = Parent
 
     --tell the player "yo you got yo stuff cuh, see it!"
-    Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", Module, Utils.Enum.RewardNotifications[ProductType], true)
+    --removed this because it's now automatic in client
+    -- Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", Module, Utils.Enum.RewardNotifications[ProductType], true)
 
     --confirm the purchase
     return true
