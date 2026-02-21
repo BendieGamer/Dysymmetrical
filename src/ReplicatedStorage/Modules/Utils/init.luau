@@ -27,6 +27,15 @@ local Utils = {
 
     TransparentParts = {},
 
+    Enum = {
+        RewardNotifications = {
+            Character = 1,
+            Skin = 2,
+            Emote = 3,
+            Achievement = 4,
+        },
+    },
+
     -- requiring all children like this to have proper autocompletion
 
     --- Utils related to players.

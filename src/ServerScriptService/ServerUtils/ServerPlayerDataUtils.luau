@@ -113,7 +113,7 @@ function ServerPlayerDataUtils.CompleteAchievement(Player: Player, AchievementPa
 	end)
 
 	--display the reward notification
-	Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", AchievementPath, "Achievement")
+	Network:FireClientConnection(Player, "RewardNotif", "REMOTE_EVENT", AchievementPath, Utils.Enum.RewardNotifications.Achievement)
 
 	--grant the badge if applicable
 	if Achievement.BadgeID then
