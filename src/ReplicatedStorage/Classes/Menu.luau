@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
+local Types = require(script.Parent.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Sidebar = require(ReplicatedStorage.UI.Sidebar)
 
@@ -12,9 +13,9 @@ MetaMenu.__index = MetaMenu
 
 type MenuCallbacks = {
     OnInit: (self: Menu) -> (),
-    OnOpen: (self: Menu) -> (),
-    OnClose: (self: Menu) -> (),
-    OnToggle: (self: Menu) -> (),
+    OnOpen: (self: Menu, Time: number) -> (),
+    OnClose: (self: Menu, Time: number) -> (),
+    OnToggle: (self: Menu, Toggle: boolean) -> (),
 }
 type Menu = {
     Enabled: boolean,
@@ -22,6 +23,7 @@ type Menu = {
     UI: GuiObject,
     UiPrefab: GuiObject,
     Callbacks: MenuCallbacks,
+    Janitor: Types.Janitor,
 }
 
 function Menu.New(UiPrefab: GuiObject, Callbacks: MenuCallbacks?)
@@ -47,7 +49,7 @@ function MetaMenu:Init()
     UI.Parent = require(Players.LocalPlayer.PlayerScripts.UIManager).FetchScreenGui("Menus")
     self.UI = UI
 
-    Utils.Instance.ObserveProperty(UI, "Size", function(value: UDim2)
+    self.Janitor = Utils.Instance.ObserveProperty(UI, "Size", function(value: UDim2)
         UI.Visible = value ~= Utils.UDim.Zero
     end)
 
@@ -65,7 +67,7 @@ function MetaMenu:Open(Time: number): any?
     self.Opened = true
 
     if self.Callbacks.OnOpen then
-        self.Callbacks.OnOpen(self)
+        self.Callbacks.OnOpen(self, Time)
     end
 
     return
@@ -81,7 +83,7 @@ function MetaMenu:Close(Time: number)
     self.Opened = false
 
     if self.Callbacks.OnClose then
-        self.Callbacks.OnClose(self)
+        self.Callbacks.OnClose(self, Time)
     end
 end
 
@@ -98,7 +100,7 @@ function MetaMenu:Toggle(toggle: boolean)
     self.Enabled = toggle
 
     if self.Callbacks.OnToggle then
-        self.Callbacks.OnToggle(self)
+        self.Callbacks.OnToggle(self, toggle)
     end
 end
 
