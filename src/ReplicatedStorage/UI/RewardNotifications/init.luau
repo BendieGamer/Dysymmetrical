@@ -17,7 +17,10 @@ function RewardNotifications:Init()
     Network:SetConnection("RewardNotif", "REMOTE_EVENT", RewardNotifications.ShowNotification)
 end
 
-function RewardNotifications.ShowNotification(Module: ModuleScript | string, Type: number, Quoted: boolean?, Granted: boolean?)
+function RewardNotifications.ShowNotification(Module: ModuleScript | string, Type: number | "Character" | "Skin" | "Emote", Quoted: boolean?, Granted: boolean?)
+    if typeof(Type) ~= "number" then
+        Type = Utils.Enum.RewardNotifications[tostring(Type)]
+    end
     local IsAchievement = Type == Utils.Enum.RewardNotifications.Achievement
 
     local Card = (IsAchievement and AchievementPrefab or Prefab):Clone()

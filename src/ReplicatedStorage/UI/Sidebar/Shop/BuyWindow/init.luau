@@ -68,7 +68,8 @@ function BuyWindow.New(Shop, Module: ModuleScript): BuyWindow
                 self:Hide()
             end), true)
 
-            RewardNotifications.ShowNotification(Module, Utils.Enum.RewardNotifications[Utils.Instance.GetTypeOfItemModule(Module)], true)
+            --tell the player they got da thing
+            RewardNotifications.ShowNotification(Module, Utils.Instance.GetTypeOfItemModule(Module), true)
         else
             --visual cue to indicate poorness
             self.Instance.Buy.TextLabel.Text = "you're too poor."
