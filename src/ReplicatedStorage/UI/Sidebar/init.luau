@@ -31,7 +31,6 @@ local Menus: {[string]: Button} = {
         LayoutOrder = 0,
         CloseOnOtherOpen = true,
         CloseOthersOnOpen = true,
-        RelativePath = "Collections.Shop",
     },
     Stats = {
         Render = "rbxassetid://130488549713780",

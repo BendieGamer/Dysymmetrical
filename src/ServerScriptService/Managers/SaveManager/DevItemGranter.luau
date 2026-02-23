@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 type DevID = number
 type DevItemList = {
@@ -6,7 +7,7 @@ type DevItemList = {
         {
             Type: "Character" | "Skin" | "Emote",
             Item: {
-                Role: ("Killer" | "Survivor")?,
+                Role: Types.Role?,
                 Name: string,
                 RootCharacterName: string?,
             },

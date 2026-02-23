@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Types = require(ReplicatedStorage.Classes.Types)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
@@ -103,7 +104,7 @@ end
 --- Grants a character / skin to a player.
 --- 
 --- Should be called from achievements or milestone granting.
-function ServerPlayerUtils.GrantCharacterItemToPlayer(Player: Player, Type: "Killer" | "Survivor", CharacterName: string, SkinName: string?)
+function ServerPlayerUtils.GrantCharacterItemToPlayer(Player: Player, Type: Types.Role, CharacterName: string, SkinName: string?)
 	--shouldn't give anything if in a private server
 	if #game.PrivateServerId > 0 then
 		return

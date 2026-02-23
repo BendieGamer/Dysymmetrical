@@ -21,7 +21,7 @@ end
 
 type CharacterSettings = {
     Name: string,
-    Role: "Killer" | "Survivor",
+    Role: Types.Role,
     Skin: string?,
 }
 function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: CharacterSettings): Model
@@ -157,6 +157,10 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
     end)
 
     return Character
+end
+
+function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role): Model
+    
 end
 
 return CharacterManager

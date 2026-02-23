@@ -1,11 +1,12 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local DataHandler = {}
 
-function DataHandler.GetSortedItems(Type: "Emote" | "Survivor" | "Killer"): {
+function DataHandler.GetSortedItems(Type: "Emote" | Types.Role): {
     Owned: {[number]: ModuleScript},
     Unowned: {[number]: ModuleScript},
 }

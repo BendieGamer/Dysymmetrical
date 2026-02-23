@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Menu = require(ReplicatedStorage.Classes.Menu)
+local Types = require(ReplicatedStorage.Classes.Types)
 local CardRenderer = require(script.CardRenderer)
 local DataHandler = require(script.DataHandler)
 local ShopUtils = require(script.ShopUtils)
@@ -226,7 +227,7 @@ function Shop:_ReloadContent(CreateCards: boolean?)
     end
 end
 
-function Shop:OnCharButtonPress(Module: ModuleScript, Type: "Emote" | "Survivor" | "Killer", Card: Frame)
+function Shop:OnCharButtonPress(Module: ModuleScript, Type: "Emote" | Types.Role, Card: Frame)
     if not self.Opened then
         return
     end

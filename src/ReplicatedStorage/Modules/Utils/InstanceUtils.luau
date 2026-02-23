@@ -318,7 +318,7 @@ end
 
 --- Gets a character's module from a specific type.
 --- It also supports skins using `skinName` as an optional last parameter.
-function InstanceUtils.GetCharacterModule(charType: "Survivor" | "Killer", charName: string, skinName: string?, doWarn: boolean?): ModuleScript
+function InstanceUtils.GetCharacterModule(charType: Types.Role, charName: string, skinName: string?, doWarn: boolean?): ModuleScript
 	if doWarn == nil then
 		doWarn = true
 	end

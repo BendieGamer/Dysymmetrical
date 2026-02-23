@@ -156,7 +156,7 @@ type New = (
     local SkinExample: Types.Killer = Character.New("Killer", {...}, "NullexVoyd")
     ```
 ]=]
-function Character.New(Type: "Killer" | "Survivor", Props: Types.Killer | Types.Survivor, RootCharacterName: string?): Types.Killer | Types.Survivor
+function Character.New(Type: Types.Role, Props: Types.Killer | Types.Survivor, RootCharacterName: string?): Types.Killer | Types.Survivor
     --prevent errors from not defining Props
     Props = Props or {}
     --try to get the func based off of the given role
@@ -198,7 +198,7 @@ end
 
 --- **DEPRECATED:** Use `Character.New()` instead.
 @deprecated
-function Character.CreateSkin(Type: "Killer" | "Survivor", CharacterName: string, Props: Types.Survivor | Types.Killer): Types.Survivor | Types.Killer
+function Character.CreateSkin(Type: Types.Role, CharacterName: string, Props: Types.Survivor | Types.Killer): Types.Survivor | Types.Killer
     return Character.New(Type, Props, CharacterName)
 end
 

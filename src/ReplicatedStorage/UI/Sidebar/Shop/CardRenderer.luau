@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Tooltip = require(ReplicatedStorage.Classes.Tooltip)
+local Types = require(ReplicatedStorage.Classes.Types)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
@@ -11,7 +12,7 @@ local Templates = script.Parent.Templates
 
 local CardRenderer = {}
 
-function CardRenderer.SetupItemCard(Shop: any, Module: ModuleScript, Type: "Emote" | "Survivor" | "Killer", CreateCard: boolean, LayoutOrder: number, CanMakePreviews: boolean)
+function CardRenderer.SetupItemCard(Shop: any, Module: ModuleScript, Type: "Emote" | Types.Role, CreateCard: boolean, LayoutOrder: number, CanMakePreviews: boolean)
     if Module:HasTag("Unpurchasable") then
         return
     end

@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local Utils = require(ReplicatedStorage.Modules.Utils)
+local Types = require(ReplicatedStorage.Classes.Types)
 
 local PlayerRespawnManager = {
     PendingAutoRespawns = {},
@@ -162,7 +163,7 @@ local function GetCharacterRig(CharacterRole: string, CharacterName: string, Cha
 end
 
 type LoadCharacterSettings = {
-    Role: ("Killer" | "Survivor" | "Spectator")?,
+    Role: Types.Role | "Spectator",
     Name: string?,
     Skin: string?,
     LoadCallback: ((Character: Model, Humanoid: Humanoid) -> ())?,

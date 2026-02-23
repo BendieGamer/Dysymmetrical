@@ -6,6 +6,8 @@ export type Janitor = Janitor.Janitor
 
 local Signal = require(ReplicatedStorage.Utils.Signal)
 
+export type Role = "Killer" | "Survivor"
+
 --- Class used for character abilities.
 export type Ability = {
     --- The display name.
@@ -1036,7 +1038,7 @@ export type Achievement = {
     --- For skins, name this variable like the character the skin is for, and add the skin's name to `Skin`.
     Item: string?,
     --- The role of the character / skin to grant if `RewardType == "Skin" or RewardType == "Character"`.
-    CharacterRole: ("Killer" | "Survivor")?,
+    CharacterRole: Role?,
     --- Name of the skin to grant if applicable. Also fill `Item`.
     Skin: string?,
     --- Place in the list of its achievement group.
