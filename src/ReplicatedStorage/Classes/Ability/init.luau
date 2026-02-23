@@ -79,9 +79,7 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
             self.Janitor:LinkToInstance(self.Owner.Character)
 
             --clearing ability stuff to dispose of this code when the player gets readded
-            self.Janitor:Add(function()
-                self:Destroy()
-            end, true)
+            self.Janitor:Add(self)
 
             if RunService:IsServer() then
                 Utils.Misc.Print("Initting "..self.Name.." ability for "..plr.Name)
@@ -189,9 +187,7 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
     self.Janitor = Janitor.new()
     self.Janitor:LinkToInstance(Player.Character)
 
-    self.Janitor:Add(function()
-        self:Destroy()
-    end, true)
+    self.Janitor:Add(self)
 
     task.defer(function()
         local Effects = Player.Character:FindFirstChild("Effects")
