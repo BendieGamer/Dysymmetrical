@@ -32,7 +32,7 @@ local Shop = Menu.New(script.ShopUI, {
         end)
     
         Utils.Instance.ObserveProperty(self.UI.SkinsContainer, "Size", function(value: UDim2)
-            self.UI.SkinsContainer.Label.TextLabel.Visible = value.X.Scale >= 0.05
+            self.UI.SkinsContainer.Visible = value.X.Scale >= 0.001
         end)
     
         Utils.Instance.ObserveProperty(self.UI.SideContainer, "Size", function(value: UDim2)
@@ -194,7 +194,7 @@ end
 
 function Shop:_ReloadPurchaseButton()
     local Label = "Purchase"
-    if Utils.PlayerData.GetPlayerOwned(Players.LocalPlayer, self.CurSelected.Type.."s."..Shop.CurSelected.Name) then
+    if Utils.PlayerData.GetPlayerOwned(Players.LocalPlayer, `{self.CurSelected.Type}s.{Shop.CurSelected.Name}`) then
         Label = `{Label}d`
     end
 

@@ -7,7 +7,9 @@ local Network = require(ReplicatedStorage.Modules.Network)
 
 local MiscellaneousUtils = {}
 
---- Loads any assets in the function's parameter for proper use without loading them right when used.
+--- Loads any assets in the function's parameter.
+--- 
+--- This is useful for character animations and sounds, since they're loaded before they're used and they don't have to be loaded on the way.
 function MiscellaneousUtils.PreloadAssets(assets: string | {string})
     task.defer(function()
         local loadedAssets = {}
@@ -45,7 +47,10 @@ function MiscellaneousUtils.PreloadAssets(assets: string | {string})
 end
 
 --- Function used instead of the built-in print to trace for bugs in public playtesting.
+--- 
 --- If called from Server, it'll also print to all clients to trace server values.
+--- 
+--- If called from Client, it behaves exactly like `print()`. Use that one instead.
 function MiscellaneousUtils.Print(...)
     if RunService:IsServer() then
         print(...)

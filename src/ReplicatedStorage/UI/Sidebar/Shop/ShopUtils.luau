@@ -8,33 +8,25 @@ local ShopUtils = {}
 function ShopUtils.SetupAudibleButton(Button: ImageButton, JanitorInstance: Types.Janitor?, Callback: () -> (), ...)
     local Args = {...}
 
-    if JanitorInstance ~= nil then
-        JanitorInstance:Add(Button.MouseEnter:Connect(function()
-            Sounds.PlaySound(Sounds.CommonSounds.ButtonHover, {Volume = 0.2})
-        end))
-        JanitorInstance:Add(Button.MouseLeave:Connect(function()
-            Sounds.PlaySound(Sounds.CommonSounds.ButtonHoverStop, {Volume = 0.2})
-        end))
+    local function AddToJanitor(Connection: RBXScriptConnection)
+        if JanitorInstance == nil then
+            return
+        end
 
-        JanitorInstance:Add(Button.MouseButton1Click:Connect(function()
-            Sounds.PlaySound(Sounds.CommonSounds.ButtonPress, {Volume = 0.8})
-            Callback(table.unpack(Args))
-        end))
-
-        return
+        JanitorInstance:Add(Connection)
     end
 
-    Button.MouseEnter:Connect(function()
+    AddToJanitor(Button.MouseEnter:Connect(function()
         Sounds.PlaySound(Sounds.CommonSounds.ButtonHover, {Volume = 0.2})
-    end)
-    Button.MouseLeave:Connect(function()
+    end))
+    AddToJanitor(Button.MouseLeave:Connect(function()
         Sounds.PlaySound(Sounds.CommonSounds.ButtonHoverStop, {Volume = 0.2})
-    end)
+    end))
 
-    Button.MouseButton1Click:Connect(function()
+    AddToJanitor(Button.MouseButton1Click:Connect(function()
         Sounds.PlaySound(Sounds.CommonSounds.ButtonPress, {Volume = 0.8})
         Callback(table.unpack(Args))
-    end)
+    end))
 end
 
 function ShopUtils.CreateBuyWindow(Shop: any, Module: ModuleScript, Card: Frame)

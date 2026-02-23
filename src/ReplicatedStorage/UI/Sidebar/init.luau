@@ -20,6 +20,7 @@ type Button = {
     LayoutOrder: number,
     CloseOnOtherOpen: boolean,
     CloseOthersOnOpen: boolean,
+    RelativePath: string?,
 }
 
 local Menus: {[string]: Button} = {
@@ -30,6 +31,7 @@ local Menus: {[string]: Button} = {
         LayoutOrder = 0,
         CloseOnOtherOpen = true,
         CloseOthersOnOpen = true,
+        RelativePath = "Collections.Shop",
     },
     Stats = {
         Render = "rbxassetid://130488549713780",
@@ -176,7 +178,7 @@ function Sidebar:Init()
         BarButton.Title.Holder.Label.Text = Name
         BarButton.LayoutOrder = Button.LayoutOrder
 
-        local Menu = require(script:FindFirstChild(Name))
+        local Menu = require(Button.RelativePath ~= nil and Utils.Instance.FindFirstChild(script, Button.RelativePath) or script:FindFirstChild(Name))
         Menu.CloseOnOtherOpen = Button.CloseOnOtherOpen
         Menu.CloseOthersOnOpen = Button.CloseOthersOnOpen
 
