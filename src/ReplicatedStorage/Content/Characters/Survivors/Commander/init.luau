@@ -8,7 +8,7 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local ServerBehaviour = RunService:IsServer() and require(game:GetService("ServerScriptService").Content.CharacterBehaviour.Survivors.Commander) or {}
 
-local function JusticeExtraInit(self: Types.Ability)
+local function OnJusticeInit(self: Types.Ability)
     self.JusticeModel = Utils.Instance.AwaitChild(self.OwnerProperties.Character, "Deagle")
 end
 
@@ -77,7 +77,7 @@ local Commander: Types.Survivor = Character.New("Survivor", {
                     Limited = true,
                 },
 
-                ExtraInit = JusticeExtraInit,
+                OnInit = OnJusticeInit,
 
                 ServerBehaviour = ServerBehaviour.JusticeBehaviour,
             }),

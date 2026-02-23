@@ -71,17 +71,17 @@ end
 
 function Commander.ReloadBehaviour(self: Types.Ability)
     self:AddConnection(task.delay(self.Duration, function()
-        self.CharModule.GameplayConfig.Abilities.Justice:ChangeAbilityCharges("Set", 1)
+        self.CharacterModule.GameplayConfig.Abilities.Justice:ChangeAbilityCharges("Set", 1)
     end))
 
-    ServerUtils.Character.ApplyEffect({
-        TargetHumanoid = self.OwnerProperties.Humanoid,
-        EffectSettings = {
-            Name = "Slowness",
-            Level = 3,
-            Duration = 5,
-        },
-    })
+    -- ServerUtils.Character.ApplyEffect({
+    --     TargetHumanoid = self.OwnerProperties.Humanoid,
+    --     EffectSettings = {
+    --         Name = "Slowness",
+    --         Level = 3,
+    --         Duration = 5,
+    --     },
+    -- })
 end
 
 function Commander.JusticeBehaviour(self: Types.Ability)
@@ -132,7 +132,7 @@ function Commander.JusticeBehaviour(self: Types.Ability)
     task.spawn(function()
         PlayerSpeedManager.AddFactor(self.Owner, self.Name, 0.3)
         self:AddConnection(task.delay(self.UseAnimationTrack and self.UseAnimationTrack.Length or self.Duration, function()
-            PlayerSpeedManager.RemoveSpeedFactor(self.Owner, self.Name)
+            PlayerSpeedManager.RemoveFactor(self.Owner, self.Name)
         end))
     end)
 
@@ -145,14 +145,14 @@ function Commander.JusticeBehaviour(self: Types.Ability)
 end
 
 function Commander.OnHit(self: Types.Ability, _hitbox: Types.HitboxDetails, _damage: number)
-    ServerUtils.Character.ApplyEffect({
-        TargetHumanoid = self.OwnerProperties.Humanoid,
-        EffectSettings = {
-            Name = "Resistance",
-            Level = 5,
-            Duration = 1,
-        },
-    })
+    -- ServerUtils.Character.ApplyEffect({
+    --     TargetHumanoid = self.OwnerProperties.Humanoid,
+    --     EffectSettings = {
+    --         Name = "Resistance",
+    --         Level = 5,
+    --         Duration = 1,
+    --     },
+    -- })
 end
 
 return Commander
