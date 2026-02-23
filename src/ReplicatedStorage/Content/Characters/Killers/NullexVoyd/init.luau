@@ -102,7 +102,6 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
             --Slash
             Slash = require(ReplicatedStorage.Classes.Ability.Slash).New({
 				Duration = 0.35,
-				ClientPrediction = true,
             }),
 
             DataAnchor = Ability.New({

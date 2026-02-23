@@ -72,7 +72,7 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
     return setmetatable(Utils.Type.DeepTableOverwrite({
         Passive = true,
 
-        Init = function(self: Types.Ability, charModule: Types.Killer | Types.Survivor, plr: Player)
+        Init = function(self: Types.Ability, plr: Player, charModule: Types.Killer | Types.Survivor)
             self.Owner = plr
             self.CharacterModule = charModule
             self.UsesLeft = self.UseSettings.InitialUses
@@ -84,8 +84,6 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
             self.Janitor:Add(self)
 
             if RunService:IsServer() then
-                Utils.Misc.Print("Initting "..self.Name.." ability for "..plr.Name)
-
                 --is this exploitable? yes.
                 --do i give a fuck? no.
                 --thanks byfron.
