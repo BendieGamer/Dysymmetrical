@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local TypeUtils = require(ReplicatedStorage.Modules.Utils.TypeUtils)
-local CharacterUtils = require(ReplicatedStorage.Modules.Utils.CharacterUtils)
+local Janitor = require(ReplicatedStorage.Packages.Janitor)
 
 type GuiItem = {
     Name: string,
@@ -168,22 +168,24 @@ function UIManager.CreateScreenGui(Info: GuiItem): ScreenGui
         ScreenGui.ResetOnSpawn = Info.ResetOnSpawn
     end
     if ScreenGui.ResetOnSpawn then
-        --ALWAYS false, or else it'll screw up the whole thing (i think)
-        ScreenGui.ResetOnSpawn = false
-
         --why am I doing this instead of `ScreenGui:ClearAllChildren()`
 
         --because it's been proven that just redoing the ScreenGui is more performant than clearing its children
         --because it doesn't have to reparent every single child individually
 
         --cool sauce i love reading random stuff like this in devforum out of nowhere
-        local JanitorInstance = CharacterUtils.ObserveCharacter(Players.LocalPlayer, function(_Character: Model)
-            ScreenGui:Destroy()
-            UIManager.ManagedScreenGuis[Info.Name] = UIManager.CreateScreenGui(Info)
-        end)
-        
+        local JanitorInstance = Janitor.new()
         JanitorInstance:LinkToInstance(ScreenGui)
+
+        JanitorInstance:Add(Players.LocalPlayer.CharacterAdded:Connect(function(_Character: Model)
+            ScreenGui:Destroy()
+            --reset so that `UIManager.CreateScreenGui()` doesn't return `nil`
+            UIManager.ManagedScreenGuis[Info.Name] = nil
+            UIManager.ManagedScreenGuis[Info.Name] = UIManager.CreateScreenGui(Info)
+        end))
     end
+    --ALWAYS false, or else it'll screw up the whole thing (i think)
+    ScreenGui.ResetOnSpawn = false
     -- override -> order in default table -> default to last in default table
     ScreenGui.DisplayOrder = Info.DisplayOrder or table.find(UIManager.DefaultGuiInfo, Info) or TypeUtils.GetCountOfDict(UIManager.ManagedScreenGuis)
     ScreenGui.Parent = Players.LocalPlayer.PlayerGui

@@ -84,7 +84,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
     end))
 
     local function CanContinue()
-        return not self.Cancelled and self.TimePast < Config.Time and (Config.HitMultiple or self.HumanoidsHit <= 0)
+        return not self.Cancelled and self.TimePast < Config.Time and (Config.HitMultiple or (#self.HumanoidsHit <= 0))
     end
 
     task.spawn(function()
@@ -117,7 +117,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
             Hitbox._CompensatePingIfApplicable(Source, Config, Root, CurrentDetPart)
 
             local Damaged = Hitbox._GetDamaged(CurrentDetPart, IntersectFilter)
-            local Hit = self:_GetActuallyHitHumanoids(self, Config, Damaged)
+            local Hit = self:_GetActuallyHitHumanoids(Config, Damaged)
 
             CurrentDetPart.Color = #Hit > 0 and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
 
@@ -137,7 +137,7 @@ function MetaHitbox:_GetActuallyHitHumanoids(Config: Types.HitboxSettings, Damag
 
     for _, Part in Damaged do
         local Humanoid: Humanoid = Utils.Character.FindHumanoidInModel(Part)
-        if not Humanoid or self.HumanoidsHit[Humanoid] then
+        if not Humanoid or table.find(self.HumanoidsHit, Humanoid) then
             continue
         end
 
@@ -165,7 +165,7 @@ function MetaHitbox:_GetActuallyHitHumanoids(Config: Types.HitboxSettings, Damag
             continue
         end
 
-        self.HumanoidsHit[Humanoid] = true
+        table.insert(self.HumanoidsHit, Humanoid)
         table.insert(Hit, Humanoid)
     end
 

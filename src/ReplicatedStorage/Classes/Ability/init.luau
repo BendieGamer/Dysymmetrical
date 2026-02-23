@@ -229,8 +229,8 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
 
         self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(player: Player, abilityName: string)
             task.defer(function()
-                if self.CharModule.Config.Voicelines and self.CharModule.Config.Voicelines[self.Name] then
-                    Sounds.PlayVoiceline(self.Owner.Character, self.CharModule.Config.Voicelines[self.Name])
+                if self.CharacterModule.Config.Voicelines and self.CharacterModule.Config.Voicelines[self.Name] then
+                    Sounds.PlayVoiceline(self.Owner.Character, self.CharacterModule.Config.Voicelines[self.Name])
                 end
             end)
 
@@ -329,8 +329,10 @@ end
 
 function MetaAbility:ReloadAnimation(id: string)
     local AnimName = self.Name:gsub(" ", "").."Use"
-    self.CharModule.GameplayConfig.Cache.Animations[AnimName] = self.OwnerProperites.AnimationManager:LoadAnimation(AnimName, id, false)
-    self.UseAnimationTrack = self.CharModule.GameplayConfig.Cache.Animations[AnimName]
+    self.CharacterModule.GameplayConfig.Cache.Animations[AnimName] = self.OwnerProperties.AnimationManager ~= nil and
+        self.OwnerProperties.AnimationManager:LoadAnimation(AnimName, id, false) or
+        Utils.Character.LoadAnimationFromID(self.OwnerProperties.Character, id, false)
+    self.UseAnimationTrack = self.CharacterModule.GameplayConfig.Cache.Animations[AnimName]
 end
 
 function MetaAbility:PlayUseAnimation()
@@ -505,7 +507,7 @@ function MetaAbility:CanUse(): boolean
         if self.Owner.Character.Effects:FindFirstChild("Stunned") or self.Owner.Character.Effects:FindFirstChild("Helpless") then
             EffectPrevention = true
         end
-    else
+    elseif self.OwnerProperties.EffectManager ~= nil then
         if self.OwnerProperties.EffectManager.Effects["Stunned"] or self.OwnerProperties.EffectManager.Effects["Helpless"] then
             EffectPrevention = true
         end
@@ -515,7 +517,7 @@ function MetaAbility:CanUse(): boolean
     local Emoting
     if RunService:IsServer() then
         Emoting = self.OwnerProperties.Character:GetAttribute("Emoting") == true
-    else
+    elseif self.OwnerProperties.EmoteManager ~= nil then
         Emoting = self.OwnerProperties.EmoteManager.CurrentlyPlayingEmote ~= nil
     end
 

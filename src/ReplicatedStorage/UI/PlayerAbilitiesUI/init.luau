@@ -110,10 +110,10 @@ function PlayerAbilitiesUI._SetupAbilityButton(Properties: {
     Module: Types.Ability,
     Parent: Instance,
 }): AbilityButton
-    local Container = AbilityGuiUtils.Prefabs.Container:Clone()
+    local Container = AbilityGuiUtils.Prefabs.AbilityContainer:Clone()
     Container.Name = Properties.Module.Name
     Container.Position = AbilityGuiUtils.FramePositions[Properties.Module.InputName]
-    Container.Position = AbilityGuiUtils.LayoutOrder[Properties.Module.InputName]
+    Container.LayoutOrder = AbilityGuiUtils.LayoutOrder[Properties.Module.InputName]
     Container.Parent = Properties.Parent
 
     local RenderImage = Container.RenderImage
@@ -127,7 +127,7 @@ function PlayerAbilitiesUI._SetupAbilityButton(Properties: {
     local CooldownTimer = Container.CooldownTime
     CooldownTimer.Text = Properties.Module.Cooldown
 
-    Container.Name.Text = Properties.Module.Name
+    Container.NameLabel.Text = Properties.Module.Name
 
     local AbilityButton: AbilityButton = {
         ModuleCode = Properties.Module,
