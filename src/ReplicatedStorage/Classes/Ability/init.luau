@@ -228,7 +228,20 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
         self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(_player: Player, _abilityName: string)
             self:Use()
         end, function(player: Player, abilityName: string): boolean
-            return not (player ~= self.Owner or abilityName ~= self.Name or not self:CanUse())
+            local IsCorrect = not (player ~= self.Owner or abilityName ~= self.Name)
+            if not IsCorrect then
+                return false
+            end
+
+            if not self:CanUse() then
+                if self.ClientPrediction then
+                    Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name)
+                end
+
+                return false
+            end
+
+            return true
         end))
     else
         self.OwnerProperties = {
@@ -262,7 +275,23 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             return abilityName == self.Name
         end))
 
-        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(_abilityName: string)
+        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(_abilityName: string, UnpredictedCooldown: number?)
+            if self.ClientPrediction then
+                if UnpredictedCooldown ~= nil then
+                    self:SetOnCooldown(UnpredictedCooldown)
+                elseif self.PredictionJanitor then
+                    self.PredictionJanitor:Cleanup()
+
+                    self:SetOnCooldown(0)
+                    self:EnableAllAbilities()
+
+                    self.UseAnimationTrack:Stop(self.UseAnimationTransitionTime)
+                    self.OwnerProperties.TurnToMoveDirection:RemoveHeadPreventionFactor(self.Name)
+                end
+
+                return
+            end
+
             self:Use()
         end, function(abilityName: string)
             return abilityName == self.Name
@@ -282,14 +311,14 @@ function MetaAbility:ReloadAnimation(id: string)
     self.UseAnimationTrack = self.CharacterModule.GameplayConfig.Cache.Animations[AnimName]
 end
 
-function MetaAbility:PlayUseAnimation()
+function MetaAbility:PlayUseAnimation(): thread
     if not self.UseAnimationTrack then
         return
     end
 
     self.UseAnimationTrack:Play(self.UseAnimationTransitionTime)
     self.OwnerProperties.TurnToMoveDirection:AddHeadPreventionFactor(self.Name)
-    self:AddConnection(task.delay(self.UseAnimationTrack.Length - (1/20 * 2), function()
+    return self:AddConnection(task.delay(self.UseAnimationTrack.Length - (1/20 * 2), function()
         self.UseAnimationTrack:Stop(self.UseAnimationTransitionTime)
         self.OwnerProperties.TurnToMoveDirection:RemoveHeadPreventionFactor(self.Name)
     end))
@@ -316,6 +345,9 @@ function MetaAbility:AttemptUse()
     --NOTE: this is handled this way (by making separate cooldowns in both server and client) so that it's possible to prevent network calls if it's impossible to use the ability in client
     if self:CanUse() then
         Network:FireServerConnection("UseAbility", "REMOTE_EVENT", self.Name) --i know this is insecure but sue me lol
+        if self.ClientPrediction then
+            self:Use()
+        end
     end
 end
 
@@ -339,8 +371,10 @@ function MetaAbility:Use()
             end)
         end
 
+        --signal thing
         self.Signals.Used:Fire()
-        Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name)
+        --send the real server cooldown if client prediction is enabled to set the cooldown back to the real server cooldown instead of a fake client cooldown to prevent false positives
+        Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name, self.ClientPrediction and self.Cooldown or nil)
 
         if self.ServerBehaviour then
             self:ServerBehaviour()
@@ -354,9 +388,17 @@ function MetaAbility:Use()
         return
     end
 
+    if self.ClientPrediction and not self.PredictionJanitor then
+        self.PredictionJanitor = Janitor.new()
+        self.PredictionJanitor:LinkToInstance(self.OwnerProperties.Character)
+    end
+
     --disables ability keys for preventing the usage of a different ability while using it
     if self.DisableOtherAbilitiesOnPerform then
-        self:DisableAllAbilities()
+        local EnableThread = self:DisableAllAbilities()
+        if self.ClientPrediction then
+            self.PredictionJanitor:Add(EnableThread, true)
+        end
     end
 
     --cooldown stuffs
@@ -366,12 +408,14 @@ function MetaAbility:Use()
     --plays any existant use animation
     task.defer(function()
         if self.PlayUseAnimationOnUse then
-            self:PlayUseAnimation()
+            local AnimThread = self:PlayUseAnimation()
+            if self.ClientPrediction then
+                self.PredictionJanitor:Add(AnimThread, true)
+            end
         end
     end)
-    task.spawn(function()
-        self.Signals.Used:Fire()
-    end)
+    --signal thing
+    self.Signals.Used:Fire()
     --ability stuffs
     if self.Behaviour then
         self:Behaviour()
@@ -393,7 +437,7 @@ function MetaAbility:ChangeAbilityCharges(Type: "Add" | "Set" | "Take", amount: 
     end
 end
         
-function MetaAbility:DisableAllAbilities(Duration: number?, DisableSlash: boolean?)
+function MetaAbility:DisableAllAbilities(Duration: number?, DisableSlash: boolean?): thread?
     if RunService:IsServer() then
         return
     end
@@ -408,10 +452,12 @@ function MetaAbility:DisableAllAbilities(Duration: number?, DisableSlash: boolea
         end
     end
     if Duration then
-        self:AddConnection(task.delay(Duration, function()
+        return self:AddConnection(task.delay(Duration, function()
             self:EnableAllAbilities()
         end))
     end
+
+    return
 end
 
 function MetaAbility:EnableAllAbilities()

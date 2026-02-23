@@ -75,7 +75,7 @@ local Network = {
 
     ExhaustionDetection = {
         RateLimit = 50,
-        RateDropPerSecond = 10,
+        RateDropPerSecond = 18,
     },
     PlayerExhaustionLogs = {},
 }

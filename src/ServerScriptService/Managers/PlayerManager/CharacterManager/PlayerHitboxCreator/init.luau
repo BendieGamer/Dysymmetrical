@@ -85,7 +85,10 @@ function PlayerHitboxCreator._SetupHitboxViewConnections(Player: Player, Charact
     local JanitorInstance = Janitor.new()
     JanitorInstance:LinkToInstance(Character)
 
+    local Root = Utils.Character.GetRootPart(Character)
+
     local Elapsed = 0
+    local LastPosition = Root.Position
     JanitorInstance:Add(RunService.PostSimulation:Connect(function(delta: number)
         --will wait until the 3 frames are processed
         --but only if there wasn't a frame skip because of lag
@@ -101,6 +104,13 @@ function PlayerHitboxCreator._SetupHitboxViewConnections(Player: Player, Charact
         if Elapsed > Framerate then
             Elapsed = 0
         end
+
+        local CurrentPosition = Root.Position
+        if math.abs((CurrentPosition - LastPosition).Magnitude) < 0.05 then
+            return
+        end
+
+        LastPosition = CurrentPosition
 
         --get every single hitbox that still exists from the managed hitboxes JUST IN FUCKING CASE.
         local AliveHitboxes = {}

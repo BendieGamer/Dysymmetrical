@@ -67,6 +67,8 @@ type RigSettings = {
     --- 
     --- This is useful in case you want to do something before the character is actually assigned, thus firing `Player.CharacterAdded` later.
     AutoSetPlayerCharacter: boolean?,
+    --- If specified, the resultant character will be pivoted to this CFrame.
+    TargetCFrame: CFrame?,
 }
 
 --- Loads a rig to a player to replace its custom player model.
@@ -115,6 +117,10 @@ function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, RigSettings: Rig
     Humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
     --add missing core attributes
     PlayerRespawnManager._SetupDefaultAttributes(Character)
+    --pivot to target if it exists
+    if RigSettings.TargetCFrame then
+        Character:PivotTo(RigSettings.TargetCFrame)
+    end
     --parent the character to the folder properly
     Character.Parent = workspace.Players
     --actually sets the character if possible and fires CharacterAdded
@@ -166,11 +172,14 @@ type LoadCharacterSettings = {
     Role: Types.Role | "Spectator",
     Name: string?,
     Skin: string?,
+    --- Function that executes when the character is loaded.
     LoadCallback: ((Character: Model, Humanoid: Humanoid) -> ())?,
     --- If `false`, the `Player.Character` property won't be set to the rig yet.
     --- 
     --- This is useful in case you want to do something before the character is actually assigned, thus firing `Player.CharacterAdded` later.
     AutoSetPlayerCharacter: boolean?,
+    --- If specified, the resultant character will be pivoted to this CFrame.
+    TargetCFrame: CFrame?,
 }
 --- Loads a character onto a player.
 --- 
@@ -205,6 +214,7 @@ function PlayerRespawnManager.LoadCharacter(Player: Player, FuncSettings: LoadCh
         Character = CharacterRig or Players:CreateHumanoidModelFromUserIdAsync(Player.UserId),
         Callback = FuncSettings.LoadCallback,
         AutoSetPlayerCharacter = FuncSettings.AutoSetPlayerCharacter,
+        TargetCFrame = FuncSettings.TargetCFrame,
     })
     --set the role beforehand to make sure everything works fine
     Character:SetAttribute("Role", FuncSettings.Role)

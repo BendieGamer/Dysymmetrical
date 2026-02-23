@@ -51,7 +51,7 @@ local function CallbackPingBehaviour(self: Types.Ability)
         Debris:AddItem(Sound, Sound.TimeLength + 1)
     end)
 
-    self.OwnerProperties.FOVManager:AddFOVFactor(self.Name, 0.6)
+    self.OwnerProperties.FOVManager:AddFactor(self.Name, 0.6)
 
     task.defer(function()
         local Equalizer = Instance.new("EqualizerSoundEffect")
@@ -71,7 +71,7 @@ local function CallbackPingBehaviour(self: Types.Ability)
     end)
 
     self:AddConnection(task.delay(self.Duration, function()
-        self.OwnerProperties.FOVManager:RemoveFOVFactor(self.Name)
+        self.OwnerProperties.FOVManager:RemoveFactor(self.Name)
     end))
 
     --shows all players' aura
@@ -101,7 +101,8 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
 
             --Slash
             Slash = require(ReplicatedStorage.Classes.Ability.Slash).New({
-                Duration = 0.35
+				Duration = 0.35,
+				ClientPrediction = true,
             }),
 
             DataAnchor = Ability.New({
@@ -146,7 +147,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 SlownessLevel = 3,
                 Duration = 4.7,
                 DisableSlashOnPerform = false,
-                ServerBehaviour = ServerBehaviour.CallbackPingBehaviour,
+                ServerBehaviour = ServerBehaviour.OverchargeBehaviour,
             }),
         },
     },

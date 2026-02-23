@@ -48,7 +48,7 @@ function NullexVoyd.CallbackPingBehaviour(self: Types.Ability)
     self.OwnerProperties.Character:SetAttribute("PreventSlash", true)
 
     self:AddConnection(task.delay(self.Duration, function()
-        PlayerSpeedManager.RemoveSpeedFactor(self.owner, self.Name)
+        PlayerSpeedManager.RemoveFactor(self.Owner, self.Name)
         self.OwnerProperties.Character:SetAttribute("PreventSlash", false)
     end))
 end

@@ -27,6 +27,8 @@ type CharacterSettings = {
     Role: Types.Role,
     --- The skin of the character to spawn as. If blank / `nil` / not found, it'll fall back to the character's default.
     Skin: string?,
+    --- If specified, the resultant character will be pivoted to this CFrame.
+    TargetCFrame: CFrame?,
 }
 --- Spawns a player as a specific character.
 --- 
@@ -36,6 +38,10 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
     local CharacterModule = Utils.Instance.GetCharacterModule(CharacterSettings.Role, CharacterSettings.Name, CharacterSettings.Skin)
     if CharacterModule == nil then
         return PlayerRespawnManager.LoadCharacter(Player)
+    end
+
+    if CharacterSettings.TargetCFrame == nil and Player.Character ~= nil then
+        CharacterSettings.TargetCFrame = Player.Character.PrimaryPart and Player.Character.PrimaryPart.CFrame or Player.Character.WorldPivot
     end
 
     --makes a new copy of the character's module for usage and gives it to the player
@@ -48,6 +54,7 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
         Name = CharacterSettings.Name,
         Skin = CharacterSettings.Skin,
         AutoSetPlayerCharacter = false,
+        TargetCFrame = CharacterSettings.TargetCFrame,
     })
 
     --sets the humanoid's properties
@@ -189,7 +196,7 @@ end
 --- Loads a player's equipped character.
 --- 
 --- Also includes skins if they're equipped.
-function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role): Model
+function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role, TargetCFrame: CFrame?): Model
     --get the equipped values
     local EquippedCharacter = Utils.PlayerData.GetPlayerEquipped(Player, Role)
     local EquippedSkin = Utils.PlayerData.GetPlayerEquipped(Player, `Skins.{EquippedCharacter}`)
@@ -199,6 +206,7 @@ function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role
         Name = EquippedCharacter,
         Role = Role,
         Skin = EquippedSkin,
+        TargetCFrame = TargetCFrame,
     })
 end
 

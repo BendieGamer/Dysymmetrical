@@ -158,6 +158,7 @@ end
 function Sidebar:Init()
     local UI = script.SidebarUI.Sidebar:Clone()
     UI.Parent = UIManager.FetchScreenGui("Sidebar")
+    Sidebar.UI = UI
 
     do
         local MoneyLabel = UI.Money.CurrentBalance
@@ -229,6 +230,10 @@ function Sidebar:Init()
             Menu:Toggle(char:GetAttribute("Role") == "Spectator")
         end)
     end
+
+    Utils.Character.ObserveCharacter(Players.LocalPlayer, function(char: Model)
+        Sidebar.Toggle(char:GetAttribute("Role") == "Spectator")
+    end)
 end
 
 return Sidebar

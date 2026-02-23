@@ -98,7 +98,7 @@ return {
                 end
 
                 --lerp the ghost's position to its supposed target position
-                Ghost.CFrame = CFrame.new(Ghost.Position:Lerp(targetPosition, delta * 16.5))
+                Ghost.CFrame = CFrame.new(Ghost.Position:Lerp(targetPosition, delta * 20))
             end
         end))
     end,

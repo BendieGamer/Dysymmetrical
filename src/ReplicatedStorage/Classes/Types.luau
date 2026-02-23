@@ -62,6 +62,12 @@ export type Ability = {
     --- 
     --- It's recommended to do this last thing as the engine is open-source. Always be wary of ye property!
     ServerBehaviour: (self: Ability) -> (),
+    --- If `true`, the client-side behaviour will execute before any server validation.
+    --- 
+    --- This will also instance `Ability.PredictionJanitor` on the client side.
+    --- 
+    --- Any connections that would be cancelled if the server rejects an ability use should be added there instead.
+    ClientPrediction: boolean?,
 
     --- The animation ID of the use animation.
     UseAnimation: string,
@@ -156,6 +162,12 @@ export type Ability = {
     --- 
     --- Used to make cleanups easier.
     Janitor: Janitor,
+    --- The ability's CURRENT prediction Janitor instance.
+    --- 
+    --- Only exists after an ability with `ClientPrediction` set to `true` is used for the first time.
+    --- 
+    --- It should contain client-side connections created when using this ability to be able to cancel them if the server rejects the request.
+    PredictionJanitor: Janitor?,
     --- The properties of this ability's owner.
     OwnerProperties: {
         --- The Character of the owner player. Also gettable through `Owner.Character`.
