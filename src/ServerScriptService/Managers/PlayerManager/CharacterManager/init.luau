@@ -160,7 +160,14 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
 end
 
 function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role): Model
-    
+    local EquippedCharacter = Utils.PlayerData.GetPlayerEquipped(Player, Role)
+    local EquippedSkin = Utils.PlayerData.GetPlayerEquipped(Player, `Skins.{EquippedCharacter}`)
+
+    return CharacterManager.SpawnAsCharacter(Player, {
+        Name = EquippedCharacter,
+        Role = Role,
+        Skin = EquippedSkin,
+    })
 end
 
 return CharacterManager
