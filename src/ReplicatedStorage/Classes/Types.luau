@@ -34,6 +34,10 @@ export type Ability = {
 
     --- CLIENT FUNCTION: Attempts to use the ability by checking if it's possible in the first place.
     AttemptUse: (self: Ability) -> (),
+    --- Executes ability behaviour, sets the cooldown if applicable...
+    --- 
+    --- This function is executed without sanity checks, and it's only used internally, so use at your own risk!
+    Use: (self: Ability) -> (),
     --- Modifies the `UsesLeft` property in both client and server.
     --- 
     --- Any `Type` other from `"Set"` can be inconsistent in some very rare ping cases.

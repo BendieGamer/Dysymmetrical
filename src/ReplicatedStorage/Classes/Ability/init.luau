@@ -25,6 +25,8 @@ function Ability.GetDefaultSettings(): Types.Ability
 
         StunnableConnections = {},
 
+        ClientPrediction = false,
+
         InputName = "FirstAbility",
         -- Behaviour = nil,
 
@@ -223,36 +225,8 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             HRP = Utils.Character.GetRootPart(self.Owner),
         }
 
-        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(player: Player, abilityName: string)
-            task.defer(function()
-                if self.CharacterModule.Config.Voicelines and self.CharacterModule.Config.Voicelines[self.Name] then
-                    Sounds.PlayVoiceline(self.Owner.Character, self.CharacterModule.Config.Voicelines[self.Name])
-                end
-            end)
-
-            --cooldown stuffs
-            if self.AutomaticCooldown then
-                self:SetOnCooldown()
-            end
-
-            --decreasing uses left if it's supposed to be limited
-            if self.UseSettings.Limited then
-                task.spawn(function()
-                    self:ChangeAbilityCharges("Set", self.UsesLeft - 1)
-                end)
-            end
-
-            self.Signals.Used:Fire()
-            Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name)
-
-            if self.ServerBehaviour then
-                self:ServerBehaviour()
-                return
-            end
-
-            if self.Behaviour then
-                self:Behaviour()
-            end
+        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(_player: Player, _abilityName: string)
+            self:Use()
         end, function(player: Player, abilityName: string): boolean
             return not (player ~= self.Owner or abilityName ~= self.Name or not self:CanUse())
         end))
@@ -282,37 +256,14 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             self:ReloadAnimation(self.UseAnimation)
         end
 
-        self:AddConnection(Network:SetConnection("ChangeAbilityCharges", "REMOTE_EVENT", function(abilityName: string, Type: "Set" | "Add" | "Take", amount: number)
-            if abilityName == self.Name then
-                self:ChangeAbilityCharges(Type, amount)
-            end
+        self:AddConnection(Network:SetConnection("ChangeAbilityCharges", "REMOTE_EVENT", function(_abilityName: string, Type: "Set" | "Add" | "Take", amount: number)
+            self:ChangeAbilityCharges(Type, amount)
         end, function(abilityName: string): boolean
             return abilityName == self.Name
         end))
 
-        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(abilityName: string)
-            --disables ability keys for preventing the usage of a different ability while using it
-            if self.DisableOtherAbilitiesOnPerform then
-                self:DisableAllAbilities()
-            end
-
-            --cooldown stuffs
-            if self.AutomaticCooldown then
-                self:SetOnCooldown()
-            end
-            --plays any existant use animation
-            task.defer(function()
-                if self.PlayUseAnimationOnUse then
-                    self:PlayUseAnimation()
-                end
-            end)
-            task.spawn(function()
-                self.Signals.Used:Fire()
-            end)
-            --ability stuffs
-            if self.Behaviour then
-                self:Behaviour()
-            end
+        self:AddConnection(Network:SetConnection("UseAbility", "REMOTE_EVENT", function(_abilityName: string)
+            self:Use()
         end, function(abilityName: string)
             return abilityName == self.Name
         end))
@@ -365,6 +316,65 @@ function MetaAbility:AttemptUse()
     --NOTE: this is handled this way (by making separate cooldowns in both server and client) so that it's possible to prevent network calls if it's impossible to use the ability in client
     if self:CanUse() then
         Network:FireServerConnection("UseAbility", "REMOTE_EVENT", self.Name) --i know this is insecure but sue me lol
+    end
+end
+
+function MetaAbility:Use()
+    if RunService:IsServer() then
+        task.defer(function()
+            if self.CharacterModule.Config.Voicelines and self.CharacterModule.Config.Voicelines[self.Name] then
+                Sounds.PlayVoiceline(self.Owner.Character, self.CharacterModule.Config.Voicelines[self.Name])
+            end
+        end)
+
+        --cooldown stuffs
+        if self.AutomaticCooldown then
+            self:SetOnCooldown()
+        end
+
+        --decreasing uses left if it's supposed to be limited
+        if self.UseSettings.Limited then
+            task.spawn(function()
+                self:ChangeAbilityCharges("Set", self.UsesLeft - 1)
+            end)
+        end
+
+        self.Signals.Used:Fire()
+        Network:FireClientConnection(self.Owner, "UseAbility", "REMOTE_EVENT", self.Name)
+
+        if self.ServerBehaviour then
+            self:ServerBehaviour()
+            return
+        end
+
+        if self.Behaviour then
+            self:Behaviour()
+        end
+        
+        return
+    end
+
+    --disables ability keys for preventing the usage of a different ability while using it
+    if self.DisableOtherAbilitiesOnPerform then
+        self:DisableAllAbilities()
+    end
+
+    --cooldown stuffs
+    if self.AutomaticCooldown then
+        self:SetOnCooldown()
+    end
+    --plays any existant use animation
+    task.defer(function()
+        if self.PlayUseAnimationOnUse then
+            self:PlayUseAnimation()
+        end
+    end)
+    task.spawn(function()
+        self.Signals.Used:Fire()
+    end)
+    --ability stuffs
+    if self.Behaviour then
+        self:Behaviour()
     end
 end
 
