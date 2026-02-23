@@ -19,11 +19,18 @@ function CharacterManager:Init()
     end)
 end
 
+--- Character spawn parameters for `CharacterManager.SpawnAsCharacter()`.
 type CharacterSettings = {
+    --- The name of the character to spawn as.
     Name: string,
+    --- The role of the character to spawn as (usually `"Killer"` or `"Survivor"`).
     Role: Types.Role,
+    --- The skin of the character to spawn as. If blank / `nil` / not found, it'll fall back to the character's default.
     Skin: string?,
 }
+--- Spawns a player as a specific character.
+--- 
+--- This includes the character model and all of its abilities, voicelines, etc.
 function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: CharacterSettings): Model
     local CharacterModule = Utils.Instance.GetCharacterModule(CharacterSettings.Role, CharacterSettings.Name, CharacterSettings.Skin)
     if CharacterModule == nil then
@@ -159,6 +166,9 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
     return Character
 end
 
+--- Loads a player's equipped character.
+--- 
+--- Also includes skins if they're equipped.
 function CharacterManager.LoadEquippedCharacter(Player: Player, Role: Types.Role): Model
     local EquippedCharacter = Utils.PlayerData.GetPlayerEquipped(Player, Role)
     local EquippedSkin = Utils.PlayerData.GetPlayerEquipped(Player, `Skins.{EquippedCharacter}`)
