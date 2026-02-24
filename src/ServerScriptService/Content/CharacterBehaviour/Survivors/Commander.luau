@@ -5,7 +5,6 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService = game:GetService("TweenService")
 
 local Hitbox = RunService:IsServer() and require(ServerScriptService.Classes.Hitbox) or nil
-local PlayerSpeedManager = require(ServerScriptService.Managers.PlayerManager.CharacterManager.PlayerSpeedManager)
 local ServerUtils = require(ServerScriptService.ServerUtils)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
@@ -128,13 +127,6 @@ function Commander.JusticeBehaviour(self: Types.Ability)
             end
         end
     end))
-
-    task.spawn(function()
-        PlayerSpeedManager.AddFactor(self.Owner, self.Name, 0.3)
-        self:AddConnection(task.delay(self.UseAnimationTrack and self.UseAnimationTrack.Length or self.Duration, function()
-            PlayerSpeedManager.RemoveFactor(self.Owner, self.Name)
-        end))
-    end)
 
     --Show
     for _, Part in self.JusticeModel:GetDescendants() do

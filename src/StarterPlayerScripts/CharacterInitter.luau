@@ -44,6 +44,9 @@ function CharacterInitter._InitializeGameCharacter(Character: Model)
     --load all animations in a deferred thread
     task.defer(CharacterInitter._LoadCharacterAnimations, Character, Info)
 
+    --set up sprint multiplier
+    require(Character.CharacterModule.Sprinting).SprintMultiplier = Info.GameplayConfig.SprintSpeedMultiplier
+
     --set the anim transition time
     Character:SetAttribute("AnimationTransitionTime", Info.Config.AnimationTransitionTime)
 

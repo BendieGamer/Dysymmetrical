@@ -8,7 +8,6 @@ local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Types = require(script.Parent.Types)
-local PlayerSpeedManager = RunService:IsServer() and require(game:GetService("ServerScriptService").Managers.PlayerManager.CharacterManager.PlayerSpeedManager) or nil
 
 local Emote = {}
 Emote.__index = Emote
@@ -89,8 +88,6 @@ function Emote:Init(player: Player)
 
             --set to emoting
             self.Owner.Character:SetAttribute("Emoting", true)
-            --add whatever speed factor the emote has
-            PlayerSpeedManager.AddSpeedFactor(player, "Emoting", self.SpeedMultiplier)
 
             --fire the client to play the anim n stuff
             Network:FireClientConnection(plr, "PlayEmote", "REMOTE_EVENT", emoteName)
@@ -114,8 +111,6 @@ function Emote:Init(player: Player)
             end
             --set to not emoting
             self.Owner.Character:SetAttribute("Emoting", false)
-            --remove whatever speed factor the emote had
-            PlayerSpeedManager.RemoveSpeedFactor(player, "Emoting")
 
             --fire the client to stop the anim n stuff
             Network:FireClientConnection(plr, "StopEmote", "REMOTE_EVENT", emoteName)
@@ -153,6 +148,8 @@ function Emote:Init(player: Player)
 
     --get turn to move direction here since it's client only and it may be used to lock the head while emoting
     self.TurnToMoveDirection = require(Players.LocalPlayer.PlayerScripts.Visual.TurnToMoveDirection)
+    --same for speed manager
+    self.SpeedManager = require(Players.LocalPlayer.Character.PlayerAttributeManagers.SpeedManager)
 
     --if there are sounds, do the same as with animations
     if self.SoundIds then
@@ -177,6 +174,7 @@ function Emote:Init(player: Player)
         self.TrackPlaying.Animation:Play(0)
         --prevent head turning
         self.TurnToMoveDirection:AddHeadPreventionFactor("Emoting")
+        self.SpeedManager:AddFactor("Emoting", self.SpeedMultiplier)
 
         --execute behaviour if applicable
         if self.Behaviour then
@@ -194,6 +192,8 @@ function Emote:Init(player: Player)
 
         --stop the animation
         self.TrackPlaying.Animation:Stop(0)
+        --remove the speed factor
+        self.SpeedManager:RemoveFactor("Emoting")
         
         --allow for head turning again
         self.TurnToMoveDirection:RemoveHeadPreventionFactor("Emoting")

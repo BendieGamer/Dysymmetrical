@@ -2,10 +2,8 @@ local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 local Types = require(ReplicatedStorage.Classes.Types)
-local PlayerSpeedManager = require(ServerScriptService.Managers.PlayerManager.CharacterManager.PlayerSpeedManager)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
@@ -74,15 +72,8 @@ function ServerCharacterUtils.DamagePlayer(DamageSettings: DamagePlayerSettings)
 	end
 
 	if TargetPlayer then
-
-		if DamageSettings.Damage > 0 and Role == "Survivor" then
-			PlayerSpeedManager.AddSpeedFactor(TargetPlayer, "DamageSpeedBurst", 1.26)
-			task.delay(1, function()
-				PlayerSpeedManager.RemoveSpeedFactor(TargetPlayer, "DamageSpeedBurst")
-			end)
-		end
 		
-		Network:FireClientConnection(TargetPlayer, "DamagePlayer", "REMOTE_EVENT", DamageSettings.SourcePlayer, DamageSettings.Reason)
+		Network:FireClientConnection(TargetPlayer, "DamagePlayer", "REMOTE_EVENT", DamageSettings.SourcePlayer, DamageSettings.Reason, DamageSettings.Damage)
 
 		if Utils.PlayerData.GetPlayerSetting(TargetPlayer, "Miscellaneous.ImageFlashOnHit") then
 			Network:FireClientConnection(TargetPlayer, "ShowJokeSettingImage", "REMOTE_EVENT", true, Role or "Survivor")

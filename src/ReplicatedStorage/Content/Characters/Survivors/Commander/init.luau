@@ -12,6 +12,13 @@ local function OnJusticeInit(self: Types.Ability)
     self.JusticeModel = Utils.Instance.AwaitChild(self.OwnerProperties.Character, "Deagle")
 end
 
+local function JusticeBehaviour(self: Types.Ability)
+    self.OwnerProperties.SpeedManager:AddFactor(self.Name, 0.3)
+    self:AddConnection(task.delay(self.UseAnimationTrack and self.UseAnimationTrack.Length or self.Duration, function()
+        self.OwnerProperties.SpeedManager:RemoveFactor(self.Name)
+    end))
+end
+
 local Commander: Types.Survivor = Character.New("Survivor", {
     Config = {
         Name = "Commander",
@@ -79,6 +86,7 @@ local Commander: Types.Survivor = Character.New("Survivor", {
 
                 OnInit = OnJusticeInit,
 
+                Behaviour = JusticeBehaviour,
                 ServerBehaviour = ServerBehaviour.JusticeBehaviour,
             }),
         },

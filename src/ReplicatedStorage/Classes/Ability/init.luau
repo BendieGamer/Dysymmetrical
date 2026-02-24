@@ -111,6 +111,8 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
                 -- EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
                 -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
                 TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
+                SpeedManager = require(self.Owner.Character.PlayerAttributeManagers.SpeedManager),
+                Sprinting = require(self.Owner.Character.CharacterModule.Sprinting),
             }
 
             --executes any extra initialization code that the ability might need
@@ -252,6 +254,8 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
             -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
             TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
             AnimationManager = require(self.Owner.Character.AnimationManager),
+            SpeedManager = require(self.Owner.Character.PlayerAttributeManagers.SpeedManager),
+            Sprinting = require(self.Owner.Character.CharacterModule.Sprinting),
         }
 
         do

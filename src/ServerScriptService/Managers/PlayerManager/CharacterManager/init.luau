@@ -4,7 +4,6 @@ local Types = require(ReplicatedStorage.Classes.Types)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local PlayerRespawnManager = require(script.Parent.PlayerRespawnManager)
-local PlayerSprintManager = require(script.PlayerSprintManager)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 
@@ -63,23 +62,6 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
     Humanoid.Health = CharacterModule.GameplayConfig.Health
     Humanoid.JumpPower = 0
     Humanoid.JumpHeight = 0
-
-    --server sprinting stuff
-    --TODO: replace server sprinting with client sprinting
-    task.defer(function()
-        if not PlayerSprintManager.ManagedPlayers[Player] then
-            local Timeout = 0
-            repeat
-                task.wait()
-                Timeout += 1
-            until PlayerSprintManager.ManagedPlayers[Player] or Timeout >= 50
-            if Timeout >= 50 then
-                return
-            end
-        end
-
-        PlayerSprintManager.ManagedPlayers[Player].SprintMultiplier = CharacterModule.GameplayConfig.SprintSpeedMultiplier
-    end)
 
     --preload all sounds and animations
     Utils.Misc.PreloadAssets(CharacterModule.Config)

@@ -52,6 +52,7 @@ local function CallbackPingBehaviour(self: Types.Ability)
     end)
 
     self.OwnerProperties.FOVManager:AddFactor(self.Name, 0.6)
+    self.OwnerProperties.SpeedManager:AddFactor(self.Name, 0.18)
 
     task.defer(function()
         local Equalizer = Instance.new("EqualizerSoundEffect")
@@ -72,6 +73,7 @@ local function CallbackPingBehaviour(self: Types.Ability)
 
     self:AddConnection(task.delay(self.Duration, function()
         self.OwnerProperties.FOVManager:RemoveFactor(self.Name)
+        self.OwnerProperties.SpeedManager:RemoveFactor(self.Name)
     end))
 
     --shows all players' aura

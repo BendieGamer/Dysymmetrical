@@ -180,10 +180,14 @@ export type Ability = {
         InputManager: typeof(require(StarterPlayer.StarterPlayerScripts.InputManager)),
         --- See `StarterCharacterScripts.PlayerAttributeManagers.FOVManager`.
         FOVManager: typeof(require(StarterPlayer.StarterCharacterScripts.PlayerAttributeManagers.FOVManager)),
+        --- See `StarterCharacterScripts.PlayerAttributeManagers.SpeedManager`.
+        SpeedManager: any,
         --- See `StarterCharacterScripts.PlayerAttributeManagers.EffectManager`.
         EffectManager: any,
         --- See `StarterCharacterScripts.Miscellaneous.EmoteManager`.
         EmoteManager: any,
+        --- See `StarterCharacterScripts.CharacterModule.Sprinting`.
+        Sprinting: any,
         --- See `StarterPlayerScripts.Visual.TurnToMoveDirection`.
         TurnToMoveDirection: {
             AddHeadPreventionFactor: (self: any, name: string) -> (),
@@ -877,6 +881,7 @@ export type Emote = {
         AddHeadPreventionFactor: (self: any, name: string) -> (),
         RemoveHeadPreventionFactor: (self: any, name: string) -> (),
     },
+    SpeedManager: any,
 
     TrackPlaying: AnimationTrack,
     AddConnection: <T>(self: Emote, Connection: T & (RBXScriptConnection | thread)) -> T & (RBXScriptConnection | thread),
