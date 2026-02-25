@@ -10,7 +10,6 @@ local RightShoulder = Torso:WaitForChild("Right Shoulder")
 local LeftShoulder = Torso:WaitForChild("Left Shoulder")
 local RightHip = Torso:WaitForChild("Right Hip")
 local LeftHip = Torso:WaitForChild("Left Hip")
-local Neck = Torso:WaitForChild("Neck")
 local pose = "Standing"
 
 local EMOTE_TRANSITION_TIME = 0.1
@@ -188,7 +187,6 @@ local jumpAnimDuration = 0.3
 
 local toolTransitionTime = 0.1
 local fallTransitionTime = 0.3
-local jumpMaxLimbVelocity = 0.75
 
 -- functions
 
@@ -239,8 +237,7 @@ end
 -- Preload animations
 function playAnimation(animName, transitionTime, humanoid) 
 		
-	local roll = math.random(1, animTable[animName].totalWeight) 
-	local origRoll = roll
+	local roll = math.random(1, animTable[animName].totalWeight)
 	local idx = 1
 	while (roll > animTable[animName][idx].weight) do
 		roll = roll - animTable[animName][idx].weight
@@ -296,8 +293,7 @@ end
 
 function playToolAnimation(animName, transitionTime, humanoid, priority)	 
 		
-		local roll = math.random(1, animTable[animName].totalWeight) 
-		local origRoll = roll
+		local roll = math.random(1, animTable[animName].totalWeight)
 		local idx = 1
 		while (roll > animTable[animName][idx].weight) do
 			roll = roll - animTable[animName][idx].weight
@@ -452,15 +448,6 @@ function animateTool()
 	end
 end
 
-function moveSit()
-	RightShoulder.MaxVelocity = 0.15
-	LeftShoulder.MaxVelocity = 0.15
-	RightShoulder:SetDesiredAngle(3.14 /2)
-	LeftShoulder:SetDesiredAngle(-3.14 /2)
-	RightHip:SetDesiredAngle(3.14 /2)
-	LeftHip:SetDesiredAngle(-3.14 /2)
-end
-
 local lastTick = 0
 
 function move(time)
@@ -579,7 +566,7 @@ playAnimation("idle", 0.1, Humanoid)
 pose = "Standing"
 
 while Figure.Parent ~= nil do
-	local _, time = wait(0.1)
+	local _, time = task.wait(0.1)
 	move(time)
 end
 
