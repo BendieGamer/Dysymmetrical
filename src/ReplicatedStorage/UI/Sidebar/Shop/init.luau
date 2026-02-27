@@ -216,11 +216,11 @@ function Shop:_ReloadContent(CreateCards: boolean?)
     } do
         local Items = DataHandler.GetSortedItems(Type)
 
-        for _, Section in ipairs({
+        for _, Section in {
             "Owned",
             "Unowned",
-        }) do
-            for LayoutOrder, Module in ipairs(Items[Section]) do
+        } do
+            for LayoutOrder, Module in Items[Section] do
                 CardRenderer.SetupItemCard(self, Module, Type, CreateCards, LayoutOrder, CanMakePreviews)
             end
         end

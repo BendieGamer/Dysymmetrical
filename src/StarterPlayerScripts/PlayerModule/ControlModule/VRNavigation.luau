@@ -91,7 +91,7 @@ function VRNavigation:GetLocalHumanoid()
 		return
 	end
 
-	for _, child in pairs(character:GetChildren()) do
+	for _, child in character:GetChildren() do
 		if child:IsA("Humanoid") then
 			return child
 		end
@@ -332,7 +332,7 @@ function VRNavigation:OnHeartbeat(dt)
 		if moveDist < POINT_REACHED_THRESHOLD then
 			local estimatedTimeRemaining = 0
 			local prevPoint = currentPoints[1]
-			for i, point in pairs(currentPoints) do
+			for i, point in currentPoints do
 				if i ~= 1 then
 					local dist = (point - prevPoint).magnitude
 					prevPoint = point

@@ -53,7 +53,7 @@ local blacklist = {} do
 	local function refreshIgnoreList()
 		local n = 1
 		blacklist = {}
-		for _, character in pairs(charMap) do
+		for _, character in charMap do
 			blacklist[n] = character
 			n = n + 1
 		end
@@ -81,7 +81,7 @@ local blacklist = {} do
 	Players.PlayerAdded:Connect(playerAdded)
 	Players.PlayerRemoving:Connect(playerRemoving)
 
-	for _, player in ipairs(Players:GetPlayers()) do
+	for _, player in Players:GetPlayers() do
 		playerAdded(player)
 	end
 
@@ -304,7 +304,7 @@ local function testPromotion(focus, dist, focusExtrapolation)
 		-- Test screen-space offsets from the focus for the presence of soft limits
 		debug.profilebegin("testOffsets")
 
-		for _, offset in ipairs(SCAN_SAMPLE_OFFSETS) do
+		for _, offset in SCAN_SAMPLE_OFFSETS do
 			local scaledOffset = offset
 			local pos = getCollisionPoint(fP, fX*scaledOffset.x + fY*scaledOffset.y)
 			if queryPoint(pos, (fP + fZ*dist - pos).Unit, dist) == inf then

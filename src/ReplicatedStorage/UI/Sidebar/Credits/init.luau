@@ -31,8 +31,7 @@ local Credits: {{ Name: string, Credits: {Credit} }} = {
 return Menu.New(script.Credits, {
     OnInit = function(self)
         local LO = 0
-        --using ipairs instead of nothing to make sure that it's ordered
-        for _, CreditsSection: {Name: string, Credits: {Credit}} in ipairs(Credits) do
+        for _, CreditsSection: {Name: string, Credits: {Credit}} in Credits do
             LO += 1
 
             local SectionPrefab = script.Prefabs.Section:Clone()
@@ -41,7 +40,7 @@ return Menu.New(script.Credits, {
             SectionPrefab.LayoutOrder = LO
             SectionPrefab.Parent = self.UI.Content
 
-            for _, Credit: Credit in ipairs(CreditsSection.Credits) do
+            for _, Credit: Credit in CreditsSection.Credits do
                 LO += 1
 
                 local CreditPrefab = script.Prefabs.Credit:Clone()

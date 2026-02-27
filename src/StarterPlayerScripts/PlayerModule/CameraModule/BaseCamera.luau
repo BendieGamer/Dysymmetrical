@@ -173,7 +173,7 @@ function BaseCamera:OnCharacterAdded(char)
 	self.humanoidRootPart = nil
 	if UserInputService.TouchEnabled then
 		self.PlayerGui = player:WaitForChild("PlayerGui")
-		for _, child in ipairs(char:GetChildren()) do
+		for _, child in char:GetChildren() do
 			if child:IsA("Tool") then
 				self.isAToolEquipped = true
 			end

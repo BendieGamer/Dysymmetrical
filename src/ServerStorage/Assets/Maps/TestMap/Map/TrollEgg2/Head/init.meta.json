@@ -1,0 +1,38 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BackParamA": -99999,
+    "BackParamB": 99999,
+    "BackSurface": "SmoothNoOutlines",
+    "BottomParamA": -99999,
+    "BottomParamB": 99999,
+    "BottomSurface": "SmoothNoOutlines",
+    "CFrame": [2390.561, 8.461, 54.4133, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Color": [245, 205, 48],
+    "CustomPhysicalProperties": {
+      "density": 0.7,
+      "friction": 2.0,
+      "elasticity": 1.0,
+      "frictionWeight": 1.0,
+      "elasticityWeight": 1.0,
+      "acousticAbsorption": 1.0
+    },
+    "FormFactor": "Symmetric",
+    "FrontParamA": -99999,
+    "FrontParamB": 99999,
+    "FrontSurface": "SmoothNoOutlines",
+    "LeftParamA": -99999,
+    "LeftParamB": 99999,
+    "LeftSurface": "SmoothNoOutlines",
+    "Material": "SmoothPlastic",
+    "RightParamA": -99999,
+    "RightParamB": 99999,
+    "RightSurface": "SmoothNoOutlines",
+    "Shape": "Ball",
+    "Size": [1.8, 1.8, 1.8],
+    "TopParamA": -99999,
+    "TopParamB": 99999,
+    "TopSurface": "SmoothNoOutlines"
+  }
+}

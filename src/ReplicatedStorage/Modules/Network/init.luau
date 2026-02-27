@@ -532,7 +532,7 @@ function Network:_PackArgumentsForNetwork(Name: string, Arguments: {any})
     local PreparedArgs = {} --param cache
     local InstanceList = {} --instance cache
 
-    for _, Value in ipairs(Arguments) do
+    for _, Value in Arguments do
         --get le tag
         local Tag = DataTypes.GetTagFromValue(Value)
 
@@ -558,7 +558,7 @@ function Network:_PackArgumentsForNetwork(Name: string, Arguments: {any})
     buffer.writestring(PacketBuffer, 1, Name)
     local Offset = 1 + #Name
 
-    for _, Item in ipairs(PreparedArgs) do
+    for _, Item in PreparedArgs do
         --write le tag first
         buffer.writeu8(PacketBuffer, Offset, Item.Tag)
         Offset += 1

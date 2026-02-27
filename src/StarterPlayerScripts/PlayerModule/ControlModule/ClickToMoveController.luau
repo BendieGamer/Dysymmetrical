@@ -134,7 +134,7 @@ local function UpdateIgnoreTag(newIgnoreTag)
 	CurrentIgnoreList = {GetCharacter()}
 	if CurrentIgnoreTag ~= nil then
 		local ignoreParts = CollectionService:GetTagged(CurrentIgnoreTag)
-		for _, ignorePart in ipairs(ignoreParts) do
+		for _, ignorePart in ignoreParts do
 			table.insert(CurrentIgnoreList, ignorePart)
 		end
 		TaggedInstanceAddedConnection = CollectionService:GetInstanceAddedSignal(
@@ -177,7 +177,7 @@ local function getCollidableExtentsSize(character: Model?)
 	local toLocalCFrame = character.PrimaryPart.CFrame:Inverse()
 	local min = Vector3.new(math.huge, math.huge, math.huge)
 	local max = Vector3.new(-math.huge, -math.huge, -math.huge)
-	for _,descendant in pairs(character:GetDescendants()) do
+	for _,descendant in character:GetDescendants() do
 		if descendant:IsA('BasePart') and descendant.CanCollide then
 			local localCFrame = toLocalCFrame * descendant.CFrame
 			local size = Vector3.new(descendant.Size.X / 2, descendant.Size.Y / 2, descendant.Size.Z / 2)
@@ -191,7 +191,7 @@ local function getCollidableExtentsSize(character: Model?)
 				Vector3.new(-size.X, -size.Y,  size.Z),
 				Vector3.new(-size.X, -size.Y, -size.Z)
 			}
-			for _,vertex in ipairs(vertices) do
+			for _,vertex in vertices do
 				local v = localCFrame * vertex
 				min = minV(min, v)
 				max = maxV(max, v)
@@ -653,7 +653,7 @@ end
 
 local function GetEquippedTool(character: Model?)
 	if character ~= nil then
-		for _, child in pairs(character:GetChildren()) do
+		for _, child in character:GetChildren() do
 			if child:IsA('Tool') then
 				return child
 			end
@@ -939,7 +939,7 @@ function ClickToMove:OnCharacterAdded(character)
 			end
 		end
 	end)
-	for _, child in pairs(character:GetChildren()) do
+	for _, child in character:GetChildren() do
 		OnCharacterChildAdded(child)
 	end
 end
@@ -979,7 +979,7 @@ function ClickToMove:Enable(enable: boolean, enableWASD: boolean, touchJumpContr
 			if UserInputService.TouchEnabled then
 				local character = Player.Character
 				if character then
-					for _, child in pairs(character:GetChildren()) do
+					for _, child in character:GetChildren() do
 						if child:IsA('Tool') then
 							child.ManualActivationOnly = false
 						end

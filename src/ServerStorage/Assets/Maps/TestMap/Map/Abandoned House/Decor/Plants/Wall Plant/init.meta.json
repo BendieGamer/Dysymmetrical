@@ -1,0 +1,23 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2394.9963, 11.7979, -29.8103, -1, 0, 0, 0, 1, 0, 0, 0, -1],
+    "CanCollide": false,
+    "Color": [80, 109, 84],
+    "CustomPhysicalProperties": {
+      "density": 0.7,
+      "friction": 0.3,
+      "elasticity": 0.5,
+      "frictionWeight": 1.0,
+      "elasticityWeight": 1.0,
+      "acousticAbsorption": 1.0
+    },
+    "DoubleSided": true,
+    "InitialSize": [18.061, 50, 28.5782],
+    "Material": "Grass",
+    "MeshContent": "rbxassetid://2961720999",
+    "RenderFidelity": "Precise",
+    "Size": [1.1885, 7.62, 5.8137]
+  }
+}

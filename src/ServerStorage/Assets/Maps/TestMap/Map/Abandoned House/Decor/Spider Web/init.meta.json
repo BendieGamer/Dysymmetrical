@@ -1,0 +1,15 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2398.9214, 18.4742, -19.1382, 0.2035, -0.2614, 0.9435, -0.3687, 0.8723, 0.3211, -0.907, -0.4132, 0.0811],
+    "CanCollide": false,
+    "CastShadow": false,
+    "Color": [237, 234, 234],
+    "InitialSize": [3.3479, 2.9274, 0.4144],
+    "MeshContent": "http://www.roblox.com/asset/?id=299832836",
+    "RenderFidelity": "Precise",
+    "Size": [3.6843, 3.0477, 0.8647],
+    "Transparency": 0.7
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "Attributes": {
+      "Duration": 0,
+      "Size": 0,
+      "TimeBeforeReset": 0,
+      "Transparency": 0,
+      "EmitDelay": 0,
+      "Roation": 0,
+      "CFrame": 0
+    },
+    "CFrame": [2585.0168, 5.0801, 42.6194, 0, 0, 1.0, 0, 1, 0, -1.0, 0, 0],
+    "Color": [145, 197, 227],
+    "InitialSize": [25.1851, 7.5201, 21.075],
+    "MeshContent": "rbxassetid://15791406158",
+    "RenderFidelity": "Precise",
+    "Size": [2.5185, 0.752, 2.1075]
+  }
+}

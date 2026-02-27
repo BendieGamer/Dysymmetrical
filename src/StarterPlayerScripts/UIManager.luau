@@ -117,7 +117,7 @@ function UIManager:Init()
     end
 
     --creates all screenguis that aren't there yet with their own display order correspondingly
-    for DisplayOrder, Gui in ipairs(UIManager.DefaultGuiInfo) do
+    for DisplayOrder, Gui in UIManager.DefaultGuiInfo do
         if UIManager.ManagedScreenGuis[Gui.Name] ~= nil then
             continue
         end

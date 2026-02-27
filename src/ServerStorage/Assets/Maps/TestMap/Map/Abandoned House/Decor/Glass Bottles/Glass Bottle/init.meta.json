@@ -1,0 +1,20 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "BackSurface": "SmoothNoOutlines",
+    "BottomSurface": "SmoothNoOutlines",
+    "CFrame": [2424.6138, 4.2034, -14.6685, -0.9659, 0.2588, 0, 0, 0, 1, 0.2588, 0.9659, 0],
+    "Color": [40, 127, 71],
+    "FrontSurface": "SmoothNoOutlines",
+    "InitialSize": [360.05, 339.67, 234.8376],
+    "LeftSurface": "SmoothNoOutlines",
+    "Material": "Glass",
+    "MeshContent": "rbxassetid://475136979",
+    "RenderFidelity": "Precise",
+    "RightSurface": "SmoothNoOutlines",
+    "Size": [0.46, 0.48, 1.58],
+    "TextureContent": "rbxassetid://475135614",
+    "TopSurface": "SmoothNoOutlines"
+  }
+}

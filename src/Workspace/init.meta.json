@@ -2,14 +2,14 @@
   "className": "Workspace",
   "properties": {
     "Attributes": {
-      "KillersAllowed": 1,
-      "FreezeTime": false,
-      "DebugAllowed": false,
       "LMS": false,
-      "CooldownsEnabled": true,
-      "ServerLoaded": false,
+      "KillersAllowed": 1,
+      "DebugAllowed": false,
+      "ClientLoaded": false,
+      "FreezeTime": false,
       "ChargesEnabled": true,
-      "ClientLoaded": false
+      "CooldownsEnabled": true,
+      "ServerLoaded": false
     },
     "ClientAnimatorThrottling": "Enabled"
   },

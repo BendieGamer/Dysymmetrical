@@ -76,7 +76,7 @@ function PathDisplay.setCurrentPoints(points)
 end
 
 function PathDisplay.clearRenderedPath()
-	for _, oldPoint in ipairs(renderedPoints) do
+	for _, oldPoint in renderedPoints do
 		oldPoint.Parent = nil
 		returnToPool(oldPoint)
 	end

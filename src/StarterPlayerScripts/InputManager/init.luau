@@ -78,7 +78,7 @@ function InputManager:GetInputAction(path: string): InputAction
     local Folder = script.InputActions
     local Steps = path:split(".")
 
-    for _, Step in ipairs(Steps) do
+    for _, Step in Steps do
         Folder = Folder:FindFirstChild(Step)
         if not Folder then
             break
@@ -98,7 +98,7 @@ function InputManager:GetInputBinding(path: string): InputBinding
     local Folder = script.InputActions
     local Steps = path:split(".")
 
-    for _, Step in ipairs(Steps) do
+    for _, Step in Steps do
         Folder = Folder:FindFirstChild(Step)
         if not Folder then
             break

@@ -1,0 +1,12 @@
+{
+  "className": "BillboardGui",
+  "properties": {
+    "Active": true,
+    "ClipsDescendants": true,
+    "LightInfluence": 1,
+    "ResetOnSpawn": false,
+    "Size": [[10.0, 0.0], [2.0, 0.0]],
+    "SizeOffset": [0, 1],
+    "ZIndexBehavior": "Sibling"
+  }
+}

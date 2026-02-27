@@ -1,0 +1,8 @@
+{
+  "className": "Decal",
+  "properties": {
+    "Face": "Top",
+    "TextureContent": "http://www.roblox.com/asset/?id=147149648",
+    "ZIndex": 2
+  }
+}

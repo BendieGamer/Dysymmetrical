@@ -416,14 +416,14 @@ end
 
 function getTool()	
 	for _, kid in ipairs(Figure:GetChildren()) do
-		if kid.className == "Tool" then return kid end
+		if kid.ClassName == "Tool" then return kid end
 	end
 	return nil
 end
 
 function getToolAnim(tool)
 	for _, c in ipairs(tool:GetChildren()) do
-		if c.Name == "toolanim" and c.className == "StringValue" then
+		if c.Name == "toolanim" and c.ClassName == "StringValue" then
 			return c
 		end
 	end
@@ -566,7 +566,7 @@ playAnimation("idle", 0.1, Humanoid)
 pose = "Standing"
 
 while Figure.Parent ~= nil do
-	local _, time = task.wait(0.1)
+	local time = task.wait(0.1)
 	move(time)
 end
 

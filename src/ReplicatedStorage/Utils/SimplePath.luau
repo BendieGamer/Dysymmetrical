@@ -70,7 +70,7 @@ end
 --Create visual waypoints
 local function createVisualWaypoints(waypoints)
 	local visualWaypoints = {}
-	for _, waypoint in ipairs(waypoints) do
+	for _, waypoint in waypoints do
 		local visualWaypointClone = visualWaypoint:Clone()
 		visualWaypointClone.Position = waypoint.Position
 		visualWaypointClone.Parent = workspace
@@ -86,7 +86,7 @@ end
 --Destroy visual waypoints
 local function destroyVisualWaypoints(waypoints)
 	if waypoints then
-		for _, waypoint in ipairs(waypoints) do
+		for _, waypoint in waypoints do
 			waypoint:Destroy()
 		end
 	end

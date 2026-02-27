@@ -97,7 +97,7 @@ local emoteNames = { wave = false, point = false, dance1 = true, dance2 = true, 
 
 function configureAnimationSet(name, fileList)
 	if (animTable[name] ~= nil) then
-		for _, connection in pairs(animTable[name].connections) do
+		for _, connection in animTable[name].connections do
 			connection:Disconnect()
 		end
 	end
@@ -117,7 +117,7 @@ function configureAnimationSet(name, fileList)
             configureAnimationSet(name, fileList)
         end))
 		local idx = 1
-		for _, childPart in pairs(config:GetChildren()) do
+		for _, childPart in config:GetChildren() do
 			if (childPart:IsA("Animation")) then
 				table.insert(animTable[name].connections, childPart.Changed:Connect(function(property)
                     configureAnimationSet(name, fileList)
@@ -140,7 +140,7 @@ function configureAnimationSet(name, fileList)
 
 	-- fallback to defaults
 	if (animTable[name].count <= 0) then
-		for idx, anim in pairs(fileList) do
+		for idx, anim in fileList do
 			animTable[name][idx] = {}
 			animTable[name][idx].anim = Instance.new("Animation")
 			animTable[name][idx].anim.Name = name
@@ -169,14 +169,14 @@ script.ChildRemoved:Connect(scriptChildModified)
 local animator = if Humanoid then Humanoid:FindFirstChildWhichIsA("Animator") else nil
 if animator then
 	local animTracks = animator:GetPlayingAnimationTracks()
-	for _, track in ipairs(animTracks) do
+	for _, track in animTracks do
 		track:Stop(0)
 		track:Destroy()
 	end
 end
 
 
-for name, fileList in pairs(animNames) do 
+for name, fileList in animNames do 
 	configureAnimationSet(name, fileList)
 end	
 
@@ -435,14 +435,14 @@ function onSwimming(speed)
 end
 
 function getTool()	
-	for _, kid in ipairs(Figure:GetChildren()) do
+	for _, kid in Figure:GetChildren() do
 		if kid.className == "Tool" then return kid end
 	end
 	return nil
 end
 
 function getToolAnim(tool)
-	for _, c in ipairs(tool:GetChildren()) do
+	for _, c in tool:GetChildren() do
 		if c.Name == "toolanim" and c.className == "StringValue" then
 			return c
 		end

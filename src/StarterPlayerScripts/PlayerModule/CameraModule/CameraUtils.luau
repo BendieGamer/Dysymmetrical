@@ -66,7 +66,7 @@ end
 -- Ritter's loose bounding sphere algorithm
 function CameraUtils.getLooseBoundingSphere(parts: {BasePart})
 	local points = table.create(#parts)
-	for idx, part in pairs(parts) do
+	for idx, part in parts do
 		points[idx] = part.Position
 	end
 
@@ -77,7 +77,7 @@ function CameraUtils.getLooseBoundingSphere(parts: {BasePart})
 	local y = x
 	local yDist = 0
 
-	for _, p in ipairs(points) do
+	for _, p in points do
 		local pDist = (p - x).Magnitude
 
 		if pDist > yDist then
@@ -90,7 +90,7 @@ function CameraUtils.getLooseBoundingSphere(parts: {BasePart})
 	local z = y
 	local zDist = 0
 
-	for _, p in ipairs(points) do
+	for _, p in points do
 		local pDist = (p - y).Magnitude
 
 		if pDist > zDist then
@@ -104,7 +104,7 @@ function CameraUtils.getLooseBoundingSphere(parts: {BasePart})
 	local sr = (y - z).Magnitude*0.5
 
 	-- expand sphere to fit any outlying points
-	for _, p in ipairs(points) do
+	for _, p in points do
 		local pDist = (p - sc).Magnitude
 
 		if pDist > sr then

@@ -204,7 +204,7 @@ function TypeUtils.SplitTableIntoChunks<T>(TableToSplit: T & {}, ChunkSize: numb
     local Chunks = {}
     local CurrentChunk = {}
 
-    for _, Item in ipairs(TypeUtils.DictToTable(TableToSplit)) do
+    for _, Item in TypeUtils.DictToTable(TableToSplit) do
         table.insert(CurrentChunk, Item)
         if #CurrentChunk > ChunkSize then
             table.insert(Chunks, CurrentChunk)
@@ -233,7 +233,7 @@ function TypeUtils.ConvertInstanceTreeToTable(TargetInstance: Instance, Depth: n
 	Depth = (Depth or -1) + 1
 
 	-- Iterate through all of the instance's children
-	for _index, value in ipairs(TargetInstance:GetChildren()) do
+	for _index, value in TargetInstance:GetChildren() do
 
 		-- If the child is a folder, run this function again on it to create another nest.
 		if value:IsA("Folder") and Depth < 50 then -- Customize the depth cap as you please. Realistically, nothing will ever go this deep, but to avoid a permanant hang or an infinite loop, you can never be too sure...
@@ -315,7 +315,7 @@ function TypeUtils.SafeTableIndex<T>(TableToIndex: T & {}, Path: string): T & {}
     local CurrentItem = TableToIndex
 
     --iterate over each step
-    for _, Step in ipairs(Steps) do
+    for _, Step in Steps do
         --if the current item is `nil`, halt and return `nil` to prevent halting thread execution
         if CurrentItem == nil then
             return

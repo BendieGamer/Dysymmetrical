@@ -1,0 +1,9 @@
+{
+  "className": "Decal",
+  "properties": {
+    "Color3": [0.5333, 0.5333, 0.5333],
+    "Face": "Bottom",
+    "TextureContent": "http://www.roblox.com/asset/?id=996262888",
+    "Transparency": 0.3
+  }
+}

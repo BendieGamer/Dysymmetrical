@@ -113,7 +113,7 @@ function CameraModule.new()
 	Players.PlayerAdded:Connect(function(player)
 		self:OnPlayerAdded(player)
 	end)
-	for _, player in ipairs(Players:GetPlayers()) do
+	for _, player in Players:GetPlayers() do
 		self:OnPlayerAdded(player)
 	end
 
@@ -136,13 +136,13 @@ function CameraModule.new()
 	RunService:BindToRenderStep("cameraRenderUpdate", Enum.RenderPriority.Camera.Value, function(dt) self:Update(dt) end)
 
 	-- Connect listeners to camera-related properties
-	for _, propertyName in pairs(PLAYER_CAMERA_PROPERTIES) do
+	for _, propertyName in PLAYER_CAMERA_PROPERTIES do
 		Players.LocalPlayer:GetPropertyChangedSignal(propertyName):Connect(function()
 			self:OnLocalPlayerCameraPropertyChanged(propertyName)
 		end)
 	end
 
-	for _, propertyName in pairs(USER_GAME_SETTINGS_PROPERTIES) do
+	for _, propertyName in USER_GAME_SETTINGS_PROPERTIES do
 		UserGameSettings:GetPropertyChangedSignal(propertyName):Connect(function()
 			self:OnUserGameSettingsPropertyChanged(propertyName)
 		end)
@@ -245,7 +245,7 @@ function CameraModule:ActivateOcclusionModule(occlusionMode: Enum.DevCameraOcclu
 			end
 		else
 			-- When Poppercam is enabled, we send it all existing player characters for its raycast ignore list
-			for _, player in pairs(Players:GetPlayers()) do
+			for _, player in Players:GetPlayers() do
 				if player and player.Character then
 					self.activeOcclusionModule:CharacterAdded(player.Character, player)
 				end

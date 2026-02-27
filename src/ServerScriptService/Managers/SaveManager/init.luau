@@ -291,7 +291,7 @@ function SaveManager.Load(Player: Player): Folder
 
             local Steps = Utils.Type.SplitStringPath(Path)
 
-            for _, Step in ipairs(Steps) do
+            for _, Step in Steps do
                 IndexedTable = IndexedTable[Step]
                 Data = Data[Step]
             end
@@ -322,7 +322,7 @@ function SaveManager.Load(Player: Player): Folder
 
             local Steps = Utils.Type.SplitStringPath(Path)
 
-            for _, Step in ipairs(Steps) do
+            for _, Step in Steps do
                 IndexedTable = IndexedTable[Step]
                 Data = Data[Step]
             end
@@ -435,6 +435,9 @@ function SaveManager.Save(Player: Player, Data: Folder)
 
 		-- fun fact: ipairs is still useful because of it being done in order for numeric tables! yippee!!!
 		-- seriorusly though, remove pairs. -dys
+
+		--just noticed ipairs is useless as well
+		--huh -dys
 
 		-- Grab the currently equipped killer and survivor.
 		for target, equipped in { Killer = SaveFile.Equipped.Killer, Survivor = SaveFile.Equipped.Survivor } do

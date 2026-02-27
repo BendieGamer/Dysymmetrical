@@ -235,13 +235,13 @@ do
 		end
 		
 		local function resetInputDevices()
-			for _, device in pairs({
+			for _, device in {
 				gamepadState,
 				keyboardState,
 				mouseState,
 				touchState,
-			}) do
-				for k, v in pairs(device) do
+			} do
+				for k, v in device do
 					if type(v) == "boolean" then
 						device[k] = false
 					else
@@ -313,7 +313,7 @@ do
 				
 				-- collect unsunk touches
 				local unsunkTouches = {}
-				for touch, sunk in pairs(touches) do
+				for touch, sunk in touches do
 					if not sunk then
 						table.insert(unsunkTouches, touch)
 					end
@@ -453,7 +453,7 @@ do
 					ContextActionService:UnbindAction("RbxCameraGamepadReset")
 				end 
 
-				for _, conn in pairs(connectionList) do
+				for _, conn in connectionList do
 					conn:Disconnect()
 				end
 				connectionList = {}

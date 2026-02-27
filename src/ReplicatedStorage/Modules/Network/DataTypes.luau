@@ -58,12 +58,12 @@ local FixedSizes = {
 
 --tweeninfo stuffs
 local StyleMap = {}
-for _, enumItem in ipairs(Enum.EasingStyle:GetEnumItems()) do
+for _, enumItem in Enum.EasingStyle:GetEnumItems() do
     StyleMap[enumItem.Value] = enumItem
 end
 
 local DirectionMap = {}
-for _, enumItem in ipairs(Enum.EasingDirection:GetEnumItems()) do
+for _, enumItem in Enum.EasingDirection:GetEnumItems() do
     DirectionMap[enumItem.Value] = enumItem
 end
 
@@ -321,7 +321,7 @@ DataTypes.Writers = {
         local count = #keypoints
         buffer.writeu8(Buffer, Count, count)
         Count += 1
-        for _, kp in ipairs(keypoints) do
+        for _, kp in keypoints do
             buffer.writef32(Buffer, Count, kp.Time)
             buffer.writef32(Buffer, Count + 4, kp.Value.R)
             buffer.writef32(Buffer, Count + 8, kp.Value.G)
@@ -336,7 +336,7 @@ DataTypes.Writers = {
         local count = #keypoints
         buffer.writeu8(Buffer, Count, count)
         Count += 1
-        for _, kp in ipairs(keypoints) do
+        for _, kp in keypoints do
             buffer.writef32(Buffer, Count, kp.Time)
             buffer.writef32(Buffer, Count + 4, kp.Value)
             buffer.writef32(Buffer, Count + 8, kp.Envelope)

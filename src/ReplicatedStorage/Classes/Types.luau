@@ -495,11 +495,15 @@ export type Killer = {
         Render: string?,
 
         --- A possible custom LMS theme the character might have.
+        --- 
         --- If it's a table of strings, a random one will be pulled.
         LastManStandingTheme: (string | {string})?,
         --- Any possible LMS's for this character VS another specific character.
+        --- 
         --- Every entry in this table should be `CHARACTERMODULENAME = {Default = ID, SKINNAME = ID, ...}`, e.g. `Commander = {Default = "rbxassetid://0000000000"}`.
+        --- 
         --- You can add skins by making a new field in the table named after the skin's module's name, e.g. `Yourself = "rbxassetid://0000000000"`.
+        --- 
         --- If and ID is a table of strings, a random one will be pulled.
         SpecialLastManStandings: {[string]: {
             Default: string | {string},

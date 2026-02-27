@@ -16,7 +16,7 @@ return Menu.New(script.Stats, {
             return a:GetAttribute("LayoutOrder") < b:GetAttribute("LayoutOrder")
         end)
 
-        for _, StatFolder in ipairs(Folders) do
+        for _, StatFolder in Folders do
             CurrentLayoutOrder += 1
 
             local Section = script.Prefabs.Section:Clone()
@@ -30,7 +30,7 @@ return Menu.New(script.Stats, {
                 return a:GetAttribute("LayoutOrder") < b:GetAttribute("LayoutOrder")
             end)
 
-            for _, StatValue in ipairs(StatsInSection) do
+            for _, StatValue in StatsInSection do
                 CurrentLayoutOrder += 1
                 
                 local Stat = script.Prefabs.Stat:Clone()

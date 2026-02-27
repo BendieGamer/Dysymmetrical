@@ -1,0 +1,13 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2465.0935, 3.2744, -22.5818, 0, 0, 1, 0, 1, 0, -1, 0, 0],
+    "Color": [248, 248, 248],
+    "InitialSize": [0.2833, 0.8269, 0.2832],
+    "Material": "SmoothPlastic",
+    "MeshContent": "rbxassetid://133029180329649",
+    "PivotOffset": [-0.6153, 0.9559, -0.4745, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Size": [0.2833, 0.8269, 0.2832]
+  }
+}

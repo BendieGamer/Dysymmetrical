@@ -30,7 +30,7 @@ local function unbindNodeDescend(node, resolvedManifest)
 
 	local connections = node.connections
 	if connections then
-		for _, conn in ipairs(connections) do
+		for _, conn in connections do
 			conn:Disconnect()
 		end
 		table.clear(connections)
@@ -132,7 +132,7 @@ function AtomicBinding:bindRoot(root)
 	for alias, parsedPath in parsedManifest do
 		local parentNode = rootNode
 
-		for idx, childName in ipairs(parsedPath) do
+		for idx, childName in parsedPath do
 			local leaf = idx == #parsedPath
 			local childNode = parentNode.children[childName] or {}
 
@@ -213,7 +213,7 @@ function AtomicBinding:bindRoot(root)
 				end
 			end
 
-			for _, child in ipairs(instance:GetChildren()) do
+			for _, child in instance:GetChildren() do
 				processAddChild(child)
 			end
 
@@ -257,7 +257,7 @@ function AtomicBinding:destroy()
 	end
 	table.clear(self._dtorMap)
 
-	for _, conn in ipairs(self._connections) do
+	for _, conn in self._connections do
 		conn:Disconnect()
 	end
 	table.clear(self._connections)
