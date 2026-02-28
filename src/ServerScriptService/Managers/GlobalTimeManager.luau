@@ -17,7 +17,7 @@ local GlobalTimeManager = {
         --- If `true`, the manager will wait until the count of loaded players is equal to or higher than `MinimumPlayerCount`.
         WaitForEnoughPlayers = true,
         --- The minimum amount of players there must be for the manager to operate on time if `WaitForEnoughPlayers` is `true`.
-        MinimumPlayerCount = 2,
+        MinimumPlayerCount = 1,
     },
     --- A callback that'll be executed when the time reaches 0.
     OnTimerEnd = nil,
