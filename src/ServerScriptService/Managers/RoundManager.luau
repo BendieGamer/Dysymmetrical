@@ -156,7 +156,6 @@ function RoundManager.EndRound(Winners: Types.Role?)
     table.clear(RoundManager.PlayerConnections)
     
     Sounds.StopTheme("LMS", 0)
-
     workspace:SetAttribute("LMS", false)
     
     if Winners == "Killer" then

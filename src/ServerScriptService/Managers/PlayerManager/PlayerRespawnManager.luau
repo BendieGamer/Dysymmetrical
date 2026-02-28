@@ -135,6 +135,64 @@ function PlayerRespawnManager.LoadRigOntoPlayer(Player: Player, RigSettings: Rig
     return Character
 end
 
+function PlayerRespawnManager._GetRandMapSpawnPoint(Role: Types.Role): CFrame?
+    local Map = workspace:FindFirstChild("Map")
+    if not Map then
+        return
+    end
+
+    Map = Map:FindFirstChild("Map")
+    if not Map then
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] The map should be in a whole model inside of the map's folder! Check the template map! Using the folder itself instead...")
+
+        return
+    end
+
+    local SpawnPoints = Map:FindFirstChild("SpawnPoints")
+    if not SpawnPoints then
+        --i am so lazy to split this string
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] Spawn points aren't set for this map! Inside of the map there should be a folder called \"SpawnPoints\" containing a folder for every possible spawn layout also containing a folder for every role (\"Killers\" and \"Survivors\" by default)! Preventing character positioning...")
+        
+        return
+    end
+
+    SpawnPoints = SpawnPoints:GetChildren()
+    if #SpawnPoints <= 0 then
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] The map's spawn point folder is empty! Make sure to make some spawn point layouts! Preventing character positioning...")
+        
+        return
+    end
+
+    SpawnPoints = Utils.Type.GetRandomItemFromTable(SpawnPoints)
+    local LayoutName = SpawnPoints.Name or tostring(SpawnPoints)
+    SpawnPoints = SpawnPoints:FindFirstChild(Role.."s")
+
+    if not SpawnPoints then
+        --i am so lazy to split this string
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] There are no spawn points for the \""..Role.."\" role! Make sure the folder named \""..LayoutName.."\" in this map's layouts contains a folder for this role named \""..Role.."s\"! Preventing character positioning...")
+
+        return
+    end
+
+    SpawnPoints = SpawnPoints:GetChildren()
+    if #SpawnPoints <= 0 then
+        --i am so lazy to split this string
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] Spawn Points aren't set for the \""..Role.."\" role in this map! Preventing character positioning...")
+
+        return
+    end
+
+    local SpawnPoint = Utils.Type.GetRandomItemFromTable(SpawnPoints)
+    if not SpawnPoint:IsA("BasePart") then
+        --i could make this cycle to another spawn but meh the rest would probably be badly set up the same way so yeah
+        warn("[PlayerRespawnManager._GetRandMapSpawnPoint()] Chosen spawn point is not a BasePart! Make sure all of your spawn points are invisible, anchored, non-collidable baseparts which anchor point is touching the ground! Check the template map! Preventing character positioning...")
+
+        return
+    end
+
+    return SpawnPoint.CFrame
+end
+
 local function _GetCharacterRigFromService(ServiceName: "ReplicatedStorage"  | "ServerStorage", CharacterRole: string, CharacterName: string, CharacterSkin: string?): Model
     --get the set service, Replicated or Server Storage
     local Service = game:GetService(ServiceName)
@@ -214,7 +272,10 @@ function PlayerRespawnManager.LoadCharacter(Player: Player, FuncSettings: LoadCh
         Character = CharacterRig or Players:CreateHumanoidModelFromUserIdAsync(Player.UserId),
         Callback = FuncSettings.LoadCallback,
         AutoSetPlayerCharacter = FuncSettings.AutoSetPlayerCharacter,
-        TargetCFrame = FuncSettings.TargetCFrame,
+        TargetCFrame =
+            FuncSettings.TargetCFrame or
+            PlayerRespawnManager._GetRandMapSpawnPoint(FuncSettings.Role) or
+            (Player.Character.PrimaryPart and Player.Character.PrimaryPart.CFrame or Player.Character.WorldPivot),
     })
     --set the role beforehand to make sure everything works fine
     Character:SetAttribute("Role", FuncSettings.Role)

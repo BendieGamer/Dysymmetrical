@@ -39,10 +39,6 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
         return PlayerRespawnManager.LoadCharacter(Player)
     end
 
-    if CharacterSettings.TargetCFrame == nil and Player.Character ~= nil then
-        CharacterSettings.TargetCFrame = Player.Character.PrimaryPart and Player.Character.PrimaryPart.CFrame or Player.Character.WorldPivot
-    end
-
     --makes a new copy of the character's module for usage and gives it to the player
     CharacterModule = Utils.Type.CopyTable(require(CharacterModule)) :: Types.Killer | Types.Survivor
     CharacterModule.Owner = Player
