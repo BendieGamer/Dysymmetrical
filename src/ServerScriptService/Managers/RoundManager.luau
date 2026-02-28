@@ -69,7 +69,7 @@ function RoundManager.StartRound()
         RoundManager.Utils.SetupPlayer(Player, IsKiller and Index or nil)
 
         if RoundManager.CanSpawnKiller and IsKiller then
-            return
+            continue
         end
 
         RoundManager.CurrentRound.RemainingPlayers[Player.UserId] = Player
@@ -92,12 +92,7 @@ function RoundManager.StartRound()
     workspace:SetAttribute("LMS", false)
 
     task.defer(function()
-        while task.wait(1) do
-            if RoundManager.StopLoop then
-                RoundManager.StopLoop = false
-                break
-            end
-
+        while not RoundManager.StopLoop and task.wait(1) do
             RoundManager.Utils.CheckForKillerWin()
         end
     end)
@@ -106,9 +101,9 @@ function RoundManager.StartRound()
 end
 
 function RoundManager.PlayIntro()
-    if not RoundManager.CanSpawnKiller then
+    -- if not RoundManager.CanSpawnKiller then
         Utils.Player.Fade(RoundManager.CurrentRound.InitialPlayers, "Out", 0.6, false)
-    end
+    -- end
 
     RoundManager.Threads.IntroEndingThread = RoundManager._Janitor:Add(task.delay(3, function()
         GlobalTimeManager.CanDecreaseTime = true
@@ -199,6 +194,8 @@ function RoundManager.EndRound(Winners: Types.Role?)
     task.defer(MapManager.DestroyCurrentMap)
 
     RoundInfo:SetAttribute("State", "Lobby")
+    
+    --TODO: outros
 
     Utils.Player.Fade(LoadedPlayers, "Out", 0.7, true)
 

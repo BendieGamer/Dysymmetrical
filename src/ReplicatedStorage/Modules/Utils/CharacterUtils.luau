@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Types = require(ReplicatedStorage.Classes.Types)
 local InstanceUtils = require(script.Parent.InstanceUtils)
 local PlayerDataUtils = require(script.Parent.PlayerDataUtils)
+local PlayerUtils = require(script.Parent.PlayerUtils)
 local TypeUtils = require(script.Parent.TypeUtils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Promise = require(ReplicatedStorage.Packages._Index["howmanysmall_janitor@1.18.3"].Promise)
@@ -268,17 +269,18 @@ function CharacterUtils.LoadAnimationFromID(Rig: Model, ID: string | {string} | 
 end
 
 --- Returns a list of every loaded player's character.
---- Also read `Utils:GetLoadedPlayers()`.
+--- 
+--- Also read `Utils.Player.GetLoadedPlayers()`.
 function CharacterUtils.GetLoadedCharacters(IncludeAFK: boolean?): {Model}
     local t: {Model} = {}
 
-    for _, Player: ObjectValue in ReplicatedStorage.LoadedPlayers:GetChildren() do
-        if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player.Value, "Game.AFK") then
+    for _, Player: Player in PlayerUtils.GetLoadedPlayers(IncludeAFK) do
+        if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player, "Game.AFK") then
             continue
         end
 
-		if Player.Value.Character then
-        	table.insert(t, Player.Value)
+		if Player.Character then
+        	table.insert(t, Player.Character)
 		end
     end
 
@@ -290,21 +292,24 @@ function CharacterUtils.GetCharactersWithRoles(IncludeAFK: boolean?): {[string]:
     local Characters = {}
 
     for _, Character in CharacterUtils.GetLoadedCharacters(IncludeAFK) do
-        if Character:FindFirstChild("Role") then
-            --dead ones EZ!!!!
-            if Character:FindFirstChildWhichIsA("Humanoid").Health <= 0 or Character:GetAttribute("Dead") == true then
-                continue
-            end
+		local Role = Character:GetAttribute("Role")
+		if Role == nil then
+			continue
+		end
+		
+		--dead ones EZ!!!!
+		if Character:FindFirstChildWhichIsA("Humanoid").Health <= 0 or Character:GetAttribute("Dead") == true then
+			continue
+		end
 
-            --creates the table if it's not created with the character inside
-            if not Characters[Character.Role.Value] then
-                Characters[Character.Role.Value] = {Character}
-                continue
-            end
+		--creates the table if it's not created with the character inside
+		if not Characters[Role] then
+			Characters[Role] = {Character}
+			continue
+		end
 
-            --adds a new character to the list
-            table.insert(Characters[Character.Role.Value], Character)
-        end
+		--adds a new character to the list
+		table.insert(Characters[Role], Character)
     end
 
     Characters.Killer = Characters.Killer or {}

@@ -362,15 +362,16 @@ function PlayerUtils.GetLoadedPlayers(IncludeAFK: boolean?): {Player}
 
     local t: {Player} = {}
 
-    for _, Player: ObjectValue in ReplicatedStorage.LoadedPlayers:GetChildren() do
-        if not Player.Value then
-            continue
-        end
-        if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player.Value, "Game.AFK") then
+    for _, Player: Player in Players:GetPlayers() do
+        if not Player:GetAttribute("Loaded") then
             continue
         end
 
-        table.insert(t, Player.Value)
+        if not IncludeAFK and PlayerDataUtils.GetPlayerSetting(Player, "Game.AFK") then
+            continue
+        end
+
+        table.insert(t, Player)
     end
 
     return t

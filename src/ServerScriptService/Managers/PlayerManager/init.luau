@@ -8,7 +8,7 @@ local PlayerManager = {}
 
 function PlayerManager:Init()
     Network:SetConnection("PlayerLoad", "REMOTE_EVENT", PlayerManager._OnPlayerLoaded, function(Player: Player): boolean
-        return not ReplicatedStorage.LoadedPlayers:FindFirstChild(Player.Name)
+        return not Player:GetAttribute("Loaded")
     end)
 
     Utils.Player.ObservePlayers(function(Player: Player)
@@ -27,10 +27,7 @@ function PlayerManager._OnPlayerLoaded(Player: Player)
     end
 
     --set them as loaded
-    local Value = Instance.new("ObjectValue")
-    Value.Name = Player.Name
-    Value.Value = Player
-    Value.Parent = ReplicatedStorage.LoadedPlayers
+    Player:SetAttribute("Loaded", true)
 
     --try to fetch their LastSeenLog and, if it's there, update it
     --this is done mainly for changelogs to show up on boot if there's a new update

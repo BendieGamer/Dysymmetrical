@@ -8,7 +8,7 @@ local GlobalTimeManager = {
     --- Some common config for time.
     Config = {
         --- The time it will take to start a round.
-        LobbyTime = 50,
+        LobbyTime = 1,
         --- The time it will take to finish a round.
         RoundTime = 240,
         --- The time it will take to finish a round in LMS.
