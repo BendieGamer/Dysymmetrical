@@ -12,6 +12,8 @@ function PlayerManager:Init()
     end)
 
     Utils.Player.ObservePlayers(function(Player: Player)
+        --bleh why not
+        Player:SetAttribute("Loaded", false)
         PlayerRespawnManager.LoadCharacter(Player)
     end)
 end

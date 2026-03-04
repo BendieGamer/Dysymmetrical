@@ -152,7 +152,7 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
         end
 
         --lms voiceline is played through a bindable event on the server
-        VoicelineJanitor:Add(Network:SetConnection("LMSVoiceline", "BINDABLE_EVENT", function(LastMan: Player)
+        VoicelineJanitor:Add(Network:SetConnection("LMS", "BINDABLE_EVENT", function(LastMan: Player)
             local Voiceline =
                 CharacterModule.Config.Voicelines.LMS[
                     LastMan:GetAttribute("CharacterSkin") and

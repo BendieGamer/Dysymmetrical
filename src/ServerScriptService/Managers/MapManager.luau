@@ -36,23 +36,20 @@ function MapManager.InstantiateMap(): Model | Folder
     MapManager.CurrentMap = SelectedMap
 
     --check for mandatory folders that aren't there
-    if not SelectedMap:FindFirstChild("InGame") then
-        local InGame = Instance.new("Folder")
-        InGame.Name = "InGame"
-        InGame.Parent = SelectedMap
-    end
-    
-    if not SelectedMap:FindFirstChild("Items") then
-        local Items = Instance.new("Folder")
-        Items.Name = "Items"
-        Items.Parent = SelectedMap
+    local function CreateFolderIfMissing(Name: string)
+        local Folder = SelectedMap:FindFirstChild(Name)
+        if Folder then
+            return
+        end
+
+        Folder = Instance.new("Folder")
+        Folder.Name = Name
+        Folder.Parent = SelectedMap
     end
 
-    if not SelectedMap:FindFirstChild("PermAbilities") then
-        local PermAbilities = Instance.new("Folder")
-        PermAbilities.Name = "PermAbilities"
-        PermAbilities.Parent = SelectedMap
-    end
+    CreateFolderIfMissing("InGame")
+    CreateFolderIfMissing("Items")
+    CreateFolderIfMissing("PermAbilities")
 
     local Map = SelectedMap:FindFirstChild("Map")
 
