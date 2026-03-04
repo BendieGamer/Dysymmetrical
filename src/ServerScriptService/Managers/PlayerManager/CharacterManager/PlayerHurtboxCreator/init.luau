@@ -6,9 +6,9 @@ local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 
-local PlayerHitboxCreator = {}
+local PlayerHurtboxCreator = {}
 
-function PlayerHitboxCreator:Init()
+function PlayerHurtboxCreator:Init()
     Utils.Player.ObservePlayers(function(Player: Player)
         Utils.Character.ObserveCharacter(Player, function(Character: Model, CharacterJanitor: Types.Janitor)
             --if it's a spectator, halt
@@ -16,13 +16,13 @@ function PlayerHitboxCreator:Init()
                 return
             end
 
-            PlayerHitboxCreator.CreateHitboxesForPlayer(Player, Character)
+            PlayerHurtboxCreator.CreateHurtboxesForPlayer(Player, Character)
         end)
     end)
 end
 
-function PlayerHitboxCreator.CreateHitboxesForPlayer(Player: Player, Character: Model)
-    local ManagedHitboxes = {}
+function PlayerHurtboxCreator.CreateHurtboxesForPlayer(Player: Player, Character: Model)
+    local ManagedHurtboxes = {}
 
     local HRP = Utils.Character.GetRootPart(Character)
     local TargetCFrame = CFrame.new(HRP.CFrame.Position)
@@ -72,16 +72,16 @@ function PlayerHitboxCreator.CreateHitboxesForPlayer(Player: Player, Character: 
         HitboxClone.Parent = Character.Hitboxes
 
         --add it to the table for later hitbox display
-        ManagedHitboxes[ID] = HitboxClone
+        ManagedHurtboxes[ID] = HitboxClone
     end
 
     --setup hitbox display on client
-    PlayerHitboxCreator._SetupHitboxViewConnections(Player, Character, ManagedHitboxes)
+    PlayerHurtboxCreator._SetupHurtboxViewConnections(Player, Character, ManagedHurtboxes)
 end
 
 local Framerate = 1/15
 --- Sets up all available hitboxes for the passed character.
-function PlayerHitboxCreator._SetupHitboxViewConnections(Player: Player, Character: Model, ManagedHitboxes: {[number]: BasePart})
+function PlayerHurtboxCreator._SetupHurtboxViewConnections(Player: Player, Character: Model, ManagedHitboxes: {[number]: BasePart})
     local JanitorInstance = Janitor.new()
     JanitorInstance:LinkToInstance(Character)
 
@@ -164,8 +164,8 @@ function PlayerHitboxCreator._SetupHitboxViewConnections(Player: Player, Charact
         end
 
         --send it to the client to update
-        Network:FireClientConnection(Player, "UpdHitboxPos", "UREMOTE_EVENT", Buffer)
+        Network:FireClientConnection(Player, "UpdHurtboxPos", "UREMOTE_EVENT", Buffer)
     end))
 end
 
-return PlayerHitboxCreator
+return PlayerHurtboxCreator

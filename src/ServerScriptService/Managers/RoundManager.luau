@@ -145,6 +145,7 @@ function RoundManager.PlayIntro()
         GlobalTimeManager.CanDecreaseTime = true
         for _, Player: Player in RoundManager.CurrentRound.InitialPlayers do
             Utils.Character.GetRootPart(Player).Anchored = false
+            Player.Character:FindFirstChildWhichIsA("Humanoid").PlatformStand = false
         end
     end), true)
 end
@@ -365,6 +366,7 @@ function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number?)
 
     --anchors at first
     task.wait()
+    Player.Character:FindFirstChildWhichIsA("Humanoid").PlatformStand = true
     Utils.Character.GetRootPart(Char).Anchored = true
 end
 

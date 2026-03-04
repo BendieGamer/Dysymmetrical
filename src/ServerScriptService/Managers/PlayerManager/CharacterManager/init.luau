@@ -7,7 +7,7 @@ local PlayerRespawnManager = require(script.Parent.PlayerRespawnManager)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 
---- Manages character instance filling (e.g. assigning the `Role` attribute or creating the hitboxes) and player rig loading.
+--- Manages character instance filling (e.g. assigning the `Role` attribute or creating the hurtboxes) and player rig loading.
 local CharacterManager = {}
 
 function CharacterManager:Init()

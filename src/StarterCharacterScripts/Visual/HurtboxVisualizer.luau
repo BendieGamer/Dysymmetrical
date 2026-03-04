@@ -9,14 +9,14 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 return {
     Init = function(_)
         local Character: Model = Players.LocalPlayer.Character
-        local HitboxFolder: Folder = Character.Hitboxes
+        local HurtboxFolder: Folder = Character.Hurtboxes
 
         --necessary tables
-        local GhostHitboxes: {[number]: BasePart} = {}
+        local GhostHurtboxes: {[number]: BasePart} = {}
         local TargetPositions: {[number]: Vector3} = {}
 
-        --creating the janitor by conveniently using `Utils.Instance.ObserveChildren()`, which is bound to HitboxFolder
-        local JanitorInstance: Types.Janitor = Utils.Instance.ObserveChildren(HitboxFolder, function(Child: Instance)
+        --creating the janitor by conveniently using `Utils.Instance.ObserveChildren()`, which is bound to HurtboxFolder
+        local JanitorInstance: Types.Janitor = Utils.Instance.ObserveChildren(HurtboxFolder, function(Child: Instance)
             --safety check
             if not Child:IsA("BasePart") then
                 return
@@ -33,16 +33,16 @@ return {
 
             --create its dupe with its supposed transparency
             local Ghost = Child:Clone()
-            Ghost.Parent = HitboxFolder
+            Ghost.Parent = HurtboxFolder
             Ghost.Name = Ghost.Name.."Ghost"
             Ghost.Transparency = Ghost:GetAttribute("VisibleTransparency") or 0.75
             --IMPORTANTLY anchor it or it will fall to oblivion
             Ghost.Anchored = true
             --add it to the ghost table for the render loop
-            GhostHitboxes[ID] = Ghost
+            GhostHurtboxes[ID] = Ghost
         end)
         --use the same janitor for removing stuffs
-        JanitorInstance:Add(HitboxFolder.ChildRemoved:Connect(function(Child: Instance)
+        JanitorInstance:Add(HurtboxFolder.ChildRemoved:Connect(function(Child: Instance)
             --safety check
             if not Child:IsA("BasePart") then
                 return
@@ -55,21 +55,21 @@ return {
             end
             
             --remove stuff from tables to clean up
-            if GhostHitboxes[ID] then
-                GhostHitboxes[ID]:Destroy()
+            if GhostHurtboxes[ID] then
+                GhostHurtboxes[ID]:Destroy()
             end
-            GhostHitboxes[ID] = nil
+            GhostHurtboxes[ID] = nil
             TargetPositions[ID] = nil
         end))
         
         --use the same janitor again to add the network connection
-        JanitorInstance:Add(Network:SetConnection("UpdHitboxPos", "UREMOTE_EVENT", function(Buffer: buffer)
+        JanitorInstance:Add(Network:SetConnection("UpdHurtboxPos", "UREMOTE_EVENT", function(Buffer: buffer)
             --start from 1 to skip the buffer's counter header at first
             local Offset = 1
 	
             local Count = buffer.readu8(Buffer, 0)
             
-            --iterate over the amount of hitboxes
+            --iterate over the amount of hurtboxes
             for _ = 1, Count do
                 --get the id and increase the offset
                 local ID = buffer.readu8(Buffer, Offset)
@@ -92,7 +92,7 @@ return {
             --iterate over every available position in this frame
             for ID: number, targetPosition: Vector3 in TargetPositions do
                 --if a ghost for this ID doesn't exist, move on to the next one
-                local Ghost = GhostHitboxes[ID]
+                local Ghost = GhostHurtboxes[ID]
                 if not Ghost then
                     continue
                 end

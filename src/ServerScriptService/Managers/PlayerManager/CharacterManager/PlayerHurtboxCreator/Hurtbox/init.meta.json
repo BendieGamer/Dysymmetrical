@@ -8,7 +8,7 @@
     "CanCollide": false,
     "CollisionGroup": "Attackable",
     "CollisionGroupId": -1,
-    "Color": [248, 0, 0],
+    "Color": [0, 248, 0],
     "InitialSize": [31.2554, 50, 31.1984],
     "Material": "SmoothPlastic",
     "MeshContent": "rbxassetid://6737106621",

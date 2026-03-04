@@ -403,6 +403,7 @@ end
 function Hitbox._CreateDetectionPart(Source: Player, Config: Types.HitboxSettings): Part
     local Part = Instance.new("Part")
     Part.Name = Source.Name.."Hitbox"
+    Part.Material = Enum.Material.ForceField
     Part.Transparency = 1
     Part.CanCollide = false
     Part.CanQuery = false
