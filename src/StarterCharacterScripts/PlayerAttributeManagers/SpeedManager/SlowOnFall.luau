@@ -7,6 +7,10 @@ local SlowOnFall = {}
 
 function SlowOnFall:Init()
     local Character = Players.LocalPlayer.Character
+    if Character:GetAttribute("Role") == "Killer" then
+        return
+    end
+    
     local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
     local Root = Utils.Character.GetRootPart(Character)
 

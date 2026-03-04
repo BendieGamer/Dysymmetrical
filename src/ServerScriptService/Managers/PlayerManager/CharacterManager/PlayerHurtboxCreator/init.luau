@@ -22,8 +22,6 @@ function PlayerHurtboxCreator:Init()
 end
 
 function PlayerHurtboxCreator.CreateHurtboxesForPlayer(Player: Player, Character: Model)
-    local ManagedHurtboxes = {}
-
     local HRP = Utils.Character.GetRootPart(Character)
     local TargetCFrame = CFrame.new(HRP.CFrame.Position)
 
@@ -69,19 +67,16 @@ function PlayerHurtboxCreator.CreateHurtboxesForPlayer(Player: Player, Character
         Weld.Parent = HRP
         
         --parent it NOW instead of BEFORE so that the client can properly get the ID attribute
-        HitboxClone.Parent = Character.Hitboxes
-
-        --add it to the table for later hitbox display
-        ManagedHurtboxes[ID] = HitboxClone
+        HitboxClone.Parent = Character.Hurtboxes
     end
 
     --setup hitbox display on client
-    PlayerHurtboxCreator._SetupHurtboxViewConnections(Player, Character, ManagedHurtboxes)
+    PlayerHurtboxCreator._SetupHurtboxViewConnections(Player, Character)
 end
 
 local Framerate = 1/15
 --- Sets up all available hitboxes for the passed character.
-function PlayerHurtboxCreator._SetupHurtboxViewConnections(Player: Player, Character: Model, ManagedHitboxes: {[number]: BasePart})
+function PlayerHurtboxCreator._SetupHurtboxViewConnections(Player: Player, Character: Model)
     local JanitorInstance = Janitor.new()
     JanitorInstance:LinkToInstance(Character)
 
@@ -112,59 +107,9 @@ function PlayerHurtboxCreator._SetupHurtboxViewConnections(Player: Player, Chara
 
         LastPosition = CurrentPosition
 
-        --get every single hitbox that still exists from the managed hitboxes JUST IN FUCKING CASE.
-        local AliveHitboxes = {}
-        local Count = 0
-        for ID: number, Hitbox: BasePart in ManagedHitboxes do
-            if not (Hitbox and Hitbox.Parent) then
-                continue
-            end
-
-            Count += 1
-            AliveHitboxes[ID] = Hitbox
-        end
-
-        --if there are no available hitboxes to update, halt
-        if Count <= 0 then
-            return
-        end
-
-        --let me break this down
-        -- * header for the hitbox count (1 byte, so you can add up to 255 hitboxes)
-        -- * multiplying the amount of hitboxes by 13
-        --   * 1 byte for the ID
-        --   * 12 bytes for XYZ
-        --cool size done!!1!
-        local BufferSize = 1 + (Count * 13)
-
-        --we make the buffer
-        local Buffer = buffer.create(BufferSize)
-        --skipping the count byte because that's set by itself in an obvious manner below
-        local Offset = 1
-
-        --write count as the header
-        buffer.writeu8(Buffer, 0, Count)
-
-        --iterate over every alive hitbox to add it to the buffer
-        for ID: number, Hitbox: BasePart in AliveHitboxes do
-            --write its id as its header
-            buffer.writeu8(Buffer, Offset, ID :: any)
-            --move forward 1 byte
-            Offset += 1
-
-            --iterate over every axis from its position
-            local Position = Hitbox.CFrame.Position
-            for _, Axis in {"X", "Y", "Z"} do
-                --write it as a 32 bit float, which should be more than enough (4 bytes, up to 7 decimals)
-                buffer.writef32(Buffer, Offset, Position[Axis])
-
-                --move forward 4 bytes
-                Offset += 4
-            end
-        end
-
-        --send it to the client to update
-        Network:FireClientConnection(Player, "UpdHurtboxPos", "UREMOTE_EVENT", Buffer)
+        --sending the root's cframe directly to update the hurtboxes's cframe on the client
+        --i can send the cframe because it'll still be optimized and buffered by the networking module anyways
+        Network:FireClientConnection(Player, "UpdHurtboxPos", "UREMOTE_EVENT", Root.CFrame)
     end))
 end
 
