@@ -1,0 +1,16 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2507.1375, 143.1276, -19.3294, 0.0, -0.0, 1, 0.9659, 0.2589, -0.0, -0.2589, 0.9659, 0.0],
+    "CanCollide": false,
+    "CastShadow": false,
+    "InitialSize": [15.2094, 3.1046, 3.2022],
+    "Massless": true,
+    "Material": "SmoothPlastic",
+    "MeshContent": "rbxassetid://5651398835",
+    "RenderFidelity": "Precise",
+    "Size": [28.1431, 5.7447, 5.9253],
+    "TextureContent": "http://www.roblox.com/asset/?id=5651296767"
+  }
+}

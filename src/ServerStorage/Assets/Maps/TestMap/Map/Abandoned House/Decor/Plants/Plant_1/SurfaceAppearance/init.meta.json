@@ -1,0 +1,8 @@
+{
+  "className": "SurfaceAppearance",
+  "properties": {
+    "AlphaMode": "Transparency",
+    "ColorMapContent": "rbxassetid://6885161789",
+    "MetalnessMapContent": "rbxassetid://6885161789"
+  }
+}

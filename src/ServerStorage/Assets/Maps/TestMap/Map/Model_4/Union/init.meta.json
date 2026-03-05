@@ -1,0 +1,12 @@
+{
+  "className": "UnionOperation",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2393.8481, 10.5044, 52.1977, 0.6719, -0.7407, 0, 0.7407, 0.6719, 0, 0, 0, 1],
+    "Color": [231, 231, 236],
+    "Material": "Sand",
+    "RenderFidelity": "Precise",
+    "Size": [3.8016, 1.791, 3.6059],
+    "SmoothingAngle": 180
+  }
+}

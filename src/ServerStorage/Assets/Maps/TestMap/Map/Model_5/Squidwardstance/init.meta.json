@@ -1,0 +1,12 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2583.9558, 8.4668, 17.3481, 0, 0, 1, 0, 1, 0, -1, 0, 0],
+    "InitialSize": [5.427, 15.2316, 5.7645],
+    "MeshContent": "rbxassetid://1331585718",
+    "RenderFidelity": "Precise",
+    "Size": [3.607, 10.2116, 4.0445],
+    "TextureContent": "rbxassetid://1331585737"
+  }
+}

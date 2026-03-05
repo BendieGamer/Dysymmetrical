@@ -1,0 +1,10 @@
+{
+  "className": "BoolValue",
+  "properties": {
+    "Attributes": {
+      "DisplayTitle": "Visible Collision Hitboxes",
+      "LayoutOrder": 2,
+      "DisplayDescription": "Makes all player attack collision hurtboxes visible to you"
+    }
+  }
+}

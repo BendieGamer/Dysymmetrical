@@ -1,0 +1,14 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2423.9351, 5.5733, -21.2272, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CanCollide": false,
+    "Color": [44, 101, 29],
+    "InitialSize": [11.6246, 7.6242, 11.2209],
+    "Material": "Grass",
+    "MeshContent": "rbxassetid://516875678",
+    "RenderFidelity": "Precise",
+    "Size": [4.4793, 4.3198, 4.7868]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2581.0564, 12.461, -55.8867, 0, 0, -1, 0, 1, 0, 1, 0, 0],
+    "Color": [160, 95, 53],
+    "Size": [1, 4.8, 2]
+  }
+}

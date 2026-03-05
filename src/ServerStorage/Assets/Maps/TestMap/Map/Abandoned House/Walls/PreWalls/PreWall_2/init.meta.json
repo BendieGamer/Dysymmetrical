@@ -1,0 +1,12 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CFrame": [2410.0696, 3.6808, -35.5341, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Color": [91, 93, 105],
+    "Material": "Cobblestone",
+    "Size": [0.388, 1.552, 10.6743],
+    "TopSurface": "Smooth"
+  }
+}

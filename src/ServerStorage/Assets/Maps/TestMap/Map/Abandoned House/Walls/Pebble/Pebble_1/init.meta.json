@@ -1,0 +1,11 @@
+{
+  "className": "UnionOperation",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2414.7256, 9.8888, -23.2174, 0, 0, 1, 0, 1, 0, -1, 0, 0],
+    "Color": [105, 97, 77],
+    "Material": "Pebble",
+    "Size": [0.2328, 10.7087, 8.7687],
+    "UsePartColor": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "className": "SpecialMesh",
+  "properties": {
+    "MeshId": "rbxassetid://791889055",
+    "MeshType": "FileMesh",
+    "Scale": [0.0571, 0.0582, 0.0685],
+    "TextureId": "rbxassetid://791889749"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2411.3599, 6.25, -33.4302, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CanCollide": false,
+    "Color": [39, 70, 45],
+    "InitialSize": [2.1873, 1.1908, 2.1223],
+    "Material": "Grass",
+    "MeshContent": "http://www.roblox.com/asset/?id=1091940",
+    "RenderFidelity": "Precise",
+    "Size": [2.9873, 3.987, 2.8985],
+    "TextureContent": "http://www.roblox.com/asset/?id=138889962",
+    "Transparency": 0.3
+  }
+}

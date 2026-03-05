@@ -1,0 +1,17 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [2479.0122, 6.6325, 159.5924, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CanCollide": false,
+    "CanQuery": false,
+    "CanTouch": false,
+    "EnableFluidForces": false,
+    "InitialSize": [15.9484, 9.2571, 11.6052],
+    "MeshContent": "rbxassetid://74394245934737",
+    "PivotOffset": [-54.4341, -3.7813, -9.2293, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "RenderFidelity": "Performance",
+    "Size": [0.9569, 0.5554, 0.6963],
+    "TextureContent": "rbxassetid://98715296432579"
+  }
+}

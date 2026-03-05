@@ -1,0 +1,9 @@
+{
+  "className": "Highlight",
+  "properties": {
+    "DepthMode": "Occluded",
+    "FillColor": [0, 0, 0],
+    "FillTransparency": 0.9,
+    "OutlineColor": [0, 0, 0]
+  }
+}
