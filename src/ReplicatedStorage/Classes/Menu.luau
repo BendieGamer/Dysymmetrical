@@ -11,22 +11,7 @@ local Menu = {}
 local MetaMenu = {}
 MetaMenu.__index = MetaMenu
 
-type MenuCallbacks = {
-    OnInit: (self: Menu) -> (),
-    OnOpen: (self: Menu, Time: number) -> (),
-    OnClose: (self: Menu, Time: number) -> (),
-    OnToggle: (self: Menu, Toggle: boolean) -> (),
-}
-type Menu = {
-    Enabled: boolean,
-    Opened: boolean,
-    UI: GuiObject,
-    UiPrefab: GuiObject,
-    Callbacks: MenuCallbacks,
-    Janitor: Types.Janitor,
-}
-
-function Menu.New(UiPrefab: GuiObject, Callbacks: MenuCallbacks?)
+function Menu.New(UiPrefab: GuiObject, Callbacks: Types.MenuCallbacks?)
     return setmetatable({
         Enabled = true,
         Opened = false,
@@ -35,7 +20,7 @@ function Menu.New(UiPrefab: GuiObject, Callbacks: MenuCallbacks?)
     }, MetaMenu)
 end
 
-function MetaMenu:Init()
+function MetaMenu.Init(self: Types.Menu)
     if self.UI then
         self.UI.Parent = require(Players.LocalPlayer.PlayerScripts.UIManager).FetchScreenGui("Menus")
         self.UI.Size = Utils.UDim.Zero
@@ -58,7 +43,7 @@ function MetaMenu:Init()
     end
 end
 
-function MetaMenu:Open(Time: number): any?
+function MetaMenu.Open(self: Types.Menu, Time: number): any?
     if not self.Enabled or not Players.LocalPlayer.Character or Players.LocalPlayer.Character:GetAttribute("Role") ~= "Spectator" or not Sidebar.Enabled then
         return 0
     end
@@ -73,7 +58,7 @@ function MetaMenu:Open(Time: number): any?
     return
 end
 
-function MetaMenu:Close(Time: number)
+function MetaMenu.Close(self: Types.Menu, Time: number)
     if Time > 0 then
         TweenService:Create(self.UI, TweenInfo.new(Time, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = Utils.UDim.Zero}):Play()
     else
@@ -87,7 +72,7 @@ function MetaMenu:Close(Time: number)
     end
 end
 
-function MetaMenu:Toggle(toggle: boolean)
+function MetaMenu.Toggle(self: Types.Menu, toggle: boolean)
     if not self.Enabled and toggle then
         self:Init()
     end

@@ -2,10 +2,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Menu = require(ReplicatedStorage.Classes.Menu)
+local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
 return Menu.New(script.Stats, {
-    OnInit = function(self)
+    OnInit = function(self: Types.Menu)
         local Content = self.UI.StatsContainer.Content
 
         local CurrentLayoutOrder = 0

@@ -137,6 +137,8 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
             self.TimePast += task.wait(1/40)
         end
 
+        DetectionPart:Destroy()
+
         self:_RunCallback("Ended")
     end)
 
@@ -144,7 +146,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
 end
 
 --- **INTERNAL:** Gets the humanoids truly hit by the hitbox.
-function MetaHitbox:_GetActuallyHitHumanoids(Config: Types.HitboxSettings, Damaged: {BasePart}): {Humanoid}
+function MetaHitbox._GetActuallyHitHumanoids(self: Types.HitboxDetails, Config: Types.HitboxSettings, Damaged: {BasePart}): {Humanoid}
     local Hit: {Humanoid} = {}
 
     for _, Part in Damaged do
@@ -185,7 +187,7 @@ function MetaHitbox:_GetActuallyHitHumanoids(Config: Types.HitboxSettings, Damag
 end
 
 --- Cancels a hitbox's execution, stopping its detection and cleaning up leftover stuff.
-function MetaHitbox:Cancel()
+function MetaHitbox.Cancel(self: Types.HitboxDetails)
     if self.Cancelled then
         return
     end
@@ -198,7 +200,7 @@ function MetaHitbox:Cancel()
 end
 
 --- **INTERNAL:** Runs a callback from `Hitbox.Connections`.
-function MetaHitbox:_RunCallback(ID: string, ...)
+function MetaHitbox._RunCallback(self: Types.HitboxDetails, ID: string, ...)
     if not (self.Callbacks and self.Callbacks[ID]) then
         return
     end
@@ -207,7 +209,7 @@ function MetaHitbox:_RunCallback(ID: string, ...)
 end
 
 --- **INTERNAL:** Damages all humanoids hit by a hitbox if applicable.
-function MetaHitbox:_DamageHumanoids(Config: {Hit: {Humanoid}, DetectionPart: BasePart, HitboxConfig: Types.HitboxSettings})
+function MetaHitbox._DamageHumanoids(self: Types.HitboxDetails, Config: {Hit: {Humanoid}, DetectionPart: BasePart, HitboxConfig: Types.HitboxSettings})
     for Index, Humanoid in Config.Hit do
         self:_RunCallback("PreHit", Config.HitboxConfig, Humanoid, Index == 1)
 
@@ -273,7 +275,7 @@ function MetaHitbox:_DamageHumanoids(Config: {Hit: {Humanoid}, DetectionPart: Ba
 end
 
 --- **INTERNAL:** Safely calls `MetaHitbox:_Execute()` based on certain sanity checks (e.g. the existence of execution animations).
-function MetaHitbox:_ExecuteIfApplicable(Config: {HitboxConfig: Types.HitboxSettings, SourceCharacter: Model, TargetCharacter: Model, Damage: number, TargetHumanoid: Humanoid}): boolean
+function MetaHitbox._ExecuteIfApplicable(self: Types.HitboxDetails, Config: {HitboxConfig: Types.HitboxSettings, SourceCharacter: Model, TargetCharacter: Model, Damage: number, TargetHumanoid: Humanoid}): boolean
     if not (Config.TargetHumanoid.Health > 0 and Config.TargetHumanoid.Health - Config.Damage <= 0) then
         return false
     end
@@ -330,7 +332,7 @@ function MetaHitbox:_ExecuteIfApplicable(Config: {HitboxConfig: Types.HitboxSett
 end
 
 --- **INTERNAL:** Plays the execution sequence of a killer towards a survivor.
-function MetaHitbox:_Execute(Config: {ExecutionAnim: {Killer: string, Survivor: string}, SourceCharacter: Model, TargetCharacter: Model, KilledSurvivor: {any}})
+function MetaHitbox._Execute(self: Types.HitboxDetails, Config: {ExecutionAnim: {Killer: string, Survivor: string}, SourceCharacter: Model, TargetCharacter: Model, KilledSurvivor: {any}})
     Config.SourceCharacter:GetAttribute("Executing", true)
     Config.SourceCharacter:GetAttribute("Invincible", true)
     Config.TargetCharacter:GetAttribute("Executing", true)

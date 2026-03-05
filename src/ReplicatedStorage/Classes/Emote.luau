@@ -63,7 +63,7 @@ function Emote.CreateEmote(Props: Types.Emote): Types.Emote
     return Emote.New()
 end
 
-function Emote:Init(player: Player)
+function Emote.Init(self: Types.Emote, player: Player)
     --common variable definitions
     self.Owner = player
     self.Janitor = Janitor.new()
@@ -211,7 +211,7 @@ function Emote:Init(player: Player)
     end))
 end
 
-function Emote:BaseBehaviour()
+function Emote.BaseBehaviour(self: Types.Emote)
     --there's only really base behaviour for client so yuh
     if RunService:IsServer() then
         return
@@ -241,7 +241,7 @@ function Emote:BaseBehaviour()
     Network:FireServerConnection("PlayEmote", "REMOTE_EVENT", self.Config.Name, self.TrackPlaying.Sound)
 end
 
-function Emote:AddConnection<T>(Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
+function Emote.AddConnection<T>(self: Types.Emote, Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
     self.Janitor:Add(Connection,
         if typeof(Connection) == "thread" then
             true

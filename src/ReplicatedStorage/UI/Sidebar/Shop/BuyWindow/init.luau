@@ -23,7 +23,7 @@ type BuyWindow = {
 }
 
 function BuyWindow.New(Shop, Module: ModuleScript): BuyWindow
-    local self = setmetatable({
+    local self: BuyWindow = setmetatable({
         Checking = false,
         Instance = script:FindFirstChild("Window"):Clone(),
         JanitorInstance = Janitor.new(),
@@ -91,12 +91,12 @@ function BuyWindow.New(Shop, Module: ModuleScript): BuyWindow
     return self
 end
 
-function BuyWindow:Show()
+function BuyWindow.Show(self: BuyWindow)
     --literally just show
     TweenService:Create(self.Instance, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = UDim2.fromScale(0.253, 0.202)}):Play()
 end
 
-function BuyWindow:Hide(Instant: boolean?)
+function BuyWindow.Hide(self: BuyWindow, Instant: boolean?)
     --fire signal
     self.Removed:Fire()
     --clean up the window

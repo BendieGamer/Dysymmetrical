@@ -11,7 +11,7 @@ local ShopUtils = require(script.ShopUtils)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local Shop = Menu.New(script.ShopUI, {
-    OnInit = function(self)
+    OnInit = function(self: Types.Menu)
         for _, SectionButton in self.UI.ShopContainer.Topbar:GetChildren() do
             if not (SectionButton:IsA("ImageButton") and SectionButton.Visible) then
                 continue
@@ -62,7 +62,7 @@ local Shop = Menu.New(script.ShopUI, {
 
         self:_ReloadContent(true)
     end,
-    OnOpen = function(self, _Time: number)
+    OnOpen = function(self: Types.Menu, _Time: number)
         -- self.ToggleSkinsMenu(false)
         -- self.ToggleInfoMenu(false)
 
@@ -98,7 +98,7 @@ local Shop = Menu.New(script.ShopUI, {
         self.UI.ShopContainer.Size = UDim2.fromScale(0.7, 1)
         self.IsSkinMenuOpen = false
     end,
-    OnClose = function(self, TweenDuration: number)
+    OnClose = function(self: Types.Menu, TweenDuration: number)
         if self.BuyWindow then
             self.BuyWindow:Hide(TweenDuration <= 0)
         end
@@ -110,7 +110,7 @@ local Shop = Menu.New(script.ShopUI, {
             end
         end
     end,
-    OnToggle = function(self, Toggle: boolean)
+    OnToggle = function(self: Types.Menu, Toggle: boolean)
         if Toggle or self.Enabled then
             return
         end
@@ -168,7 +168,7 @@ Utils.Type.DeepTableWrite(Shop, {
     PreviewsEnabled = true,
 })
 
-function Shop:_SwitchSection(SectionName: string)
+function Shop._SwitchSection(self: Types.Menu, SectionName: string)
     if not self.Opened or self.SelectedSection == SectionName then
         return
     end
@@ -193,7 +193,7 @@ function Shop:_SwitchSection(SectionName: string)
     self.SelectedSection = SectionName
 end
 
-function Shop:_ReloadPurchaseButton()
+function Shop._ReloadPurchaseButton(self: Types.Menu)
     local Label = "Purchase"
     if Utils.PlayerData.GetPlayerOwned(Players.LocalPlayer, `{self.CurSelected.Type}s.{Shop.CurSelected.Name}`) then
         Label = `{Label}d`
@@ -202,7 +202,7 @@ function Shop:_ReloadPurchaseButton()
     self.UI.SideContainer.ButtonsContainer.Purchase.Title.Text = Label
 end
 
-function Shop:_ReloadContent(CreateCards: boolean?)
+function Shop._ReloadContent(self: Types.Menu, CreateCards: boolean?)
     if CreateCards == nil then
         CreateCards = false
     end
@@ -227,7 +227,7 @@ function Shop:_ReloadContent(CreateCards: boolean?)
     end
 end
 
-function Shop:OnCharButtonPress(Module: ModuleScript, Type: "Emote" | Types.Role, Card: Frame)
+function Shop.OnCharButtonPress(self: Types.Menu, Module: ModuleScript, Type: "Emote" | Types.Role, Card: Frame)
     if not self.Opened then
         return
     end

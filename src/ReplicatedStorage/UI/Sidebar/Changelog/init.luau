@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Sidebar = require(script.Parent)
 
 local Menu = require(ReplicatedStorage.Classes.Menu)
+local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 
 --- The format to follow in `CurrentChangelog`'s 
@@ -87,7 +88,7 @@ local CurrentChangelog: ChangelogFormat = {
 }
 
 return Menu.New(script.Changelog, {
-    OnInit = function(self)
+    OnInit = function(self: Types.Menu)
         local Content = self.UI.Content
         local Top = Content.Top
         Top.Title.Text = CurrentChangelog.UpdateTitle

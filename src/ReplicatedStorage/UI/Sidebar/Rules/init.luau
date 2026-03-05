@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Menu = require(ReplicatedStorage.Classes.Menu)
+local Types = require(ReplicatedStorage.Classes.Types)
 
 local Ruleset: {{
         Type: "Separator" | "SectionEntry" | "Text",
@@ -57,7 +58,7 @@ local Ruleset: {{
 }
 
 return Menu.New(script.Rules, {
-    OnInit = function(self)
+    OnInit = function(self: Types.Menu)
         for order, entry in Ruleset do
             local Inst = script.Prefabs[entry.Type]:Clone()
             Inst.Title.Text = entry.Text

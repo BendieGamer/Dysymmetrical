@@ -1198,4 +1198,19 @@ export type PickableItem = {
     ModelInstance: Model,
 }
 
+export type MenuCallbacks = {
+    OnInit: (self: Menu) -> (),
+    OnOpen: (self: Menu, Time: number) -> (),
+    OnClose: (self: Menu, Time: number) -> (),
+    OnToggle: (self: Menu, Toggle: boolean) -> (),
+}
+export type Menu = {
+    Enabled: boolean,
+    Opened: boolean,
+    UI: GuiObject,
+    UiPrefab: GuiObject,
+    Callbacks: MenuCallbacks,
+    Janitor: Janitor,
+}
+
 return {}

@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Menu = require(ReplicatedStorage.Classes.Menu)
+local Types = require(ReplicatedStorage.Classes.Types)
 
 type Credit = {
     Render: string,
@@ -29,7 +30,7 @@ local Credits: {{ Name: string, Credits: {Credit} }} = {
 }
 
 return Menu.New(script.Credits, {
-    OnInit = function(self)
+    OnInit = function(self: Types.Menu)
         local LO = 0
         for _, CreditsSection: {Name: string, Credits: {Credit}} in Credits do
             LO += 1

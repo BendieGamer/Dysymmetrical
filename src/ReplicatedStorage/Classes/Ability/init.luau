@@ -181,7 +181,7 @@ function Ability.CreateAbility(Props: Types.Ability): Types.Ability
     return Ability.New(Props)
 end
 
-function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Survivor)
+function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Types.Killer | Types.Survivor)
     self.Owner = Player
     self.CharacterModule = CharacterInfo
     self.UsesLeft = self.UseSettings.InitialUses
@@ -305,7 +305,7 @@ function MetaAbility:Init(Player: Player, CharacterInfo: Types.Killer | Types.Su
     end
 end
 
-function MetaAbility:ReloadAnimation(id: string)
+function MetaAbility.ReloadAnimation(self: Types.Ability, id: string)
     local AnimName = self.Name:gsub(" ", "").."Use"
     self.CharacterModule.GameplayConfig.Cache.Animations[AnimName] = self.OwnerProperties.AnimationManager ~= nil and
         self.OwnerProperties.AnimationManager:LoadAnimation(AnimName, id, false) or
@@ -313,7 +313,7 @@ function MetaAbility:ReloadAnimation(id: string)
     self.UseAnimationTrack = self.CharacterModule.GameplayConfig.Cache.Animations[AnimName]
 end
 
-function MetaAbility:PlayUseAnimation(): thread
+function MetaAbility.PlayUseAnimation(self: Types.Ability): thread
     if not self.UseAnimationTrack then
         return
     end
@@ -326,7 +326,7 @@ function MetaAbility:PlayUseAnimation(): thread
     end))
 end
 
-function MetaAbility:Destroy()
+function MetaAbility.Destroy(self: Types.Ability)
     if self.OnRemove then
         self:OnRemove()
     end
@@ -339,7 +339,7 @@ function MetaAbility:Destroy()
     self.OnCooldown = false
 end
 
-function MetaAbility:AttemptUse()
+function MetaAbility.AttemptUse(self: Types.Ability)
     if RunService:IsServer() then
         return
     end
@@ -353,7 +353,7 @@ function MetaAbility:AttemptUse()
     end
 end
 
-function MetaAbility:Use()
+function MetaAbility.Use(self: Types.Ability)
     if RunService:IsServer() then
         task.defer(function()
             if self.CharacterModule.Config.Voicelines and self.CharacterModule.Config.Voicelines[self.Name] then
@@ -424,7 +424,7 @@ function MetaAbility:Use()
     end
 end
 
-function MetaAbility:ChangeAbilityCharges(Type: "Add" | "Set" | "Take", amount: number)
+function MetaAbility.ChangeAbilityCharges(self: Types.Ability, Type: "Add" | "Set" | "Take", amount: number)
     if Type == "Set" then
         self.UsesLeft = amount
     elseif Type == "Add" then
@@ -439,7 +439,7 @@ function MetaAbility:ChangeAbilityCharges(Type: "Add" | "Set" | "Take", amount: 
     end
 end
         
-function MetaAbility:DisableAllAbilities(Duration: number?, DisableSlash: boolean?): thread?
+function MetaAbility.DisableAllAbilities(self: Types.Ability, Duration: number?, DisableSlash: boolean?): thread?
     if RunService:IsServer() then
         return
     end
@@ -462,7 +462,7 @@ function MetaAbility:DisableAllAbilities(Duration: number?, DisableSlash: boolea
     return
 end
 
-function MetaAbility:EnableAllAbilities()
+function MetaAbility.EnableAllAbilities(self: Types.Ability)
     if RunService:IsServer() then
         return
     end
@@ -474,7 +474,7 @@ function MetaAbility:EnableAllAbilities()
     end
 end
 
-function MetaAbility:SetOnCooldown(duration: number?)
+function MetaAbility.SetOnCooldown(self: Types.Ability, duration: number?)
     if not workspace:GetAttribute("CooldownsEnabled") then
         return
     end
@@ -524,7 +524,7 @@ function MetaAbility:SetOnCooldown(duration: number?)
     self.Signals.CooldownSet:Fire(duration)
 end
 
-function MetaAbility:AddConnection<T>(Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
+function MetaAbility.AddConnection<T>(self: Types.Ability, Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
     self.Janitor:Add(Connection,
         if typeof(Connection) == "thread" then
             true
@@ -535,14 +535,14 @@ function MetaAbility:AddConnection<T>(Connection: T & (RBXScriptConnection | thr
     return Connection
 end
 
-function MetaAbility:AddStunnableConnection<T>(Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
+function MetaAbility.AddStunnableConnection<T>(self: Types.Ability, Connection: T & (RBXScriptConnection | thread)): T & (RBXScriptConnection | thread)
     self:AddConnection(Connection)
     table.insert(self.StunnableConnections, Connection)
 
     return Connection
 end
 
-function MetaAbility:CanUse(): boolean
+function MetaAbility.CanUse(self: Types.Ability): boolean
     --if it's limited then it should have to have enough uses left
     local EnoughUses = true
     if workspace:GetAttribute("ChargesEnabled") and self.UseSettings.Limited then
@@ -585,7 +585,7 @@ function MetaAbility:CanUse(): boolean
         and self:UseConditions() --any extra conditions added by the ability's definition in `Ability:UseConditions()`
 end
 
-function MetaAbility:UseConditions(): boolean
+function MetaAbility.UseConditions(self: Types.Ability): boolean
     return true
 end
 
