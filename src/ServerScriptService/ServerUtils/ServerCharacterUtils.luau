@@ -135,12 +135,18 @@ function ServerCharacterUtils.ApplyEffect(EffectSettings: ApplyEffectSettings) :
 	EffectValue.Parent = CharEffects
 	
 	task.delay(EffectSettings.EffectSettings.Duration or EffectModule.Duration, function()
-		if EffectValue then
-			EffectModule:Remove(char)
-			EffectValue:Destroy()
+		if not EffectValue then
+			return
 		end
+
+		if EffectModule.Remove ~= nil then
+			EffectModule:Remove(char)
+		end
+		EffectValue:Destroy()
 	end)
-	EffectModule:Apply(EffectSettings.EffectSettings.Level or EffectModule.Level, char, EffectSettings.EffectSettings.Duration or EffectModule.Duration)
+	if EffectModule.Apply ~= nil then
+		EffectModule:Apply(EffectSettings.EffectSettings.Level or EffectModule.Level, char, EffectSettings.EffectSettings.Duration or EffectModule.Duration)
+	end
 
 	return EffectValue
 end

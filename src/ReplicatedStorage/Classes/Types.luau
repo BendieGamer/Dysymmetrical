@@ -842,15 +842,10 @@ export type Effect = {
     --- Default level of the Effect. Can be changed right before applying.
     Level: number,
 
-    --- INTERNAL: Applies the effect and executes `ApplyEffect()`.
+    --- Function that should contain the code executed when the effect is applied.
     Apply: (own: Effect, level: number, char: Model, duration: number) -> (),
-    --- INTERNAL: Removes the effect and executes `RemoveEffect()`.
+    --- Function that should contain the code executed when the effect is removed.
     Remove: (own: Effect, char: Model) -> (),
-
-    --- Function that should contain the code executed when the effect is applied (custom functionality).
-    ApplyEffect: (own: Effect, level: number, char: Model, duration: number) -> (),
-    --- Function that should contain the code executed when the effect is removed (custom functionality).
-    RemoveEffect: (own: Effect, char: Model) -> (),
 
     --- The time left for the Effect to wear off.
     TimeLeft: number,

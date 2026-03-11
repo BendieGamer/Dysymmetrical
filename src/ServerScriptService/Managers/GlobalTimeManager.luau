@@ -8,7 +8,7 @@ local GlobalTimeManager = {
     --- Some common config for time.
     Config = {
         --- The time it will take to start a round.
-        LobbyTime = 1,
+        LobbyTime = 50,
         --- The time it will take to finish a round.
         RoundTime = 240,
         --- The time it will take to finish a round in LMS.
@@ -17,7 +17,7 @@ local GlobalTimeManager = {
         --- If `true`, the manager will wait until the count of loaded players is equal to or higher than `MinimumPlayerCount`.
         WaitForEnoughPlayers = true,
         --- The minimum amount of players there must be for the manager to operate on time if `WaitForEnoughPlayers` is `true`.
-        MinimumPlayerCount = 1,
+        MinimumPlayerCount = 2,
     },
     --- A callback that'll be executed when the time reaches 0.
     OnTimerEnd = nil,
