@@ -1,0 +1,35 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Utils = require(ReplicatedStorage.Modules.Utils)
+local Effect = require(ReplicatedStorage.Classes.Effect)
+local Types = require(ReplicatedStorage.Classes.Types)
+
+return Effect.New({
+    Name = "Spawn Protection",
+    Description = "Prevents a killer from being stunned for a set time, generally 12 seconds.",
+    Duration = 12,
+    ShowInGUI = false,
+    Apply = function(self: Types.Effect, level: number, char: Model, duration: number)
+        if not RunService:IsServer() then
+            return
+        end
+
+        local HRP = Utils.Character.GetRootPart(char)
+        local UI = HRP:FindFirstChild("StunSpawnProtection")
+        if UI then
+            UI:FindFirstChildWhichIsA("ParticleEmitter").Enabled = true
+        end
+    end,
+    Remove = function(self: Types.Effect, char: Model)
+        if not RunService:IsServer() then
+            return
+        end
+        
+        local HRP = Utils.Character.GetRootPart(char)
+        local UI = HRP:FindFirstChild("StunSpawnProtection")
+        if UI then
+            UI:FindFirstChildWhichIsA("ParticleEmitter").Enabled = false
+        end
+    end,
+})

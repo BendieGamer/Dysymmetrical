@@ -15,7 +15,7 @@ function ServerPlayerDataUtils.UpdatePlayerStat(Player: Player, path: string, am
 	if Stat then
 		Stat.Value += amount
 	else
-		warn("[CommonFunctions.UpdatePlayerStat()] Couldn't find stat "..path.."!")
+		warn("[ServerPlayerDataUtils.UpdatePlayerStat()] Couldn't find stat "..path.."!")
 	end
 end
 
