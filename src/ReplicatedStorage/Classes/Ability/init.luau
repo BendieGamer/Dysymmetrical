@@ -13,6 +13,8 @@ local Ability = {}
 local MetaAbility = {}
 MetaAbility.__index = MetaAbility
 
+--- Returns a table with all of the default values of an ability, having `Ability.MetaAbility` as a metatable,
+--- which contains common functions like `Ability:Init()` and such.
 function Ability.GetDefaultSettings(): Types.Ability
     return setmetatable({
         Name = "Ability",
@@ -67,7 +69,8 @@ function Ability.GetDefaultAbilitySettings(): Types.Ability
     return Ability.GetDefaultSettings()
 end
 
---- ## DEPRECATED: Use `Ability.GetDefaultPassiveSettings()` instead.
+--- Returns a table with all of the default values of a *passive* ability, having `Ability.MetaAbility` as a metatable,
+--- which contains common functions like `Ability:Init()` and such.
 function Ability.GetDefaultPassiveSettings(): Types.Ability
     return setmetatable(Utils.Type.DeepTableOverwrite({
         Passive = true,
