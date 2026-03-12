@@ -86,7 +86,7 @@ local Commander: Types.Survivor = Character.New("Survivor", {
 
                 OnInit = OnJusticeInit,
 
-                Behaviour = JusticeBehaviour,
+                ClientBehaviour = JusticeBehaviour,
                 ServerBehaviour = ServerBehaviour.JusticeBehaviour,
             }),
         },

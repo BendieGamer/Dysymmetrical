@@ -380,11 +380,6 @@ function MetaAbility.Use(self: Types.Ability)
 
         if self.ServerBehaviour then
             self:ServerBehaviour()
-            return
-        end
-
-        if self.Behaviour then
-            self:Behaviour()
         end
         
         return
@@ -419,8 +414,8 @@ function MetaAbility.Use(self: Types.Ability)
     --signal thing
     self.Signals.Used:Fire()
     --ability stuffs
-    if self.Behaviour then
-        self:Behaviour()
+    if self.ClientBehaviour then
+        self:ClientBehaviour()
     end
 end
 

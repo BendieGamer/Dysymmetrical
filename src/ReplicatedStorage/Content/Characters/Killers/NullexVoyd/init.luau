@@ -124,7 +124,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 Setup = false,
                 PositionInfo = CFrame.new(),
 
-                Behaviour = DataAnchorBehaviour,
+                ClientBehaviour = DataAnchorBehaviour,
                 ServerBehaviour = ServerBehaviour.DataAnchorBehaviour,
             }),
 
@@ -134,7 +134,7 @@ local NullexVoyd: Types.Killer = Character.New("Killer", {
                 InputName = "ThirdAbility",
                 Cooldown = 32.5,
                 UseSound = "rbxassetid://72568635961241",
-                Behaviour = CallbackPingBehaviour,
+                ClientBehaviour = CallbackPingBehaviour,
                 ServerBehaviour = ServerBehaviour.CallbackPingBehaviour,
             }),
 

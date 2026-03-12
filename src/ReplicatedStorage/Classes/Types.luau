@@ -49,18 +49,15 @@ export type Ability = {
     InputName: string,
     --- Literally the behaviour of the ability; what it does. Write your ability here.
     --- 
-    --- If `Ability:ServerBehaviour()` isn't `nil`, this function will execute in both server and client, so `RunService:IsServer()` will be pretty useful.
+    --- This will only execute on the client side (speed changes, ui, etc.).
     --- 
-    --- On the contrary, if `Ability:ServerBehaviour()` *is* `nil`, this will only execute on client.
-    Behaviour: (self: Ability) -> (),
-    --- Same thing as `Ability:Behaviour()` but it'll execute on server only.
+    --- For server behaviour, use `Ability.ServerBehaviour()`.
+    ClientBehaviour: (self: Ability) -> (),
+    --- Literally the behaviour of the ability; what it does. Write your ability here.
     --- 
-    --- If this property is set, `Ability:Behaviour()` will only be called on client.
+    --- This will only execute on the server side (physics, globally replicated instances, server side security, etc.).
     --- 
-    --- Useful to keep things tidy or to write this function in `ServerScriptService` or `ServerStorage` in its own separate module
-    --- and prevent exploiters from stealing character behaviour code from server.
-    --- 
-    --- It's recommended to do this last thing as the engine is open-source. Always be wary of ye property!
+    --- For client behaviour, use `Ability.ClientBehaviour()`.
     ServerBehaviour: (self: Ability) -> (),
     --- If `true`, the client-side behaviour will execute before any server validation.
     --- 
