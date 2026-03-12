@@ -22,8 +22,10 @@ function Ability.GetDefaultSettings(): Types.Ability
         UICorner = true,
         Passive = false,
 
-        -- OnInit = nil,
-        -- OnRemove = nil,
+        -- OnServerInit = nil,
+        -- OnClientInit = nil,
+        -- OnServerRemove = nil,
+        -- OnClientRemove = nil,
 
         StunnableConnections = {},
 
@@ -76,10 +78,12 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
         Passive = true,
 
         Init = function(self: Types.Ability, plr: Player, charModule: Types.Killer | Types.Survivor)
+            --setting important variables right on init
             self.Owner = plr
             self.CharacterModule = charModule
             self.UsesLeft = self.UseSettings.InitialUses
 
+            --making the janitor and linking it to the owner's current character so when it gets destroyed, it cleans everything
             self.Janitor = Janitor.new()
             self.Janitor:LinkToInstance(self.Owner.Character)
 
@@ -98,8 +102,8 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
                 }
 
                 --executes any extra initialization code that the ability might need
-                if self.OnInit then
-                    self:OnInit()
+                if self.OnServerInit then
+                    self:OnServerInit()
                 end
 
                 return
@@ -111,7 +115,7 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
                 HRP = Utils.Character.GetRootPart(self.Owner),
                 InputManager = require(self.Owner.PlayerScripts.InputManager),
                 FOVManager = require(self.Owner.Character.PlayerAttributeManagers.FOVManager),
-                -- EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
+                EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
                 -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
                 TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
                 SpeedManager = require(self.Owner.Character.PlayerAttributeManagers.SpeedManager),
@@ -119,8 +123,8 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
             }
 
             --executes any extra initialization code that the ability might need
-            if self.OnInit then
-                self:OnInit()
+            if self.OnClientInit then
+                self:OnClientInit()
             end
         end,
         ReloadAnimation = function(self: Types.Ability, id: string)
@@ -141,9 +145,6 @@ function Ability.GetDefaultPassiveSettings(): Types.Ability
         Cooldown = 0,
 
         CanUse = function(_self: Types.Ability): boolean
-            return true
-        end,
-        UseConditions = function(_self: Types.Ability): boolean
             return true
         end,
 
@@ -246,6 +247,10 @@ function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Ty
 
             return true
         end))
+
+        if self.OnServerInit then
+            self:OnServerInit()
+        end
     else
         self.OwnerProperties = {
             Character = self.Owner.Character,
@@ -253,7 +258,7 @@ function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Ty
             HRP = Utils.Character.GetRootPart(self.Owner),
             InputManager = require(self.Owner.PlayerScripts.InputManager),
             FOVManager = require(self.Owner.Character.PlayerAttributeManagers.FOVManager),
-            -- EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
+            EffectManager = require(self.Owner.Character.PlayerAttributeScripts.EffectManager),
             -- EmoteManager = require(self.Owner.Character.Miscellaneous.EmoteManager),
             TurnToMoveDirection = require(self.Owner.PlayerScripts.Visual.TurnToMoveDirection),
             AnimationManager = require(self.Owner.Character.AnimationManager),
@@ -301,10 +306,10 @@ function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Ty
         end, function(abilityName: string)
             return abilityName == self.Name
         end))
-    end
 
-    if self.OnInit then
-        self:OnInit()
+        if self.OnClientInit then
+            self:OnClientInit()
+        end
     end
 end
 
@@ -332,6 +337,13 @@ end
 function MetaAbility.Destroy(self: Types.Ability)
     if self.OnRemove then
         self:OnRemove()
+    end
+    if RunService:IsServer() then
+        if self.OnServerRemove then
+            self:OnServerRemove()
+        end
+    elseif self.OnClientRemove then
+        self:OnClientRemove()
     end
 
     for _, signal in self.Signals do
@@ -580,10 +592,10 @@ function MetaAbility.CanUse(self: Types.Ability): boolean
         and not self.Owner.Character:GetAttribute("Executing") --if the player isn't being executed
         and not Emoting --if the player isn't emoting
         and not EffectPrevention --if the player isn't stunned and doesn't have helpless
-        and self:UseConditions() --any extra conditions added by the ability's definition in `Ability:UseConditions()`
+        and self:UsePredicate() --any extra conditions added by the ability's definition in `Ability:UsePredicate()`
 end
 
-function MetaAbility.UseConditions(self: Types.Ability): boolean
+function MetaAbility.UsePredicate(self: Types.Ability): boolean
     return true
 end
 

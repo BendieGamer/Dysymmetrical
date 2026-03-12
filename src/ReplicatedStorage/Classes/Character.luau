@@ -63,9 +63,6 @@ function Character.GetDefaultSurvivorSettings(): Types.Survivor
                 Animations = {},
             },
         },
-
-        OnInit = nil,
-        OnHit = nil,
     }
 end
 
@@ -124,10 +121,6 @@ function Character.GetDefaultKillerSettings(): Types.Killer
                 Animations = {},
             },
         },
-
-        OnInit = nil,
-        OnHit = nil,
-        OnExecution = nil,
     }
 end
 

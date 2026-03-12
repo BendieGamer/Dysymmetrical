@@ -168,6 +168,10 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
         end))
     end)
 
+    if CharacterModule.OnServerInit then
+        CharacterModule:OnServerInit(Character)
+    end
+
     return Character
 end
 

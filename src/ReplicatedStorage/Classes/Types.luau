@@ -21,10 +21,22 @@ export type Ability = {
 
     --- Internal function to initialize the ability's generally used variables and connections.
     Init: (self: Ability, Player: Player, CharacterInfo: Killer | Survivor) -> (),
-    --- Empty function to execute extra code right after the ability is initialized using `Init`.
-    OnInit: (self: Ability) -> (),
-    --- Empty function to execute extra code right before the ability gets destroyed using `Destroy`.
-    OnRemove: (self: Ability) -> (),
+    --- Callback to execute extra code right after the ability is initialized using `Init`.
+    --- 
+    --- This will only execute in server!
+    OnServerInit: (self: Ability) -> (),
+    --- Callback to execute extra code right after the ability is initialized using `Init`.
+    --- 
+    --- This will only execute in client!
+    OnClientInit: (self: Ability) -> (),
+    --- Callback to execute extra code right before the ability gets destroyed using `Destroy`.
+    --- 
+    --- This will only execute in server!
+    OnServerRemove: (self: Ability) -> (),
+    --- Callback to execute extra code right before the ability gets destroyed using `Destroy`.
+    --- 
+    --- This will only execute in client!
+    OnClientRemove: (self: Ability) -> (),
     --- Reloads the animation to be `newId`.
     ReloadAnimation: (self: Ability, newId: string) -> (),
     --- Plays the use animation for this ability. Mainly used internally.
@@ -90,7 +102,7 @@ export type Ability = {
     --- Extra, custom conditions to add to `Ability:CanUse()` instead of replacing the latter.
     --- 
     --- Must return a `boolean`.
-    UseConditions: (self: Ability) -> boolean,
+    UsePredicate: (self: Ability) -> boolean,
     --- Activates this ability's cooldown.
     --- 
     --- A custom cooldown can be specified in `duration`.
@@ -420,8 +432,10 @@ export type Survivor = {
         },
     },
 
-    --- An empty function that you can replace to execute custom behaviour when this character initializes.
-    OnInit: (self: Survivor, charModel: Model) -> ()?,
+    --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character initializes.
+    OnServerInit: (self: Survivor, charModel: Model) -> ()?,
+    --- CLIENT FUNCTION: An empty function that you can replace to execute custom behaviour when this character initializes.
+    OnClientInit: (self: Survivor, charModel: Model) -> ()?,
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character gets hit.
     --- 
     --- If you want the character to not get affected by the hit, you can return `"Ignored"`.
@@ -775,8 +789,10 @@ export type Killer = {
         },
     },
 
-    --- An empty function that you can replace to execute custom behaviour when this character initializes.
-    OnInit: (self: Killer, charModel: Model) -> ()?,
+    --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character initializes.
+    OnServerInit: (self: Survivor, charModel: Model) -> ()?,
+    --- CLIENT FUNCTION: An empty function that you can replace to execute custom behaviour when this character initializes.
+    OnClientInit: (self: Survivor, charModel: Model) -> ()?,
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character gets hit.
     --- 
     --- If you want the character to not get affected by the hit, you can return `"Ignored"`.

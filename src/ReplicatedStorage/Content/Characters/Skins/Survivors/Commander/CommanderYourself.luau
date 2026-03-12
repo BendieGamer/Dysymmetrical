@@ -22,5 +22,5 @@ return Character.New("Survivor", {
         Origin = {},
     },
 
-    OnInit = OnCommanderInit,
+    OnServerInit = OnCommanderInit,
 }, "Commander") :: Types.Survivor

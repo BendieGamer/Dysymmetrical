@@ -84,7 +84,8 @@ local Commander: Types.Survivor = Character.New("Survivor", {
                     Limited = true,
                 },
 
-                OnInit = OnJusticeInit,
+                OnServerInit = OnJusticeInit,
+                OnClientInit = OnJusticeInit,
 
                 ClientBehaviour = JusticeBehaviour,
                 ServerBehaviour = ServerBehaviour.JusticeBehaviour,

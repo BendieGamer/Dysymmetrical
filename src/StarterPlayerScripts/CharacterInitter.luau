@@ -54,8 +54,8 @@ function CharacterInitter._InitializeGameCharacter(Character: Model)
     CharacterInitter._InitializeCharacterAbilities(Character, Info)
 
     --oninit callback
-    if Info.OnInit then
-        Info:OnInit(Character)
+    if Info.OnClientInit then
+        Info:OnClientInit(Character)
     end
 end
 
