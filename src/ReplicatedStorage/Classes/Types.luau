@@ -439,7 +439,7 @@ export type Survivor = {
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character gets hit.
     --- 
     --- If you want the character to not get affected by the hit, you can return `"Ignored"`.
-    OnHit: (self: Survivor, hitbox: HitboxDetails, damage: number) -> (string?)?,
+    OnHit: (self: Survivor, hitbox: Hitbox, damage: number) -> (string?)?,
 }
 
 --- Type used for killer characters.
@@ -796,7 +796,7 @@ export type Killer = {
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character gets hit.
     --- 
     --- If you want the character to not get affected by the hit, you can return `"Ignored"`.
-    OnHit: (self: Killer, hitbox: HitboxDetails, damage: number) -> (string?)?,
+    OnHit: (self: Killer, hitbox: Hitbox, damage: number) -> (string?)?,
     --- SERVER FUNCTION: An empty function that you can replace to execute custom behaviour when this character executes a survivor (the animation MUST be set).
     OnExecution: ((self: Killer, victim: Model, usedAnimName: string) -> ())?,
 }
@@ -977,7 +977,7 @@ export type HitboxSettings = {
 }
 
 --- Details on a hitbox's current stats
-export type HitboxDetails = {
+export type Hitbox = {
     --- The humanoids the hitbox has already hit.
     HumanoidsHit: {Humanoid},
     --- The player that created this hitbox.
@@ -995,7 +995,7 @@ export type HitboxDetails = {
     --- Cancels the hitbox and destroys it.
     --- 
     --- Call this with a `:`.
-    Cancel: (self: HitboxDetails) -> (),
+    Cancel: (self: Hitbox) -> (),
     --- This hitbox's `Janitor` instance.
     --- 
     --- Cleans up stuff.
@@ -1003,7 +1003,7 @@ export type HitboxDetails = {
 }
 
 --- Holds data for any given projectile
-export type Projectile = {
+export type ProjectileSettings = {
     --- The player that created the projectile.
     SourcePlayer: Player,
     --- The model of the projectile.
@@ -1031,22 +1031,22 @@ export type Projectile = {
     DestroyOnCollision: boolean?,
 
     --- Callback fired when the projectile is about to be destroyed by `Projectile:Destroy()` when it gets called from colliding with something when `DestroyOnCollision` is `true`.
-    OnHitDestroy: (self: Projectile, Details: ProjectileDetails) -> "PreventDestruction"?,
+    OnHitDestroy: (self: ProjectileSettings, Projectile: Projectile) -> "PreventDestruction"?,
     --- Callback fired when the projectile is about to be destroyed by `Projectile:Destroy()`.
-    OnDestroy: (self: Projectile, Details: ProjectileDetails) -> (),
+    OnDestroy: (self: ProjectileSettings, Projectile: Projectile) -> (),
 }
 
-export type ProjectileDetails = {
+export type Projectile = {
     --- The model of the projectile.
     Model: Instance & (BasePart | Model),
     --- The tween that acts as the projectile's movement.
     Tween: Tween,
     --- The hitbox associated to this projectile.
-    Hitbox: HitboxDetails,
-    --- Indicates if `ProjectileDetails.Destroy()` has already been called or not.
+    Hitbox: Hitbox,
+    --- Indicates if `Projectile.Destroy()` has already been called or not.
     Destroyed: boolean,
     --- Destroys this projectile by destroying the model and cancelling the hitbox.
-    Destroy: (self: ProjectileDetails) -> (),
+    Destroy: (self: Projectile) -> (),
 }
 
 export type Achievement = {

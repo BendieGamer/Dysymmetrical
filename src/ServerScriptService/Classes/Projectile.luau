@@ -7,7 +7,7 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local Projectile = {}
 
-local DefaultConfig: Types.Projectile = {
+local DefaultConfig: Types.ProjectileSettings = {
     Speed = 50,
     FinalRotation = CFrame.new(),
     Lifetime = 5,
@@ -15,7 +15,7 @@ local DefaultConfig: Types.Projectile = {
     DestroyOnCollision = false,
 }
 
-function Projectile.New(ProjectileSettings: Types.Projectile): Types.ProjectileDetails
+function Projectile.New(ProjectileSettings: Types.ProjectileSettings): Types.Projectile
     --sanity checks for badly written settings
     if not ProjectileSettings then
         warn("[Projectile.New()] No projectile settings specified!\n", debug.traceback())
@@ -62,11 +62,11 @@ function Projectile.New(ProjectileSettings: Types.Projectile): Types.ProjectileD
     local ShouldCancel = false
 
     --define da thing
-    local ProjectileInstance: Types.ProjectileDetails = {
+    local ProjectileInstance: Types.Projectile = {
         Model = ProjectileSettings.Model:Clone(),
         Hitbox = Hitbox.New(ProjectileSettings.SourcePlayer, ProjectileSettings.HitboxSettings),
         Destroyed = false,
-        Destroy = function(self: Types.ProjectileDetails)
+        Destroy = function(self: Types.Projectile)
             if self.Destroyed then
                 return
             end

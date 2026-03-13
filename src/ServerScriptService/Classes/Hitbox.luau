@@ -36,7 +36,7 @@ local MetaHitbox = {}
 MetaHitbox.__index = MetaHitbox
 
 --- Creates a new hitbox, assigning it to a specific player.
-function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxDetails
+function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.Hitbox
     if not Source then
         warn("[Hitbox.New()] Hitboxes must have a Player owner!\n"..debug.traceback())
         return
@@ -66,7 +66,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
 
     local SourceEffects: Folder = Char.Effects
 
-    local self: Types.HitboxDetails = setmetatable({
+    local self: Types.Hitbox = setmetatable({
         HumanoidsHit = {},
         Creator = Source,
         Damage = Config.Damage,
@@ -146,7 +146,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.HitboxD
 end
 
 --- **INTERNAL:** Gets the humanoids truly hit by the hitbox.
-function MetaHitbox._GetActuallyHitHumanoids(self: Types.HitboxDetails, Config: Types.HitboxSettings, Damaged: {BasePart}): {Humanoid}
+function MetaHitbox._GetActuallyHitHumanoids(self: Types.Hitbox, Config: Types.HitboxSettings, Damaged: {BasePart}): {Humanoid}
     local Hit: {Humanoid} = {}
 
     for _, Part in Damaged do
@@ -187,7 +187,7 @@ function MetaHitbox._GetActuallyHitHumanoids(self: Types.HitboxDetails, Config: 
 end
 
 --- Cancels a hitbox's execution, stopping its detection and cleaning up leftover stuff.
-function MetaHitbox.Cancel(self: Types.HitboxDetails)
+function MetaHitbox.Cancel(self: Types.Hitbox)
     if self.Cancelled then
         return
     end
@@ -200,7 +200,7 @@ function MetaHitbox.Cancel(self: Types.HitboxDetails)
 end
 
 --- **INTERNAL:** Runs a callback from `Hitbox.Connections`.
-function MetaHitbox._RunCallback(self: Types.HitboxDetails, ID: string, ...)
+function MetaHitbox._RunCallback(self: Types.Hitbox, ID: string, ...)
     if not (self.Callbacks and self.Callbacks[ID]) then
         return
     end
@@ -209,7 +209,7 @@ function MetaHitbox._RunCallback(self: Types.HitboxDetails, ID: string, ...)
 end
 
 --- **INTERNAL:** Damages all humanoids hit by a hitbox if applicable.
-function MetaHitbox._DamageHumanoids(self: Types.HitboxDetails, Config: {Hit: {Humanoid}, DetectionPart: BasePart, HitboxConfig: Types.HitboxSettings})
+function MetaHitbox._DamageHumanoids(self: Types.Hitbox, Config: {Hit: {Humanoid}, DetectionPart: BasePart, HitboxConfig: Types.HitboxSettings})
     for Index, Humanoid in Config.Hit do
         self:_RunCallback("PreHit", Config.HitboxConfig, Humanoid, Index == 1)
 
@@ -275,7 +275,7 @@ function MetaHitbox._DamageHumanoids(self: Types.HitboxDetails, Config: {Hit: {H
 end
 
 --- **INTERNAL:** Safely calls `MetaHitbox:_Execute()` based on certain sanity checks (e.g. the existence of execution animations).
-function MetaHitbox._ExecuteIfApplicable(self: Types.HitboxDetails, Config: {HitboxConfig: Types.HitboxSettings, SourceCharacter: Model, TargetCharacter: Model, Damage: number, TargetHumanoid: Humanoid}): boolean
+function MetaHitbox._ExecuteIfApplicable(self: Types.Hitbox, Config: {HitboxConfig: Types.HitboxSettings, SourceCharacter: Model, TargetCharacter: Model, Damage: number, TargetHumanoid: Humanoid}): boolean
     if not (Config.TargetHumanoid.Health > 0 and Config.TargetHumanoid.Health - Config.Damage <= 0) then
         return false
     end
@@ -332,7 +332,7 @@ function MetaHitbox._ExecuteIfApplicable(self: Types.HitboxDetails, Config: {Hit
 end
 
 --- **INTERNAL:** Plays the execution sequence of a killer towards a survivor.
-function MetaHitbox._Execute(self: Types.HitboxDetails, Config: {ExecutionAnim: {Killer: string, Survivor: string}, SourceCharacter: Model, TargetCharacter: Model, KilledSurvivor: {any}})
+function MetaHitbox._Execute(self: Types.Hitbox, Config: {ExecutionAnim: {Killer: string, Survivor: string}, SourceCharacter: Model, TargetCharacter: Model, KilledSurvivor: {any}})
     Config.SourceCharacter:GetAttribute("Executing", true)
     Config.SourceCharacter:GetAttribute("Invincible", true)
     Config.TargetCharacter:GetAttribute("Executing", true)

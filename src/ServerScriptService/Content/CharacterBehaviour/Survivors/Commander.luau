@@ -136,7 +136,7 @@ function Commander.JusticeBehaviour(self: Types.Ability)
     end
 end
 
-function Commander.OnHit(self: Types.Ability, _hitbox: Types.HitboxDetails, _damage: number)
+function Commander.OnHit(self: Types.Ability, _hitbox: Types.Hitbox, _damage: number)
     -- ServerUtils.Character.ApplyEffect({
     --     TargetHumanoid = self.OwnerProperties.Humanoid,
     --     EffectSettings = {
