@@ -679,7 +679,7 @@ export type Killer = {
         },
 
         --[=[
-         The chase theme of the character, separated in layers that depend on distance between the survivors and the killer.
+            The chase theme of the character, separated in layers that depend on distance between the survivors and the killer.
 
             ```lua
             local Killer = Character.CreateKiller({
@@ -902,6 +902,17 @@ export type Emote = {
     Janitor: Janitor,
 }
 
+--- A type containing all of the callbacks of a `Hitbox`.
+--- 
+--- May also contain connections that'll later be cleared by `Janitor`.
+type HitboxConnections = {
+    PreHit: (Config: HitboxSettings, HitHumanoid: Humanoid, IsFirstHit: boolean) -> (),
+    Hit: (Config: HitboxSettings, HitHumanoid: Humanoid, IsFirstHit: boolean) -> (),
+    PostHit: (Config: HitboxSettings, HitHumanoid: Humanoid, IsFirstHit: boolean) -> (),
+    Ended: () -> (),
+    [string]: thread | RBXScriptConnection | (...any) -> (),
+}
+
 --- Settings type for all hitboxes.
 export type HitboxSettings = {
     --- Size of the hitbox in studs.
@@ -934,9 +945,11 @@ export type HitboxSettings = {
     Shape: Enum.PartType?,
     --- The specific execution animation to use if `ExecuteOnKill` is `true`.
     --- 
-    --- Will be looked up automatically if this isn't set.
+    --- If `nil`, it'll just use the default *corresponding* animation in the killer's module to the killed survivor.
     --- 
-    --- TODO: **Fill this field with examples as this property is a bit weird to use and research is needed.**
+    --- So, e.g. if you have a slash where you want to have a different animation for a kill from the back (backstab), you would
+    --- check in `Hitbox.Connections.Hit()` if the killer is behind the survivor to execute and then change its own `Hitbox.ExecutionAnimation` property
+    --- if needed.
     ExecutionAnimation: string?,
 	--- Minimum wall height required to block hits.
 	---
@@ -960,8 +973,7 @@ export type HitboxSettings = {
         OverwriteExisting: boolean?,
 	}}?,
     --- Any callbacks for events fired in the hitbox's functionality.
-    --- TODO: write what connections there are and what they do
-    Connections: {[string]: ((thread | RBXScriptConnection)?) -> ()}?,
+    Connections: HitboxConnections?,
 }
 
 --- Details on a hitbox's current stats
@@ -979,7 +991,7 @@ export type HitboxDetails = {
     --- If the hitbox has been cancelled.
     Cancelled: boolean,
     --- Any callbacks assigned to this hitbox through `HitboxSettings.Connections`.
-    Callbacks: {[string]: (any?) -> ()}?,
+    Callbacks: HitboxConnections,
     --- Cancels the hitbox and destroys it.
     --- 
     --- Call this with a `:`.
@@ -1031,6 +1043,8 @@ export type ProjectileDetails = {
     Tween: Tween,
     --- The hitbox associated to this projectile.
     Hitbox: HitboxDetails,
+    --- Indicates if `ProjectileDetails.Destroy()` has already been called or not.
+    Destroyed: boolean,
     --- Destroys this projectile by destroying the model and cancelling the hitbox.
     Destroy: (self: ProjectileDetails) -> (),
 }
