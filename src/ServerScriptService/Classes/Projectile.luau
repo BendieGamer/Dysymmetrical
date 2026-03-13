@@ -7,6 +7,9 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local Projectile = {}
 
+local MetaProjectile = {}
+MetaProjectile.__index = MetaProjectile
+
 local DefaultConfig: Types.ProjectileSettings = {
     Speed = 50,
     FinalRotation = CFrame.new(),
@@ -57,29 +60,13 @@ function Projectile.New(ProjectileSettings: Types.ProjectileSettings): Types.Pro
     ProjectileSettings.HitboxSettings.HitMultiple = if ProjectileSettings.HitboxSettings.HitMultiple ~= nil then ProjectileSettings.HitboxSettings.HitMultiple else true
     ProjectileSettings.HitboxSettings.Time = ProjectileSettings.Lifetime
 
-    --if this becomes true, the projectile will stop its execution
-    --only changeable through `ProjectileInstance.Destroy()`
-    local ShouldCancel = false
-
     --define da thing
-    local ProjectileInstance: Types.Projectile = {
+    local ProjectileInstance: Types.Projectile = setmetatable({
         Model = ProjectileSettings.Model:Clone(),
         Hitbox = Hitbox.New(ProjectileSettings.SourcePlayer, ProjectileSettings.HitboxSettings),
         Destroyed = false,
-        Destroy = function(self: Types.Projectile)
-            if self.Destroyed then
-                return
-            end
-            self.Destroyed = true
-
-            if ProjectileSettings.OnDestroy then
-                ProjectileSettings:OnDestroy(self)
-            end
-            ShouldCancel = true
-            self.Model:Destroy()
-            self.Hitbox:Cancel()
-        end,
-    }
+        OnDestroy = ProjectileSettings.OnDestroy,
+    }, MetaProjectile)
 
     --clone into workspace
     --if a map is available, it'll be in its `InGame` folder
@@ -143,7 +130,7 @@ function Projectile.New(ProjectileSettings: Types.ProjectileSettings): Types.Pro
             local Primary: BasePart? = IsModel and Model.PrimaryPart
 
             --if the hitbox is cancelled or the model isn't there, stop
-            while not (ShouldCancel or not ProjectileInstance.Model) do
+            while not (ProjectileInstance.Destroyed or not ProjectileInstance.Model) do
                 --find anything right ahead of the projectile with a cast
                 --if the collision box isn't available, it'll fall back to block cast
                 local Touching = if CollisionBox ~= nil then
@@ -171,6 +158,19 @@ function Projectile.New(ProjectileSettings: Types.ProjectileSettings): Types.Pro
     end
 
     return ProjectileInstance
+end
+
+function MetaProjectile.Destroy(self: Types.Projectile)
+    if self.Destroyed then
+        return
+    end
+    self.Destroyed = true
+
+    if self.OnDestroy then
+        self:OnDestroy(self)
+    end
+    self.Model:Destroy()
+    self.Hitbox:Cancel()
 end
 
 return Projectile

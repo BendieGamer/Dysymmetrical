@@ -1047,6 +1047,10 @@ export type Projectile = {
     Destroyed: boolean,
     --- Destroys this projectile by destroying the model and cancelling the hitbox.
     Destroy: (self: Projectile) -> (),
+    --- Callback executed when the projectile is destroyed.
+    --- 
+    --- Carried over from `ProjectileSettings.OnDestroy()`.
+    OnDestroy: (self: Projectile) -> (),
 }
 
 export type Achievement = {
