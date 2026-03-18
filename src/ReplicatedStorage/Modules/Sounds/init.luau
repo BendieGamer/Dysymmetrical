@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
@@ -252,7 +251,7 @@ function Sounds.PlayVoiceline(Rig: Model | BasePart, ID: string | {string} | {[a
         end
 
         --if not, remove the voiceline
-        Debris:AddItem(Voiceline, 0.25)
+        Utils.Instance.AddToDebris(Voiceline, 0.25)
 
         --tween it out because idk man i like it
         TweenService:Create(Voiceline, TweenInfo.new(0.25), {Volume = 0}):Play()
@@ -422,7 +421,7 @@ function Sounds.StopTheme(ID: string, FadeOut: number?, UpdateThemes: boolean?):
     --fade it out
     TweenService:Create(ThemeToRemove, TweenInfo.new(FadeOut), {Volume = 0}):Play()
     --queue for deletion
-    Debris:AddItem(ThemeToRemove, FadeOut + 0.1)
+    Utils.Instance.AddToDebris(ThemeToRemove, FadeOut + 0.1)
 
     --return the damn thing just in case
     return ThemeToRemove

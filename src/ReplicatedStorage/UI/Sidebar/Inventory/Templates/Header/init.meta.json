@@ -1,0 +1,25 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AutoLocalize": false,
+    "AutomaticSize": "Y",
+    "BackgroundColor3": [1, 1, 1],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/AccanthisADFStd.json",
+      "weight": "Regular",
+      "style": "Normal",
+      "cachedFaceId": null
+    },
+    "LayoutOrder": 1,
+    "RichText": true,
+    "Size": [[0.95, 0.0], [0.0, 0.0]],
+    "Text": "",
+    "TextColor3": [1, 1, 1],
+    "TextSize": 64,
+    "TextWrapped": true,
+    "TextXAlignment": "Left"
+  }
+}

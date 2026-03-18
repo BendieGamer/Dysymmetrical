@@ -1,11 +1,11 @@
 --this is so fucking messy and i hate it -dys
 
-local Debris = game:GetService("Debris")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Network = require(script.Parent.Network)
+local Utils = require(script.Parent.Utils)
 
 local LightingModule = {
     -- CurrentLighting = nil,
@@ -36,7 +36,7 @@ function LightingModule:Init()
             if LightingModule.CurrentLighting then
                 local Props = LightingModule.CurrentLighting:Clone()
                 Props.Parent = Player.PlayerGui
-                Debris:AddItem(Props, 20)
+                Utils.Instance.AddToDebris(Props, 20)
                 return Props
             end
 

@@ -43,12 +43,8 @@ local function _refreshCharacterVariables()
 	Humanoid = Character:WaitForChild("Humanoid")
 end
 
-function SmoothShiftLock:Init()
-	SmoothShiftLock:Start()
-end
-
 --// [ Life Cycle: ]
-function SmoothShiftLock:Start()
+function SmoothShiftLock:Init()
 	if RunService:IsServer() then
 		return
 	end
@@ -122,7 +118,7 @@ function SmoothShiftLock:_updateMouseLockEnabledState()
 
 		SmoothShiftLock._stateJanitor:Add(LocalPlayer.CharacterAdded:Connect(function()
 			_refreshCharacterVariables()
-		end), true)
+		end))
 
 		--// [ Setup: Context Action ]
 		ContextActionService:BindActionAtPriority(
@@ -159,7 +155,7 @@ function SmoothShiftLock:_updateMouseLockEnabledState()
 			if not firstPerson then	
 				Camera.CFrame = Camera.CFrame * CFrame.new(SmoothShiftLock._cameraOffsetSpring.Position) 
 			end
-		end), true)
+		end))
 	else
 		--// Disable
 		SmoothShiftLock._stateJanitor:Cleanup()

@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -44,7 +43,7 @@ function TooltipClass.New(Text: string): Folder
                 BackgroundTransparency = 1,
             }):Play()
 
-            Debris:AddItem(Tooltip, 0.15)
+            Utils.Instance.AddToDebris(Tooltip, 0.15)
             
             Sounds.PlaySound(Sounds.CommonSounds.ButtonHoverStop, {Volume = 0.2})
 

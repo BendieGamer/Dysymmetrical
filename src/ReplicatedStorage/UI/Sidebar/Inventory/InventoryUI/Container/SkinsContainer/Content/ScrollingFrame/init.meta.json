@@ -1,0 +1,21 @@
+{
+  "className": "ScrollingFrame",
+  "properties": {
+    "Active": true,
+    "AnchorPoint": [0.5, 0.5],
+    "AutomaticCanvasSize": "Y",
+    "BackgroundColor3": [1, 1, 1],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [0, 0, 0],
+    "BorderSizePixel": 0,
+    "BottomImageContent": "rbxassetid://3062505976",
+    "CanvasSize": [[1.0, 0.0], [0.0, 0.0]],
+    "MidImageContent": "rbxassetid://3062506202",
+    "Position": [[0.5, 0.0], [0.5, 0.0]],
+    "ScrollBarThickness": 22,
+    "ScrollingDirection": "Y",
+    "Size": [[1.0, 0.0], [1.0, 0.0]],
+    "TopImageContent": "rbxassetid://3062506445",
+    "VerticalScrollBarPosition": "Left"
+  }
+}

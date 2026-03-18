@@ -1,8 +1,8 @@
 local ContentProvider = game:GetService("ContentProvider")
-local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local InstanceUtils = require(script.Parent.InstanceUtils)
 local Network = require(ReplicatedStorage.Modules.Network)
 
 local MiscellaneousUtils = {}
@@ -35,7 +35,7 @@ function MiscellaneousUtils.PreloadAssets(assets: string | {string})
                     Sound.Parent = workspace.Sounds
                     Sound:Play()
 
-                    Debris:AddItem(Sound, 1)
+                    InstanceUtils.AddToDebris(Sound, 1)
                 end
             end
             table.insert(loadedAssets, assetsToFetch)

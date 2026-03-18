@@ -5,7 +5,11 @@ local AmountTxt = Main:WaitForChild("Amount")
 local CurrentlyInitting = Main:WaitForChild("CurrentlyInitting")
 local Skip = Main:WaitForChild("Skip")
 
-LoadingGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+
+LoadingGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 while not game:IsLoaded() do
     task.wait()
@@ -21,9 +25,9 @@ local function addAssetsToLoad(assetList)
     end
 end
 addAssetsToLoad(workspace:GetDescendants())
-addAssetsToLoad(game:GetService("ReplicatedStorage"):GetDescendants())
+addAssetsToLoad(ReplicatedStorage:GetDescendants())
 addAssetsToLoad(game:GetService("StarterPlayer"):GetDescendants())
-addAssetsToLoad(game:GetService("StarterGui"):GetDescendants())
+addAssetsToLoad(StarterGui:GetDescendants())
 
 local assetAmount = #assets
 local loaded = false
@@ -48,13 +52,14 @@ end
 local TweenService = game:GetService("TweenService")
 
 local function Finish()
+    local Utils = require(ReplicatedStorage.Modules.Utils)
     if not game:GetService("RunService"):IsStudio() then
-        --don't remove this or you'll get in trouble! salutations! (unless you mention the engine in the game's description)
-        print(require(game:GetService("ReplicatedStorage").Modules.Utils).Credits)
+        --don't remove this or you'll get in trouble! salutations! (unless you mention the engine in the game's description or idfk where)
+        print(Utils.Credits)
     end
     
     task.spawn(function()
-        require(game:GetService("ReplicatedStorage").Modules.Network):FireServerConnection("PlayerLoad", "REMOTE_EVENT")
+        require(ReplicatedStorage.Modules.Network):FireServerConnection("PlayerLoad", "REMOTE_EVENT")
     end)
 
     loaded = true
@@ -92,8 +97,8 @@ local function Finish()
         BackgroundTransparency = 1
     }):Play()
 
-    game:GetService("Debris"):AddItem(LoadingGui, 0.8)
-    game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
+    Utils.Instance.AddToDebris(LoadingGui, 0.8)
+    StarterGui:SetCore("ResetButtonCallback", true)
 
     task.wait(0.8)
 
@@ -133,8 +138,8 @@ local function InitScripts(module: ModuleScript)
     end
 end
 
-InitScripts(game:GetService("ReplicatedStorage").Initter)
-InitScripts(game:GetService("Players").LocalPlayer.PlayerScripts.Initter)
+InitScripts(ReplicatedStorage.Initter)
+InitScripts(Players.LocalPlayer.PlayerScripts.Initter)
 
 while not workspace:GetAttribute("ServerLoaded") do
     task.wait()

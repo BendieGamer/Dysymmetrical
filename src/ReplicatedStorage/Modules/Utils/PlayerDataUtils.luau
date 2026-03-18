@@ -83,7 +83,7 @@ function PlayerDataUtils.GetPlayerOwned(Player: Player, path: string, value: boo
     PlayerDataUtils.AwaitSaveLoad(Player)
 
     local Child = PlayerDataUtils.GetSpecificObject(Player, `Purchased.{path}`)
-    return value and (Child and Child.Value or false) or Child
+    return (value or not Child:IsA("ValueBase")) and (Child and Child.Value or false) or Child
 end
 
 --- Retrieves a player's stat through a string path.

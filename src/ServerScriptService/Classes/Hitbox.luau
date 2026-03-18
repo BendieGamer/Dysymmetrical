@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -115,7 +114,7 @@ function Hitbox.New(Source: Player, Config: Types.HitboxSettings): Types.Hitbox
             CurrentDetPart.CFrame = (Config.CFrame and (typeof(Config.CFrame) == "function" and Config.CFrame() or Config.CFrame) or Root.CFrame) * Config.CFrameOffset
             CurrentDetPart.Parent = workspace.Hitboxes
 
-            Debris:AddItem(CurrentDetPart, 0.75)
+            Utils.Instance.AddToDebris(CurrentDetPart, 0.75)
 
             Hitbox._CompensatePingIfApplicable(Source, {
                 HitboxConfig = Config,

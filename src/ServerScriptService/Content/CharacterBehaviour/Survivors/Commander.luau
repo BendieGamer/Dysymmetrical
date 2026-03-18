@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -8,6 +7,7 @@ local Hitbox = RunService:IsServer() and require(ServerScriptService.Classes.Hit
 local ServerUtils = require(ServerScriptService.ServerUtils)
 local Types = require(ReplicatedStorage.Classes.Types)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
+local Utils = require(ReplicatedStorage.Modules.Utils)
 
 local Commander = {}
 
@@ -62,7 +62,7 @@ function Commander.BlindsideBehaviour(self: Types.Ability)
                 FunctionalGrenade.Transparency = 1
                 Light.Enabled = false
             
-                Debris:AddItem(FunctionalGrenade, 8)
+                Utils.Instance.AddToDebris(FunctionalGrenade, 8)
             end))
         end))
     end))

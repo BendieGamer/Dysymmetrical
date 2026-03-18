@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -82,7 +81,7 @@ function Hitmarker.New(Params: HitmarkerParameters): Part
     HitmarkerText.Text = Display
     HitmarkerInstance.Parent = HitmarkerFolder
     --add hitmarker to debris to automatically destroy it after 5 seconds and prevent errors if it's destroyed before those 5 seconds for any reason
-    Debris:AddItem(HitmarkerInstance, 5)
+    Utils.Instance.AddToDebris(HitmarkerInstance, 5)
 
     --tweening is low priority so just defer it
     task.defer(function()

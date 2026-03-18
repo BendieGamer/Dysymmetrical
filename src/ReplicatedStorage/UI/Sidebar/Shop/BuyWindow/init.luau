@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
@@ -100,7 +99,7 @@ function BuyWindow.Hide(self: BuyWindow, Instant: boolean?)
     --fire signal
     self.Removed:Fire()
     --clean up the window
-    self.JanitorInstance:Cleanup()
+    self.JanitorInstance:Destroy()
 
     --if it's instant, hide it directly
     --if not, tween it
@@ -111,7 +110,7 @@ function BuyWindow.Hide(self: BuyWindow, Instant: boolean?)
     end
 
     --add the instance to debris just in case
-    Debris:AddItem(self.Instance, 0.5)
+    Utils.Instance.AddToDebris(self.Instance, 0.5)
 end
 
 return BuyWindow

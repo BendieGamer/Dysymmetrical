@@ -1,6 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 
@@ -48,7 +47,7 @@ local function CallbackPingBehaviour(self: Types.Ability)
         Sound.Parent = SoundFolder
     
         Sound:Play()
-        Debris:AddItem(Sound, Sound.TimeLength + 1)
+        Utils.Instance.AddToDebris(Sound, Sound.TimeLength + 1)
     end)
 
     self.OwnerProperties.FOVManager:AddFactor(self.Name, 0.6)

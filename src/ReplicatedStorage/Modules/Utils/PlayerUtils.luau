@@ -1,9 +1,9 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+local InstanceUtils = require(script.Parent.InstanceUtils)
 local Types = require(ReplicatedStorage.Classes.Types)
 local PlayerDataUtils = require(script.Parent.PlayerDataUtils)
 local Network = require(ReplicatedStorage.Modules.Network)
@@ -243,7 +243,7 @@ function PlayerUtils.RevealPlayerAura(RevealedPlayer: Player | Model, Duration: 
         Highlight.OutlineColor = UsedColor
         Highlight.Parent = Character
 
-        Debris:AddItem(Highlight, (Duration or 10) + 2)
+        InstanceUtils.AddToDebris(Highlight, (Duration or 10) + 2)
 
         --if the aura didn't already exist then it starts off completely transparent
         if not ExistingAura then
@@ -344,7 +344,7 @@ function PlayerUtils._Fade(FadeType: "In" | "Out", Duration: number, Yield: bool
         end
 
         local Twn = TweenService:Create(PlayerUtils.FadeFrame, TweenInfo.new(Duration), {BackgroundTransparency = 1})
-        Debris:AddItem(PlayerUtils.FadeFrame, Duration)
+        InstanceUtils.AddToDebris(PlayerUtils.FadeFrame, Duration)
         Twn:Play()
         if Yield then
             Twn.Completed:Wait()

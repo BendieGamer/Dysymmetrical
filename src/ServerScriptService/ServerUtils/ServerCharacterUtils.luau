@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -204,8 +203,8 @@ function ServerCharacterUtils.RigImpulse(Rig: Model | BasePart, magnitude: numbe
         LinearVel.Attachment0 = Att
         LinearVel.Parent = HRP
 
-        Debris:AddItem(Att, 0.05)
-        Debris:AddItem(LinearVel, 0.05)
+        Utils.Instance.AddToDebris(Att, 0.05)
+        Utils.Instance.AddToDebris(LinearVel, 0.05)
 	end
 end
 

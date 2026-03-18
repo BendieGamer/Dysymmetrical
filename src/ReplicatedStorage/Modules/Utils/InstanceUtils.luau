@@ -1,4 +1,3 @@
-local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -433,7 +432,7 @@ function InstanceUtils.HighlightInstance(instance: Instance, duration: number?, 
 	highlight.OutlineColor = usedColor
 	highlight.Parent = instance
 
-	Debris:AddItem(highlight, usedDuration + 2)
+	InstanceUtils.AddToDebris(highlight, usedDuration + 2)
 
 	-- Fade in
 	highlight.FillTransparency = 1
@@ -498,6 +497,16 @@ function InstanceUtils.GetTypeOfItemModule(Module: ModuleScript): string
 	Type = Type:gsub("s$", "")
 
 	return Type
+end
+
+--- Imitates `game:GetService("Debris"):AddItem()` using `task.delay()` for better performance and to break the 1000-item safe limit.
+function InstanceUtils.AddToDebris(item: Instance, lifetime: number?)
+	task.delay(lifetime or 10, function()
+		if item == nil then
+			return
+		end
+		item:Destroy()
+	end)
 end
 
 return InstanceUtils
