@@ -171,9 +171,6 @@ function RoundManager.InitLMS(LastMan: Player)
         Utils.Player.RevealPlayerAuraTo(LastMan, Killer.Player)
     end
 
-    --set the lms time
-    GlobalTimeManager.SetTime(GlobalTimeManager.Config.DefaultLMSTime) --TODO: custom LMS time depending on character interactions
-
     --fire the lms
     Network:FireConnection("LMS", LastMan)
     
@@ -192,7 +189,9 @@ function RoundManager.InitLMS(LastMan: Player)
     --there'll always be one unless stated so so it's fine
     local Theme = SpecialLMS and (SpecialLMS[LastMan.Character:GetAttribute("CharacterSkin")] or SpecialLMS.Default or Mod.Config.LastManStandingTheme) or Mod.Config.LastManStandingTheme
     --play the lms on server with max priority and without tweening
-    Sounds.PlayTheme(Theme, {Name = "LMS", Priority = 999999, TweenTime = 0, Volume = 1, TimePosition = 0})
+    Sounds.PlayTheme(Theme.Theme, {Name = "LMS", Priority = 999999, TweenTime = 0, Volume = 1, TimePosition = 0})
+    --set the lms time
+    GlobalTimeManager.SetTime(Theme.Time)
 end
 
 --- Ends the current round and gives rewards to the winner(s).

@@ -83,7 +83,7 @@ function Character.GetDefaultKillerSettings(): Types.Killer
             Price = 0,
             Render = "",
 
-            LastManStandingTheme = "rbxassetid://125799740823318",
+            LastManStandingTheme = {Time = 90, Theme = "rbxassetid://125799740823318"},
             SpecialLastManStandings = {},
 
             AnimationIDs = {
@@ -155,7 +155,6 @@ function Character.New(Type: Types.Role, Props: Types.Killer | Types.Survivor, R
     --try to get the func based off of the given role
     local Func = Character[`GetDefault{Type}Settings`]
     --if the role doesn't have its own func, halt
-    --TODO: unify default settings as well
     if not Func then
         return
     end

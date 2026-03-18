@@ -55,17 +55,16 @@ function GlobalFootstepPlayer._SetupChar(player: Player, character: Model)
 		return
 	end
 
-    --NOTE: uncomment this when characters are added properly
     --if the character has a module and custom footsteps, grab those
-	-- if character:GetAttribute("Role") ~= "Spectator" then
-	-- 	local CharModule = require(Utils.Instance.GetCharacterModule(character:GetAttribute("Role"), character:GetAttribute("CharacterName"), character:GetAttribute("CharacterSkin")))
-	-- 	if CharModule.Config.Sounds.Footsteps then
-	-- 		GlobalFootstepPlayer.ManagedCharacters[player.UserId] = CharModule.Config.Sounds.Footsteps
-	-- 	end
-    --if not, roll back to defaults
-	-- elseif GlobalFootstepPlayer.ManagedCharacters[player.UserId] then
-	-- 	GlobalFootstepPlayer.ManagedCharacters[player.UserId] = nil
-	-- end
+	if character:GetAttribute("Role") ~= "Spectator" then
+		local CharModule = require(Utils.Instance.GetCharacterModule(character:GetAttribute("Role"), character:GetAttribute("CharacterName"), character:GetAttribute("CharacterSkin")))
+		if CharModule.Config.Sounds.Footsteps then
+			GlobalFootstepPlayer.ManagedCharacters[player.UserId] = CharModule.Config.Sounds.Footsteps
+		end
+    -- if not, roll back to defaults
+	elseif GlobalFootstepPlayer.ManagedCharacters[player.UserId] then
+		GlobalFootstepPlayer.ManagedCharacters[player.UserId] = nil
+	end
 
     --make a track table to not reconnect footsteps every time to a track when it replays
 	local ConnectedTracks = {}

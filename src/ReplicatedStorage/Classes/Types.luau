@@ -508,17 +508,23 @@ export type Killer = {
         --- A possible custom LMS theme the character might have.
         --- 
         --- If it's a table of strings, a random one will be pulled.
-        LastManStandingTheme: (string | {string})?,
+        LastManStandingTheme: {Time: number?, Theme: string | {string}}?,
         --- Any possible LMS's for this character VS another specific character.
         --- 
-        --- Every entry in this table should be `CHARACTERMODULENAME = {Default = ID, SKINNAME = ID, ...}`, e.g. `Commander = {Default = "rbxassetid://0000000000"}`.
+        --- Every entry in this table should be `CHARACTERMODULENAME = {Default = {Time = X, Theme = ID}, SKINNAME = {Time = X, Theme = ID}, ...}`, e.g. `Commander = {Default = {Time = 95, Theme = "rbxassetid://0000000000"}}`.
         --- 
-        --- You can add skins by making a new field in the table named after the skin's module's name, e.g. `Yourself = "rbxassetid://0000000000"`.
+        --- You can add skins by making a new field in the table named after the skin's module's name, e.g. `Yourself = {Time = 90, Theme = "rbxassetid://0000000000"}`.
         --- 
         --- If and ID is a table of strings, a random one will be pulled.
         SpecialLastManStandings: {[string]: {
-            Default: string | {string},
-            [string]: string | {string},
+            Default: {
+                Time: number?,
+                Theme: string | {string},
+            },
+            [string]: {
+                Time: number?,
+                Theme: string | {string},
+            },
         }}?,
 
         --- All AnimationIDs related to this character.
@@ -1007,10 +1013,12 @@ export type ProjectileSettings = {
     --- The player that created the projectile.
     SourcePlayer: Player,
     --- The model of the projectile.
+    --- 
     --- It has to have a `CollisionBox` part inside of it that acts as a hitbox for `DestroyOnCollision` if it's `true`.
+    --- 
     --- If it's a model, make a `Pivot` part inside it that represents the center and make it the `PrimaryPart` property.
+    --- 
     --- Then, weld every other part in the model to it.
-    --- TODO: fix MODEL projectiles since only BasePart projectiles work properly
     Model: (Model | BasePart),
     --- The initial position of the projectile.
     StartingCFrame: CFrame?,

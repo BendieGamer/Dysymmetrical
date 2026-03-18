@@ -11,8 +11,6 @@ local GlobalTimeManager = {
         LobbyTime = 50,
         --- The time it will take to finish a round.
         RoundTime = 240,
-        --- The time it will take to finish a round in LMS.
-        DefaultLMSTime = 90,
 
         --- If `true`, the manager will wait until the count of loaded players is equal to or higher than `MinimumPlayerCount`.
         WaitForEnoughPlayers = true,
