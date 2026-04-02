@@ -170,7 +170,7 @@ function CharacterManager.SpawnAsCharacter(Player: Player, CharacterSettings: Ch
 
     if CharacterModule.OnServerInit then
         CharacterModule:OnServerInit(Character)
-    end
+	end
 
     return Character
 end

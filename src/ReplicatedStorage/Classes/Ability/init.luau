@@ -273,7 +273,7 @@ function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Ty
                     self:AttemptUse()
                 end))
             end
-        end
+		end
 
         if self.UseAnimation ~= nil and #self.UseAnimation > 0 then
             self:ReloadAnimation(self.UseAnimation)
@@ -305,12 +305,12 @@ function MetaAbility.Init(self: Types.Ability, Player: Player, CharacterInfo: Ty
             self:Use()
         end, function(abilityName: string)
             return abilityName == self.Name
-        end))
+		end))
 
         if self.OnClientInit then
             self:OnClientInit()
         end
-    end
+	end
 end
 
 function MetaAbility.ReloadAnimation(self: Types.Ability, id: string)

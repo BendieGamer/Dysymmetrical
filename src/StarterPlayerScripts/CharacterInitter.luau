@@ -18,18 +18,18 @@ local CharacterInitter = {
 }
 
 function CharacterInitter:Init()
-    Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Character: Model)
+	Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Character: Model)
+		--init all character scripts themselves
+		require(Character:FindFirstChild("Initter")):Init(Character)
+		
         CharacterInitter._InitializeGameCharacter(Character)
-
-        --init all character scripts themselves
-        require(Character:FindFirstChild("Initter")):Init(Character)
     end)
 end
 
 function CharacterInitter._InitializeGameCharacter(Character: Model)
     if Character:GetAttribute("Role") == "Spectator" or not Character:GetAttribute("CharacterName") then
         return
-    end
+	end
 
     --disable the reset button
     CharacterInitter._ResetButtonCycle()
@@ -48,7 +48,7 @@ function CharacterInitter._InitializeGameCharacter(Character: Model)
     require(Character.CharacterModule.Sprinting).SprintMultiplier = Info.GameplayConfig.SprintSpeedMultiplier
 
     --set the anim transition time
-    Character:SetAttribute("AnimationTransitionTime", Info.Config.AnimationTransitionTime)
+	Character:SetAttribute("AnimationTransitionTime", Info.Config.AnimationTransitionTime)
 
     --init all char abilities
     CharacterInitter._InitializeCharacterAbilities(Character, Info)
@@ -79,9 +79,9 @@ function CharacterInitter._InitializeCharacterAbilities(Character: Model, Info: 
     local CharacterModule = require(Character.CharacterModule)
     CharacterModule.Module = Info
 
-    for _, Ability: Types.Ability in Info.GameplayConfig.Abilities do
+	for _, Ability: Types.Ability in Info.GameplayConfig.Abilities do
         CharacterModule.Abilities[Ability.Name] = Ability
-        Ability:Init(Players.LocalPlayer, Info)
+		Ability:Init(Players.LocalPlayer, Info)
     end
 
     --init le ui
