@@ -27,7 +27,7 @@ function EffectDisplay:_SetupUI(Character: Model, UI: Frame)
 
     UI.Parent = require(script.Parent).FetchScreenGui("Effects")
 
-    local EffectManager = require(Character.PlayerAttributeScripts.EffectManager)
+    local EffectManager = require(Character.PlayerAttributeManagers.EffectManager)
     
     local ManagedEffects: {[string]: Frame} = {}
     JanitorInstance:Add(RunService.PreRender:Connect(function(_delta: number)

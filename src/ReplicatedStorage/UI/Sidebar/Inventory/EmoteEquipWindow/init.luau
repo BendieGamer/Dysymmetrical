@@ -2,10 +2,10 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
+local InventoryUtils = require(script.Parent.InventoryUtils)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
-local ShopUtils = require(ReplicatedStorage.UI.Sidebar.Shop.ShopUtils)
 local Signal = require(ReplicatedStorage.Utils.Signal)
 
 local EmoteEquipWindow = {}
@@ -41,7 +41,7 @@ function EmoteEquipWindow.New(Slot: number, Parent: Instance)
         Button.NameLabel.Text = EmoteInfo.Config.Name
 
         --set up for equipping
-        ShopUtils.SetupAudibleButton(Button, self.Janitor, function()
+        InventoryUtils.SetupAudibleButton(Button, self.Janitor, function()
             --EquipEmote returns a bool indicating if it was successful or not
             self.Equipped:Fire(Network:FireServerConnection("EquipEmote", "REMOTE_FUNCTION", Slot, Emote))
             self:Hide()
@@ -52,8 +52,8 @@ function EmoteEquipWindow.New(Slot: number, Parent: Instance)
     end
 
     --setting up buttons
-    ShopUtils.SetupAudibleButton(self.Instance.Cancel, self.Janitor, self.Hide, self)
-    ShopUtils.SetupAudibleButton(self.Instance.Unequip, self.Janitor, function()
+    InventoryUtils.SetupAudibleButton(self.Instance.Cancel, self.Janitor, self.Hide, self)
+    InventoryUtils.SetupAudibleButton(self.Instance.Unequip, self.Janitor, function()
         self.Equipped:Fire(Network:FireServerConnection("EquipEmote", "REMOTE_FUNCTION", Slot))
         self:Hide()
     end)

@@ -34,9 +34,9 @@
         "$path": "src/StarterPlayerScripts"
       },
       "$properties": {
-        "CharacterMaxSlopeAngle": 80,
         "CameraMaxZoomDistance": 15,
-        "CharacterWalkSpeed": 7
+        "CharacterWalkSpeed": 7,
+        "CharacterMaxSlopeAngle": 80
       }
     },
     "Workspace": {
