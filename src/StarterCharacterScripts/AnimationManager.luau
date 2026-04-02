@@ -11,7 +11,9 @@ local AnimationManager = {
 	Character = nil,
 	Janitor = nil,
 	Initted = false,
+	JumpAnimTime = 0,
 }
+type AnimationManager = typeof(AnimationManager)
 
 local DefaultAnimations: {[string]: string} = {
 	Climb = "rbxassetid://180436334",
@@ -27,10 +29,11 @@ local SpectatorOnly = {
 	Sit = true,
 }
 
-function AnimationManager:Init()
+function AnimationManager.Init(self: AnimationManager)
 	if self.Initted then
 		return
 	end
+	
 	self.Initted = true
 
 	--get needed instances
@@ -54,36 +57,20 @@ function AnimationManager:Init()
 		self:LoadAnimation(Name, ID, false, Enum.AnimationPriority.Core)
 	end
 
-	--humanoid connections
-	local function onClimbing(speed: number)
-		self:PlayAnimation("Climb")
-
-		self:AdjustAnimationSpeed("Climb", speed / 11)
-	end
-
-	local function onFreeFalling(active: boolean)
-		if active then
-			self:PlayAnimation("Fall", (self.Character:GetAttribute("AnimationTransitionTime") or 0.1) * 5)
-		end
-	end
-
 	local Speed = 0
 	local function onRunning(speed: number?)
 		--setting speed like this to allow for backpedaling animations later
 		Speed = (speed ~= nil and typeof(speed) == "number") and speed or Speed
-		
+
 		if Speed > 0.01 then
 			--if the character is sprinting, sprint
 			--if not, walk
-			self:PlayAnimation((self.AnimationTracks.Sprint and self.Character:GetAttribute("Sprinting") == true) and "Sprint" or "Walk")
+			self:PlayAnimation(
+				(self.AnimationTracks.Sprint and self.Character:GetAttribute("Sprinting") == true) and "Sprint" or "Walk",
+				(self.Character:GetAttribute("AnimationTransitionTime") or 0.1) * 4.45
+			)
 		else
 			self:PlayAnimation("Idle")
-		end
-	end
-
-	local function onSeated(active: boolean)
-		if active then
-			self:PlayAnimation("Sit")
 		end
 	end
 
@@ -92,15 +79,42 @@ function AnimationManager:Init()
 	self.Janitor:LinkToInstance(self.Character)
 
 	--make all humanoid connections from before
-	self.Janitor:Add(Humanoid.Climbing:Connect(onClimbing))
-	self.Janitor:Add(Humanoid.FreeFalling:Connect(onFreeFalling))
 	self.Janitor:Add(Humanoid.Running:Connect(onRunning))
-	self.Janitor:Add(Humanoid.Seated:Connect(onSeated))
-	--importantly also connect onRunning to when a sprint is fetched to update it accordingly
-	Utils.Instance.ObserveAttribute(self.Character, "Sprinting", onRunning)
+
+	self.Janitor:Add(Humanoid.Climbing:Connect(function(speed: number)
+		self:PlayAnimation("Climb")
+
+		--self:AdjustAnimationSpeed("Climb", speed / 11)
+	end))
+
+	self.Janitor:Add(Humanoid.Jumping:Connect(function()
+		self:AdjustAnimationSpeed("Jump", 1.25)
+		self:PlayAnimation("Jump")
+		self.JumpAnimTime = 1
+	end))
+	
+	self.Janitor:Add(Humanoid.FreeFalling:Connect(function(active: boolean)
+		if active and self.JumpAnimTime <= 0 then
+			self:PlayAnimation("Fall", (self.Character:GetAttribute("AnimationTransitionTime") or 0.1) * 3)
+		end
+	end))
+	
+	self.Janitor:Add(Humanoid.Seated:Connect(function(active: boolean)
+		if active then
+			self:PlayAnimation("Sit")
+		end
+	end))
 
 	--backpedaling, per frame, before animations are played
-	self.Janitor:Add(RunService.PreAnimation:Connect(function()
+	self.Janitor:Add(RunService.PreAnimation:Connect(function(delta: number)
+		if self.JumpAnimTime > 0 then
+			self.JumpAnimTime = math.min(self.JumpAnimTime - delta, 0)
+		end
+		
+		if Humanoid:GetState() == Enum.HumanoidStateType.Freefall and self.JumpAnimTime <= 0 then
+			self:PlayAnimation("Fall", (self.Character:GetAttribute("AnimationTransitionTime") or 0.1) * 3)
+		end
+		
 		--sanity check
 		--if neither the walk or the run animations are loaded or playing, halt
 		if not ((self.AnimationTracks.Walk and self.AnimationTracks.Walk.IsPlaying) or (self.AnimationTracks.Sprint and self.AnimationTracks.Sprint.IsPlaying)) then
@@ -114,7 +128,7 @@ function AnimationManager:Init()
 		--if the character is indeed walking backwards, negate the speed to make the anims play on reverse
 		local Mult = DirectionOfMovement.Z > 0.1 and -1 or 1
 		--adjust as needed
-		self:AdjustAnimationSpeed("Walk", (Humanoid.WalkSpeed / 16) * Mult)
+		self:AdjustAnimationSpeed("Walk", Humanoid.WalkSpeed / 16 * Mult)
 		self:AdjustAnimationSpeed("Sprint", (Humanoid.WalkSpeed / 30) * Mult)
 	end))
 
@@ -122,7 +136,8 @@ function AnimationManager:Init()
 	self:PlayAnimation("Idle")
 end
 
-function AnimationManager:LoadAnimation(Name: string, ID: string, YieldUntilLoad: boolean?, PriorityOverride: Enum.AnimationPriority?): AnimationTrack
+function AnimationManager.LoadAnimation(self: AnimationManager, Name: string, ID: string, YieldUntilLoad: boolean?, PriorityOverride: Enum.AnimationPriority?): AnimationTrack
+	self:WaitForInit()
 	--removes the animation if it exists
 	self:RemoveAnimation(Name)
 
@@ -130,7 +145,7 @@ function AnimationManager:LoadAnimation(Name: string, ID: string, YieldUntilLoad
 	if not self.Initted then
 		self:Init()
 	end
-	
+
 	--loads the new one
 	local AnimationTrack = Utils.Character.LoadAnimationFromID(self.Character, ID, YieldUntilLoad)
 
@@ -146,7 +161,8 @@ function AnimationManager:LoadAnimation(Name: string, ID: string, YieldUntilLoad
 end
 
 --- If existent, removes the animation named `Name` from this character.
-function AnimationManager:RemoveAnimation(Name: string)
+function AnimationManager.RemoveAnimation(self: AnimationManager, Name: string)
+	self:WaitForInit()
 	--index the animation by name
 	local AnimationTrack = self.AnimationTracks[Name]
 	--if the animation doesn't exist, halt
@@ -167,7 +183,8 @@ end
 --- `fadeTime` defaults to `Character:GetAttribute("AnimationTransitionTime")`, which in itself defaults to `0.1`.
 --- 
 --- `fadeTime = 0` means that the animation will snap instantly.
-function AnimationManager:PlayAnimation(Name: string, fadeTime: number?)
+function AnimationManager.PlayAnimation(self: AnimationManager, Name: string, fadeTime: number?)
+	self:WaitForInit()
 	--index the animation by name
 	local AnimationTrack: AnimationTrack = self.AnimationTracks[Name]
 	--if it doesn't exist or is playing, halt
@@ -182,10 +199,7 @@ function AnimationManager:PlayAnimation(Name: string, fadeTime: number?)
 			self.CurrentCoreAnimation:Stop(fadeTime or self.Character:GetAttribute("AnimationTransitionTime") or 0.1)
 		end
 		--set this animation as the new core animation and play it
-		AnimationTrack:Play(fadeTime or self.Character:GetAttribute("AnimationTransitionTime") or 0.1)
 		self.CurrentCoreAnimation = AnimationTrack
-
-		return
 	end
 
 	--play the animation
@@ -197,7 +211,8 @@ end
 --- `fadeTime` defaults to `Character:GetAttribute("AnimationTransitionTime")`, which in itself defaults to `0.1`.
 --- 
 --- `fadeTime = 0` means that the animation will snap instantly.
-function AnimationManager:StopAnimation(Name: string, fadeTime: number?)
+function AnimationManager.StopAnimation(self: AnimationManager, Name: string, fadeTime: number?)
+	self:WaitForInit()
 	--index the animation by name
 	local AnimationTrack: AnimationTrack = self.AnimationTracks[Name]
 	--if it doesn't exist or it's already not playing, halt
@@ -205,7 +220,7 @@ function AnimationManager:StopAnimation(Name: string, fadeTime: number?)
 		return
 	end
 
-	--if it's the current core animation, resign its role like so
+	--if it's the current core animation, resign its role as so
 	if self.CurrentCoreAnimation == AnimationTrack then
 		self.CurrentCoreAnimation = nil
 	end
@@ -215,7 +230,8 @@ function AnimationManager:StopAnimation(Name: string, fadeTime: number?)
 end
 
 --- If existent, changes the animation named `Name`'s speed to `Speed`.
-function AnimationManager:AdjustAnimationSpeed(Name: string, Speed: number)
+function AnimationManager.AdjustAnimationSpeed(self: AnimationManager, Name: string, Speed: number)
+	self:WaitForInit()
 	--index the animation by name
 	local AnimationTrack = self.AnimationTracks[Name]
 	--if it doesn't exist, halt
@@ -229,8 +245,15 @@ end
 
 --this is useless but it's done for readability's sake
 --- Gets an `AnimationTrack` by name if it exists in this `AnimationManager`.
-function AnimationManager:GetAnimationTrack(Name: string): AnimationTrack
+function AnimationManager.GetAnimationTrack(self: AnimationManager, Name: string): AnimationTrack
+	self:WaitForInit()
 	return self.AnimationTracks[Name]
+end
+
+function AnimationManager.WaitForInit(self: AnimationManager)
+	while not self.Initted do
+		task.wait()
+	end
 end
 
 return AnimationManager
