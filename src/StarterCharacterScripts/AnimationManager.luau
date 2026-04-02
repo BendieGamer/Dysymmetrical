@@ -65,10 +65,7 @@ function AnimationManager.Init(self: AnimationManager)
 		if Speed > 0.01 then
 			--if the character is sprinting, sprint
 			--if not, walk
-			self:PlayAnimation(
-				(self.AnimationTracks.Sprint and self.Character:GetAttribute("Sprinting") == true) and "Sprint" or "Walk",
-				(self.Character:GetAttribute("AnimationTransitionTime") or 0.1) * 4.45
-			)
+			self:PlayAnimation((self.AnimationTracks.Sprint and self.Character:GetAttribute("Sprinting") == true) and "Sprint" or "Walk")
 		else
 			self:PlayAnimation("Idle")
 		end
