@@ -1,0 +1,6 @@
+{
+  "className": "Motor6D",
+  "properties": {
+    "MaxVelocity": 0.1
+  }
+}

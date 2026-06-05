@@ -1,0 +1,9 @@
+{
+  "className": "Sound",
+  "properties": {
+    "AudioContent": "rbxasset://sounds/action_jump_land.mp3",
+    "RollOffMaxDistance": 150,
+    "RollOffMinDistance": 5,
+    "Volume": 0.65
+  }
+}

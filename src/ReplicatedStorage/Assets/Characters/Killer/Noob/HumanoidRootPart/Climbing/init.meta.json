@@ -1,0 +1,10 @@
+{
+  "className": "Sound",
+  "properties": {
+    "AudioContent": "rbxasset://sounds/action_footsteps_plastic.mp3",
+    "Looped": true,
+    "RollOffMaxDistance": 150,
+    "RollOffMinDistance": 5,
+    "Volume": 0.65
+  }
+}

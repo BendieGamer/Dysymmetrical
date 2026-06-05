@@ -1,0 +1,8 @@
+{
+  "className": "Humanoid",
+  "properties": {
+    "AutoJumpEnabled": false,
+    "JumpHeight": 0,
+    "UseJumpPower": false
+  }
+}

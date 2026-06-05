@@ -1,0 +1,15 @@
+{
+  "className": "MeshPart",
+  "originalName": "MR (ant) TENNAA!?!?!?!",
+  "properties": {
+    "CanCollide": false,
+    "CFrame": [832.9319, -259.1209, -499.4137, 0, 0, -1, 0, 1, 0, 1, 0, 0],
+    "EnableFluidForces": false,
+    "InitialSize": [6.25, 35.3029, 42.2601],
+    "Massless": true,
+    "MeshContent": "rbxassetid://76760407188385",
+    "PivotOffset": [0.1521, 0.8066, 0.4118, 1, 0, 0, 0, -0.2588, -0.9659, 0, 0.9659, -0.2588],
+    "Size": [0.3041, 1.7178, 2.0563],
+    "TextureContent": "rbxassetid://112188028181640"
+  }
+}

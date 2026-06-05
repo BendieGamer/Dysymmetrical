@@ -1,0 +1,11 @@
+{
+  "className": "Part",
+  "properties": {
+    "CanCollide": false,
+    "CFrame": [-2.3658, 3.1192, 12.2155, 0, 0.0196, -0.9998, 0, 0.9998, 0.0196, 1, 0, 0],
+    "Color": [253, 234, 141],
+    "EnableFluidForces": false,
+    "FormFactor": "Symmetric",
+    "Size": [1, 2, 1]
+  }
+}

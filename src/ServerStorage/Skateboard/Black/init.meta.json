@@ -1,0 +1,14 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "Anchored": true,
+    "CanCollide": false,
+    "CFrame": [-1.4691, -73.0323, 24.4205, 0, 1.0, 0, 0, 0, -1.0, -1.0, 0, 0],
+    "Color": [17, 17, 17],
+    "InitialSize": [13.2344, 49.9228, 2.0329],
+    "Material": "Snow",
+    "MeshContent": "rbxassetid://13115573149",
+    "RenderFidelity": "Precise",
+    "Size": [2.1175, 7.9876, 0.3253]
+  }
+}

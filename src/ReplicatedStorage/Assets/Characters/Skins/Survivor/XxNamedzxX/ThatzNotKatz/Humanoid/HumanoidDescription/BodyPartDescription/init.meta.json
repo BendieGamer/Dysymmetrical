@@ -1,0 +1,7 @@
+{
+  "className": "BodyPartDescription",
+  "properties": {
+    "BodyPart": "LeftLeg",
+    "Color": [0.9176, 0.7216, 0.5725]
+  }
+}

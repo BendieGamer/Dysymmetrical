@@ -1,0 +1,8 @@
+{
+  "className": "Tool",
+  "properties": {
+    "Grip": [0, 0.5, -0.0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "TextureContent": "rbxassetid://57752959",
+    "ToolTip": "Heals you."
+  }
+}

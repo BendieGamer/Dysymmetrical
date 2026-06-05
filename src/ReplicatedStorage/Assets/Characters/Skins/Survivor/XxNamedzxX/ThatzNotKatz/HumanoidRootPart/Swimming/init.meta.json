@@ -1,0 +1,11 @@
+{
+  "className": "Sound",
+  "properties": {
+    "AudioContent": "rbxasset://sounds/action_swim.mp3",
+    "Looped": true,
+    "PlaybackSpeed": 1.6,
+    "RollOffMaxDistance": 150,
+    "RollOffMinDistance": 5,
+    "Volume": 0.65
+  }
+}

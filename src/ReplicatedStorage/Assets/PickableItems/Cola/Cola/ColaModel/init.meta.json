@@ -1,0 +1,12 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "CFrame": [-3.8, 7.25, 11.9, 1.0, 0, 0, 0, 1, 0, 0, 0, 1.0],
+    "CollisionGroup": "Items",
+    "Color": [0, 255, 0],
+    "FormFactor": "Custom",
+    "Material": "Fabric",
+    "Size": [0.78, 1.2, 0.79]
+  }
+}

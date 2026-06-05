@@ -1,0 +1,18 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CanCollide": false,
+    "CFrame": [-2.3658, 3.1192, 13.7155, 0, 0.0196, -0.9998, 0, 0.9998, 0.0196, 1, 0, 0],
+    "EnableFluidForces": false,
+    "FormFactor": "Symmetric",
+    "LeftParamA": 0,
+    "LeftParamB": 0,
+    "RightParamA": 0,
+    "RightParamB": 0,
+    "Size": [2, 2, 1],
+    "TopSurface": "Smooth",
+    "Transparency": 1
+  }
+}

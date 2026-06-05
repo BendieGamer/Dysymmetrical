@@ -1,0 +1,12 @@
+{
+  "className": "Texture",
+  "properties": {
+    "Face": "Back",
+    "OffsetStudsU": 1.5,
+    "OffsetStudsV": 5,
+    "StudsPerTileU": 3,
+    "StudsPerTileV": 10,
+    "TextureContent": "http://www.roblox.com/asset/?id=13115313743",
+    "ZIndex": 0
+  }
+}

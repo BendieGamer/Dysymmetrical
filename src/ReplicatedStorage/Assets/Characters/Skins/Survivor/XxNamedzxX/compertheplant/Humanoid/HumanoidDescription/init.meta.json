@@ -1,0 +1,17 @@
+{
+  "className": "HumanoidDescription",
+  "properties": {
+    "BodyTypeScale": 0,
+    "ClimbAnimation": 837013990,
+    "FallAnimation": 837010685,
+    "IdleAnimation": 619521748,
+    "JumpAnimation": 837011171,
+    "MoodAnimation": 14618207727,
+    "Pants": 129458426,
+    "ProportionScale": 0,
+    "RunAnimation": 837009922,
+    "Shirt": 5813443653,
+    "SwimAnimation": 837012509,
+    "WalkAnimation": 837010234
+  }
+}

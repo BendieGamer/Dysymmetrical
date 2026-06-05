@@ -1,0 +1,11 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CFrame": [-55.5, 1, 7013.5806, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Shape": "Wedge",
+    "Size": [29, 2, 11],
+    "TopSurface": "Smooth"
+  }
+}

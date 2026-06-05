@@ -35,11 +35,11 @@ function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
             Price = 0,
             Render = "",
 
-            AnimationIDs = {
-                IdleAnimation = "rbxassetid://128254839975087",
-                WalkAnimation = "rbxassetid://95139037304316",
-                RunAnimation = "rbxassetid://84289923509689",
-            },
+			AnimationIDs = {
+				IdleAnimation = "rbxassetid://112795426241330",
+				WalkAnimation = "rbxassetid://136499287494443",
+				RunAnimation = "rbxassetid://108377132999752",
+			},
 
             AnimationTransitionTime = 0.3,
 
@@ -50,8 +50,7 @@ function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
 
         GameplayConfig = {
             Health = 100,
-            HitboxPriority = 1,
-			BaseSpeed = 10.5,
+            BaseSpeed = 10.5,
             SprintSpeedMultiplier = 26 / 10.5,
             StaminaProperties = {
                 MaxStamina = 100,
@@ -67,8 +66,6 @@ function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
 
         OnInit = nil,
         OnHit = nil,
-        OnDamage = nil,
-        OnEffect = nil,
     }
 end
 
@@ -125,9 +122,8 @@ function CharTypes.GetDefaultKillerSettings(): Types.Killer
         },
 
         GameplayConfig = {
-			Health = 1200,
-			HitboxPriority = 1,
-			BaseSpeed = 10.5,
+            Health = 1200,
+            BaseSpeed = 10.5,
             SprintSpeedMultiplier = 26 / 10.5,
             StaminaProperties = {
                 MaxStamina = 110,
@@ -143,8 +139,6 @@ function CharTypes.GetDefaultKillerSettings(): Types.Killer
 
         OnInit = nil,
         OnHit = nil,
-        OnDamage = nil,
-        OnEffect = nil,
         OnExecution = nil,
     }
 end

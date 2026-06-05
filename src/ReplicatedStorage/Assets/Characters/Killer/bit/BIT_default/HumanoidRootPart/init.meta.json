@@ -1,0 +1,16 @@
+{
+  "className": "Part",
+  "properties": {
+    "BottomSurface": "Smooth",
+    "CanCollide": false,
+    "CFrame": [0.5555, 4.4127, 2.2429, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "FormFactor": "Symmetric",
+    "LeftParamA": 0,
+    "LeftParamB": 0,
+    "RightParamA": 0,
+    "RightParamB": 0,
+    "Size": [2, 2, 1],
+    "TopSurface": "Smooth",
+    "Transparency": 1
+  }
+}

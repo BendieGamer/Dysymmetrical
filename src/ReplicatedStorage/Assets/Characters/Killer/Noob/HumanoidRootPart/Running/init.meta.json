@@ -1,0 +1,11 @@
+{
+  "className": "Sound",
+  "properties": {
+    "Looped": true,
+    "PlaybackSpeed": 0,
+    "Playing": true,
+    "RollOffMaxDistance": 150,
+    "RollOffMinDistance": 23.333,
+    "Volume": 0.4667
+  }
+}

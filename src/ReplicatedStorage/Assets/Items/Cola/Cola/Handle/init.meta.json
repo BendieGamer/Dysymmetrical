@@ -1,0 +1,13 @@
+{
+  "className": "Part",
+  "properties": {
+    "CanCollide": false,
+    "CanQuery": false,
+    "CanTouch": false,
+    "Color": [0, 255, 0],
+    "FormFactor": "Custom",
+    "Massless": true,
+    "Material": "Fabric",
+    "Size": [0.78, 1.2, 0.79]
+  }
+}

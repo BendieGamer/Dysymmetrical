@@ -1,0 +1,19 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "Attributes": {
+      "Index": 1
+    },
+    "BottomSurface": "Smooth",
+    "CanCollide": false,
+    "CanQuery": false,
+    "CanTouch": false,
+    "CFrame": [62, 4, 7008, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Color": [0, 255, 0],
+    "Massless": true,
+    "Size": [1, 1, 1],
+    "TopSurface": "Smooth",
+    "Transparency": 1
+  }
+}

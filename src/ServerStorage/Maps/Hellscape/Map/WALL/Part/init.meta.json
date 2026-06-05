@@ -1,0 +1,13 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CFrame": [346, 17.0, -605, 0, 0, 1, 0, 1, 0, -1, 0, 0],
+    "Color": [17, 17, 17],
+    "Material": "Glacier",
+    "MaterialVariant": "2022 Glue",
+    "Size": [4, 31, 14],
+    "TopSurface": "Smooth"
+  }
+}

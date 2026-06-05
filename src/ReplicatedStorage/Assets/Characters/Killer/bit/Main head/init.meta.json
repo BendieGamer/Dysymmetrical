@@ -1,0 +1,14 @@
+{
+  "className": "MeshPart",
+  "properties": {
+    "CanCollide": false,
+    "CFrame": [834.877, -261.2035, -499.7178, 0, 0, -1, 0, 1, 0, 1, 0, 0],
+    "EnableFluidForces": false,
+    "InitialSize": [37.5, 56.25, 75],
+    "Massless": true,
+    "MeshContent": "rbxassetid://78526310530692",
+    "PivotOffset": [2.1288, -3.8015, -3.0412, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "Size": [1.8247, 2.7371, 3.6494],
+    "TextureContent": "rbxassetid://112188028181640"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "className": "Part",
+  "properties": {
+    "Color": [99, 95, 98],
+    "EnableFluidForces": false,
+    "FormFactor": "Symmetric",
+    "LeftParamA": 0,
+    "LeftParamB": 0,
+    "LeftSurface": "Weld",
+    "RightParamA": 0,
+    "RightParamB": 0,
+    "RightSurface": "Weld",
+    "Size": [2, 2, 1]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "className": "ProximityPrompt",
+  "properties": {
+    "ActionText": "Pick Up",
+    "ObjectText": "Medkit"
+  }
+}

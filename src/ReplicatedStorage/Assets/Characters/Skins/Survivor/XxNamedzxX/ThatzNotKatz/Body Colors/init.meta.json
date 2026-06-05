@@ -1,0 +1,11 @@
+{
+  "className": "BodyColors",
+  "properties": {
+    "HeadColor3": [0.9176, 0.7216, 0.5725],
+    "LeftArmColor3": [0.9176, 0.7216, 0.5725],
+    "LeftLegColor3": [0.9176, 0.7216, 0.5725],
+    "RightArmColor3": [0.9176, 0.7216, 0.5725],
+    "RightLegColor3": [0.9176, 0.7216, 0.5725],
+    "TorsoColor3": [0.9176, 0.7216, 0.5725]
+  }
+}

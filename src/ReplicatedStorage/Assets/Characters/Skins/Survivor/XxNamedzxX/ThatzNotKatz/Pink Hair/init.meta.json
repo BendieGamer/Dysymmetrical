@@ -1,0 +1,7 @@
+{
+  "className": "Accessory",
+  "properties": {
+    "AccessoryType": "Back",
+    "AttachmentPoint": [0, -0.2, -0.07, 1, 0, 0, 0, 1, 0, 0, 0, 1]
+  }
+}

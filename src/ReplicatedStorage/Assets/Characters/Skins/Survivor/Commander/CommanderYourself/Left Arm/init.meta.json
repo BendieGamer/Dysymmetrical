@@ -1,0 +1,10 @@
+{
+  "className": "Part",
+  "properties": {
+    "CanCollide": false,
+    "CFrame": [-1.5, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "EnableFluidForces": false,
+    "FormFactor": "Symmetric",
+    "Size": [1, 2, 1]
+  }
+}

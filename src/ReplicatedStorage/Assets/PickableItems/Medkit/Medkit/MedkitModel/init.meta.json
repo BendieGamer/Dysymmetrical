@@ -1,0 +1,11 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CFrame": [5.197, 7.087, 24.407, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    "CollisionGroup": "Items",
+    "Size": [1.5556, 0.875, 0.7778],
+    "TopSurface": "Smooth"
+  }
+}

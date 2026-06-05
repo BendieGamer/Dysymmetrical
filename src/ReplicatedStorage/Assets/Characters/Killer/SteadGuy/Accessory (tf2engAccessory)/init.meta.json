@@ -1,0 +1,7 @@
+{
+  "className": "Accessory",
+  "properties": {
+    "AccessoryType": "Face",
+    "AttachmentPoint": [0.0029, -0.2026, 0.0555, 1.0, 0, 0, 0, 1, 0, 0, 0, 1.0]
+  }
+}

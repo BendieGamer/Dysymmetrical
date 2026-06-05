@@ -16,6 +16,16 @@ local CommonFunctions = {
 	},
 	AdminPerms = {
 		{
+			Name = "BendieGames",
+			UserId = 2242405915,
+			Rank = "Owner",
+		},
+		{
+			Name = "ThatGuy",
+			UserId = 3363140692,
+			Rank = "Owner",
+		},
+		{
 			Name = "Dyscarn",
 			UserId = 432073982,
 			Rank = "Developer",
