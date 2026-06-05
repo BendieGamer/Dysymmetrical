@@ -1,0 +1,13 @@
+{
+  "className": "SpawnLocation",
+  "properties": {
+    "Anchored": true,
+    "BottomSurface": "Smooth",
+    "CastShadow": false,
+    "CFrame": [-37.5507, 4.2345, 43.1287, 0.7071, 0, 0.7071, 0, 1, 0, -0.7071, 0, 0.7071],
+    "Color": [13, 105, 172],
+    "Duration": 0,
+    "Size": [4, 1, 4],
+    "TopSurface": "Smooth"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "className": "Part",
+  "properties": {
+    "Anchored": true,
+    "BackSurface": "Studs",
+    "BottomSurface": "Studs",
+    "CastShadow": false,
+    "CFrame": [51.0792, 4.6841, 82.6597, 0, -1.0, 0, -1, 0, 0, 0, 0, -1.0],
+    "Color": [40, 127, 71],
+    "FrontSurface": "Studs",
+    "LeftSurface": "Studs",
+    "RightSurface": "Studs",
+    "Shape": "Wedge",
+    "Size": [0.167, 0.167, 0.167]
+  }
+}
