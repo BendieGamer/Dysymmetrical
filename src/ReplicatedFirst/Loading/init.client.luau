@@ -1,4 +1,5 @@
 local LoadingGui = script:WaitForChild("LoadingGui")
+print("SYNC: Loading")
 local Main = LoadingGui:WaitForChild("LoadingScreen"):WaitForChild("Main")
 local Percent = Main:WaitForChild("Percent")
 local AmountTxt = Main:WaitForChild("Amount")

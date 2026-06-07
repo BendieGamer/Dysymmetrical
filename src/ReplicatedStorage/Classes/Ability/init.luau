@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Types = require(script.Parent.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
@@ -8,15 +9,21 @@ local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Signal = require(ReplicatedStorage.Utils.Signal)
 
+local CommonFunctions = RunService:IsServer() and require(ServerScriptService.System.CommonFunctions) or nil
+
 local AbilityType = {}
 AbilityType.__index = AbilityType
 
 function AbilityType.GetDefaultSettings(): Types.Ability
     return setmetatable({
         Name = "Ability",
-        RenderImage = "rbxassetid://9759886280",
+        RenderImage = "rbxassetid://95364204138746",
         UICorner = true,
         Passive = false,
+
+        Locked = false,
+
+        EXP = 0,
 
         ExtraInit = nil,
         OnRemove = nil,
@@ -254,6 +261,12 @@ function AbilityType:Init(charModule: Types.Killer | Types.Survivor, plr: Player
                 task.spawn(function()
                     if self.Behaviour then
                         self:Behaviour()
+                    end
+                    if CommonFunctions and self.EXP and self.EXP > 0 then
+                        CommonFunctions.GrantRewardToPlayer(self.Owner, {
+                            EXP = self.EXP,
+                            Reason = "using " .. self.Name,
+                        })
                     end
                 end)
             end

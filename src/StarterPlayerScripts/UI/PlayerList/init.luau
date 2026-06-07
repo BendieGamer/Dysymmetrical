@@ -89,15 +89,29 @@ function PlayerList:Init()
     end
 
     Utils.Character.ObserveCharacter(LocalPlayer, function(Char: Model)
-        local Role = Char:FindFirstChild("Role")
-        if Role.Value ~= "Spectator" then
+        local Role = Char:FindFirstChild("Role") or Char:WaitForChild("Role", 5)
+        local isSpectator = not Role or Role.Value == "Spectator"
+        if not isSpectator then
             if CurrentPlayerWindow then
                 CurrentPlayerWindow:Hide(true)
             end
-
             UI.Visible = false
         else
             UI.Visible = true
+        end
+    end)
+
+    local RoundState = ReplicatedStorage.RoundInfo.CurrentState
+    RoundState.Changed:Connect(function(state)
+        if state == "InRound" then
+            if CurrentPlayerWindow then
+                CurrentPlayerWindow:Hide(true)
+            end
+            UI.Visible = false
+        elseif state == "Lobby" then
+            local char = LocalPlayer.Character
+            local Role = char and char:FindFirstChild("Role")
+            UI.Visible = not Role or Role.Value == "Spectator"
         end
     end)
 

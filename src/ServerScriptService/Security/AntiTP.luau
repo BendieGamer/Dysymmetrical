@@ -43,6 +43,11 @@ function AntiTP._SetupCharacter(Player: Player)
     local LastPos = HRP.Position
 
     AntiTP.PlayerThreads[Player.UserId] = RunService.PostSimulation:Connect(function()
+        if Character:GetAttribute("ServerTeleport") then
+            LastPos = HRP.Position
+            return
+        end
+
         local PosDiff = HRP.Position - LastPos
 
         if PosDiff.Magnitude > AntiTP.PositionMagnitudeThreshold then

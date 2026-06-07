@@ -17,6 +17,8 @@ local CharTypes = {
         "Execution",
     }
 }
+print("SYNC TEST")
+
 
 --- Survivor preset for customization.
 function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
@@ -34,6 +36,8 @@ function CharTypes.GetDefaultSurvivorSettings(): Types.Survivor
 
             Price = 0,
             Render = "",
+
+            Rig = nil,
 
 			AnimationIDs = {
 				IdleAnimation = "rbxassetid://112795426241330",
@@ -97,6 +101,8 @@ function CharTypes.GetDefaultKillerSettings(): Types.Killer
 
             Price = 0,
             Render = "",
+
+            Rig = nil,
 
             LastManStandingTheme = "rbxassetid://125799740823318",
             SpecialLastManStandings = {},

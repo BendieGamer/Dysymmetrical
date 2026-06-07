@@ -26,9 +26,17 @@ function PlayerInitter:Init()
             self.CurrentlyInitting = Module.Name
         end
         debug.setmemorycategory(Module.Name)
-    	local Scr = require(Module)
+    	local ok, result = pcall(require, Module)
+    	if not ok then
+    	    warn("[PlayerInitter] Failed to require:", Module:GetFullName(), "|", result)
+    	    continue
+    	end
+    	local Scr = result
     	if type(Scr) == "table" and Scr.Init and type(Scr.Init) == "function" then
-    		Scr:Init()
+    		local initOk, initErr = pcall(Scr.Init, Scr)
+    		if not initOk then
+    		    warn("[PlayerInitter] Init() failed on:", Module.Name, "|", initErr)
+    		end
     	end
     end
 

@@ -1,6 +1,6 @@
 {
   "className": "Model",
   "properties": {
-    "Sandboxed": true
+    "Sandboxed": false
   }
 }

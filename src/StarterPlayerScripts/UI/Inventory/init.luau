@@ -13,6 +13,7 @@ local Tooltip = require(ReplicatedStorage.Classes.Tooltip)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local MathUtils = require(ReplicatedStorage.Modules.Utils.MathUtils)
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -67,6 +68,14 @@ local Buttons = {
     Skins = nil,
 }
 
+local LevelMeter = {
+    Frame = nil,
+    Bar = nil,
+    Fill = nil,
+    Label = nil,
+    EXPConnection = nil,
+}
+
 local Equipped = {
     EquippedKiller = nil,
     EquippedSurvivor = nil,
@@ -87,6 +96,91 @@ local Templates = {
 }
 
 local Sections = {}
+
+local function UpdateLevelMeter(charName, charType)
+    if not LevelMeter.Frame then return end
+
+    if not charName or charName == "" then
+        LevelMeter.Frame.Visible = false
+        return
+    end
+
+    if LevelMeter.EXPConnection then
+        LevelMeter.EXPConnection:Disconnect()
+        LevelMeter.EXPConnection = nil
+    end
+
+    local typeFolder = charType == "Killer" and "Killers" or "Survivors"
+    local expValue = Utils.PlayerData.GetPlayerOwned(LocalPlayer, typeFolder .. "." .. charName, false)
+    if not expValue then
+        LevelMeter.Frame.Visible = false
+        return
+    end
+
+    local function Refresh()
+        local level, remaining, needed = MathUtils.CalculateLevelFromEXP(expValue.Value)
+        LevelMeter.Label.Text = "Lv. " .. level
+        local fillRatio = if needed > 0 then math.clamp(remaining / needed, 0, 1) else 1
+        TweenService:Create(LevelMeter.Fill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.fromScale(fillRatio, 1),
+        }):Play()
+        LevelMeter.Frame.Visible = true
+    end
+
+    Refresh()
+    LevelMeter.EXPConnection = expValue.Changed:Connect(Refresh)
+end
+
+local function BuildLevelMeter(parent)
+    local frame = Instance.new("Frame")
+    frame.Name = "LevelMeter"
+    frame.BackgroundTransparency = 1
+    frame.Size = UDim2.new(1, 0, 0, 28)
+    frame.LayoutOrder = 0
+    frame.Visible = false
+
+    local label = Instance.new("TextLabel")
+    label.Name = "LevelLabel"
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1, 0, 0, 14)
+    label.Position = UDim2.fromOffset(0, 0)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Text = "Lv. 1"
+    label.Parent = frame
+
+    local barBg = Instance.new("Frame")
+    barBg.Name = "BarBG"
+    barBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    barBg.BorderSizePixel = 0
+    barBg.Size = UDim2.new(1, 0, 0, 10)
+    barBg.Position = UDim2.fromOffset(0, 17)
+    barBg.Parent = frame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = barBg
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.BackgroundColor3 = Color3.fromRGB(255, 200, 60)
+    fill.BorderSizePixel = 0
+    fill.Size = UDim2.fromScale(0, 1)
+    fill.Parent = barBg
+
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(1, 0)
+    fillCorner.Parent = fill
+
+    frame.Parent = parent
+
+    LevelMeter.Frame = frame
+    LevelMeter.Bar = barBg
+    LevelMeter.Fill = fill
+    LevelMeter.Label = label
+end
 
 function Inventory.ReorderSkins()
     local Ordered = {}
@@ -547,6 +641,8 @@ function Inventory:Init()
     Buttons.Skins = ButtonsContainer.Skins
     Buttons.Info = ButtonsContainer.MoreInfo
 
+    BuildLevelMeter(ButtonsContainer)
+
     Equipped.EquippedKiller = Utils.PlayerData.GetPlayerEquipped(LocalPlayer, "Killer", false)
     Equipped.EquippedSurvivor = Utils.PlayerData.GetPlayerEquipped(LocalPlayer, "Survivor", false)
 
@@ -678,6 +774,13 @@ function Inventory.Close(Time: number)
         UI.Visible = false
     end
     Inventory.Opened = false
+    if LevelMeter.Frame then
+        LevelMeter.Frame.Visible = false
+    end
+    if LevelMeter.EXPConnection then
+        LevelMeter.EXPConnection:Disconnect()
+        LevelMeter.EXPConnection = nil
+    end
 end
 
 function Inventory.Toggle(toggle: boolean)
@@ -722,6 +825,8 @@ function Inventory.OnCharButtonPress(codeName: string, info: Types.Killer | Type
 
     Inventory.SelectedItem.Name = codeName
     Inventory.SelectedItem.Type = Type
+
+    UpdateLevelMeter(codeName, Type)
 
     TweenService:Create(SideContainer, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = Sizes.SideBar}):Play()
 end

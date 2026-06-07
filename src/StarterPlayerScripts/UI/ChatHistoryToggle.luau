@@ -15,7 +15,8 @@ until success --this means that it has initialized
 return {
     Init = function(_)
         Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Char: Model)
-            local IsSpectator = Char:FindFirstChild("Role").Value == "Spectator"
+            local Role = Char:FindFirstChild("Role") or Char:WaitForChild("Role", 5)
+            local IsSpectator = not Role or Role.Value == "Spectator"
             TextChatService:FindFirstChildWhichIsA("ChatWindowConfiguration").Enabled = IsSpectator
             StarterGui:SetCore("ResetButtonCallback", IsSpectator)
         end)

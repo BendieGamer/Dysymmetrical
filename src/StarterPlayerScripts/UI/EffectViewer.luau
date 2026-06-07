@@ -9,53 +9,61 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 local EffectDisplay: Frame
 
 function EffectViewer:Init()
-    EffectDisplay = Utils.Instance.FindFirstChild(script, "EffectDisplay")
-    local UIPrefab = Utils.Instance.FindFirstChild(script, "StatusContainer")
+	EffectDisplay = Utils.Instance.FindFirstChild(script, "EffectDisplay")
+	local UIPrefab = Utils.Instance.FindFirstChild(script, "StatusContainer")
 
-    Utils.Character.ObserveCharacter(LocalPlayer, function(Char: Model)
-        EffectViewer._SetupUI(UIPrefab:Clone(), Char)
-    end)
+	Utils.Character.ObserveCharacter(LocalPlayer, function(Char: Model)
+		EffectViewer._SetupUI(UIPrefab:Clone(), Char)
+	end)
 end
 
 function EffectViewer._SetupUI(UI: Frame, char: Model)
-    if char:FindFirstChild("Role").Value == "Spectator" then
-        UI:Destroy()
-        return
-    end
+	local Role = char:FindFirstChild("Role") or char:WaitForChild("Role", 5)
+	if not Role or Role.Value == "Spectator" then
+		UI:Destroy()
+		return
+	end
 
-    UI.Parent = LocalPlayer.PlayerGui.Effects
+	local effectsGui = LocalPlayer.PlayerGui:WaitForChild("Effects", 10)
+	if not effectsGui then
+		UI:Destroy()
+		return
+	end
+	UI.Parent = effectsGui
 
-    local EffectManager = require(char.PlayerAttributeScripts.EffectManager)
-    
-    local Connection: RBXScriptConnection = RunService.PreRender:Connect(function()
-        local Effects: {} = EffectManager.Effects
-	
-	    for name, effect in Effects do
-	    	if not effect.ShowInGUI then continue end
-	    	local Display = UI:FindFirstChild(name)
-	    	if not Display then
-	    		Display = EffectDisplay:Clone()
-	    		Display.Name = name
-	    		Display.Title.Text = effect.Name
-                if effect.Level > 1 then
-                    local RomanLevel = Utils.Math.IntToRoman(effect.Level)
-                    Display.Title.Text = Display.Title.Text.." "..RomanLevel
-                end
-	    		Display.Parent = UI
-	    	end
-	    	Display.Timer.Text = Utils.Math.ConvertToMinSec(effect.TimeLeft + 1)
-	    end
-    
-	    for _, display in UI:GetChildren() do
-	    	if display:IsA("Frame") and not Effects[display.Name] then
-	    		display:Destroy()
-	    	end
-	    end
-    end)
+	local EffectManager = require(char.PlayerAttributeScripts.EffectManager)
 
-    UI.Destroying:Connect(function()
-        Connection:Disconnect()
-    end)
+	local Connection: RBXScriptConnection = RunService.PreRender:Connect(function()
+		local Effects = EffectManager.Effects
+
+		for name, effect in Effects do
+			if not effect.ShowInGUI then
+				continue
+			end
+			local Display = UI:FindFirstChild(name)
+			if not Display then
+				Display = EffectDisplay:Clone()
+				Display.Name = name
+				Display.Title.Text = effect.Name
+				if effect.Level > 1 then
+					local RomanLevel = Utils.Math.IntToRoman(effect.Level)
+					Display.Title.Text = Display.Title.Text .. " " .. RomanLevel
+				end
+				Display.Parent = UI
+			end
+			Display.Timer.Text = Utils.Math.ConvertToMinSec(effect.TimeLeft + 1)
+		end
+
+		for _, display in UI:GetChildren() do
+			if display:IsA("Frame") and not Effects[display.Name] then
+				display:Destroy()
+			end
+		end
+	end)
+
+	UI.Destroying:Connect(function()
+		Connection:Disconnect()
+	end)
 end
 
 return EffectViewer

@@ -379,7 +379,17 @@ end
 --- CLIENT FUNCTION: Highlights an instance for the local player
 function InstanceUtils.HighlightInstance(instance: Instance, duration: number?, color: Color3?)
 	if RunService:IsServer() then return end
-	if not instance or not instance:IsDescendantOf(workspace) then return end
+	if not instance then return end
+
+	-- Wait up to 3s for the instance to replicate into workspace before bailing
+	if not instance:IsDescendantOf(workspace) then
+		local waited = 0
+		while not instance:IsDescendantOf(workspace) and waited < 3 do
+			task.wait(0.05)
+			waited = waited + 0.05
+		end
+		if not instance:IsDescendantOf(workspace) then return end
+	end
 
 	local existingHighlight = instance:FindFirstChild("InstanceHighlight")
 	if existingHighlight then

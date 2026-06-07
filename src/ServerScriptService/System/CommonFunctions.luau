@@ -50,6 +50,7 @@ local Types = require(ReplicatedStorage.Classes.Types)
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local CharModuleCache = require(ServerScriptService.System.CharModuleCache)
 
 function CommonFunctions:Init()
     for _, CommandScript in ReplicatedStorage.Security.ModeratorCommands:GetChildren() do
@@ -126,8 +127,8 @@ function CommonFunctions.DamagePlayer(DamageSettings: DamagePlayerSettings)
 		
 		-- "John Doe, scream if you love The Masquerade." "RAAGGGGGGHHHHHH"
 		if Char:GetAttribute("CharacterName") then
-		    local CharacterModule = require(Char.PlayerAbilities.CharacterAbilities).CharacterModule
-		    
+		    local CharacterModule = CharModuleCache.Get(Char)
+
 		    if CharacterModule and CharacterModule.OnDamage then
 		        local result = CharacterModule:OnDamage(DamageSettings)
 		        
@@ -230,8 +231,8 @@ function CommonFunctions.ApplyEffect(EffectSettings: ApplyEffectSettings) : Numb
 	
 	-- #SufferingFromSuccess - Taiki/Yuika
     if char:GetAttribute("CharacterName") then
-        local CharacterModule = require(char.PlayerAbilities.CharacterAbilities).CharacterModule
-        
+        local CharacterModule = CharModuleCache.Get(char)
+
         if CharacterModule and CharacterModule.OnEffect then
             local result = CharacterModule:OnEffect(EffectSettings)
             
@@ -298,7 +299,7 @@ function CommonFunctions.GrantRewardToPlayer(Player: Player, Reward: GrantedRewa
 
 	--if only EXP is granted
 	if MoneyGranted <= 0 then
-		CommonFunctions._GrantEXPToPlayer(Player, {Reward = Reward.EXP, Visual = true, Reason = Reward.Reason})
+		CommonFunctions._GrantEXPToPlayer(Player, {Amount = Reward.EXP, Visual = true, Reason = Reward.Reason})
 		return
 	end
 
@@ -339,13 +340,20 @@ function CommonFunctions._GrantEXPToPlayer(Player: Player, GrantSettings: EXPGra
 	local SkinName = Player.Character:GetAttribute("CharacterSkinName")
 
 	local CharValue = Utils.PlayerData.GetPlayerOwned(Player, Role.Value.."s."..CharacterName, false)
+
+	local LevelBefore = Utils.Math.CalculateLevelFromEXP(CharValue.Value)
 	CharValue.Value += GrantSettings.Amount
+	local LevelAfter = Utils.Math.CalculateLevelFromEXP(CharValue.Value)
 
 	local CharModule = require(Utils.Instance.GetCharacterModule(Role.Value, CharacterName))
+
+	if LevelAfter > LevelBefore then
+		Network:FireClientConnection(Player, "LevelUp", "REMOTE_EVENT", CharModule.Config.Render, LevelBefore, LevelAfter)
+	end
+
 	if CharModule.Config.Milestones then
-		local CurrentLevel, _EXPRemaining, _EXPForNextLevel = Utils.Math.CalculateLevelFromEXP(CharValue.Value)
 		for Level, Skin in CharModule.Config.Milestones do
-			if Level <= CurrentLevel then
+			if Level <= LevelAfter then
 				CommonFunctions.GrantCharacterItemToPlayer(Player, Role.Value, CharacterName, SkinName)
 			end
 		end

@@ -168,7 +168,20 @@ local function GrabBehaviour(self: Types.Ability)
 					return
 				end
 
-				local newPosition = hrp.Position + moveDir * allowedDistance
+				local rawPosition = hrp.Position + moveDir * allowedDistance
+
+				-- Raycast down from slightly above to snap the character onto the floor
+				local floorParams = RaycastParams.new()
+				floorParams.FilterDescendantsInstances = { characterModel }
+				floorParams.FilterType = Enum.RaycastFilterType.Exclude
+				local floorResult = workspace:Raycast(
+					Vector3.new(rawPosition.X, rawPosition.Y + 2, rawPosition.Z),
+					Vector3.new(0, -6, 0),
+					floorParams
+				)
+				local groundY = floorResult and floorResult.Position.Y or rawPosition.Y
+				-- HRP sits ~3 studs above the floor for R6/R15
+				local newPosition = Vector3.new(rawPosition.X, math.max(rawPosition.Y, groundY + 3), rawPosition.Z)
 
 				-- Check for survivors to grab
 				for _, survivor in survivors do
@@ -192,9 +205,8 @@ local function GrabBehaviour(self: Types.Ability)
 									Reason = "Grab Attack",
 								})
 
-								-- Apply ragdoll effect - try ramming into nearby walls/objects
-								local grabVelocity = moveDir * 100
-								survivorRoot.AssemblyLinearVelocity = grabVelocity
+								-- Fling horizontally only; no downward Y to avoid phasing through the floor
+								survivorRoot.AssemblyLinearVelocity = Vector3.new(moveDir.X, 0, moveDir.Z) * 80
 
 								-- Ragdoll the survivor
 								CommonFunctions.ApplyEffect({
@@ -216,8 +228,11 @@ local function GrabBehaviour(self: Types.Ability)
 					faceDirection = faceDirection.Unit
 				end
 
-				characterModel:PivotTo(CFrame.new(newPosition, newPosition + faceDirection))
-				traveled += allowedDistance
+				-- Offset from HRP to model pivot so PivotTo lands the HRP at newPosition
+				local pivotOffset = characterModel:GetPivot().Position - hrp.Position
+				local targetPivot = newPosition + pivotOffset
+				characterModel:PivotTo(CFrame.new(targetPivot, targetPivot + faceDirection))
+				traveled = traveled + allowedDistance
 
 				if blocked then
 					finishGrab()
@@ -370,7 +385,7 @@ local Noob: Types.Killer = Character.CreateKiller({
 				InputName = "FirstAbility",
 				RenderImage = "rbxassetid://11218451110",
 				UseAnimation = "rbxassetid://93664378263660",
-				EXP = 15,
+				EXP = 0,
 				Behaviour = GrabBehaviour,
 			}),
 

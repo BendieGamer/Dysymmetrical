@@ -55,14 +55,14 @@
                     "name": "Killer",
                     "className": "StringValue",
                     "properties": {
-                        "Value": "NullexVoyd"
+                        "Value": "bit"
                     }
                 },
                 {
                     "name": "Survivor",
                     "className": "StringValue",
                     "properties": {
-                        "Value": "Commander"
+                        "Value": "XxNamedzxX"
                     }
                 }
             ]
@@ -90,7 +90,7 @@
                     "className": "Folder",
                     "children": [
                         {
-                            "name": "NullexVoyd",
+                            "name": "bit",
                             "className": "NumberValue"
                         }
                     ]
@@ -104,7 +104,7 @@
                     "className": "Folder",
                     "children": [
                         {
-                            "name": "Commander",
+                            "name": "XxNamedzxX",
                             "className": "NumberValue"
                         }
                     ]
@@ -497,7 +497,7 @@
                                 "PostDisplayTitle": "$"
                             },
                             "properties": {
-                                "Value": 5000
+                                "Value": 500
                             }
                         },
                         {

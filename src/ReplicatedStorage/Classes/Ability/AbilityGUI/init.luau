@@ -5,6 +5,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Types = require(ReplicatedStorage.Classes.Types)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local CHAIN_IMAGE = "rbxassetid://110232712323870"
+
+local function SetLockOverlay(AbilityContainer, locked)
+    local overlay = AbilityContainer:FindFirstChild("LockOverlay")
+    if locked then
+        if not overlay then
+            overlay = Instance.new("ImageLabel")
+            overlay.Name = "LockOverlay"
+            overlay.Image = CHAIN_IMAGE
+            overlay.BackgroundTransparency = 1
+            overlay.Size = UDim2.fromScale(1, 1)
+            overlay.ZIndex = 10
+            overlay.Parent = AbilityContainer
+        end
+    else
+        if overlay then
+            overlay:Destroy()
+        end
+    end
+end
+
 type Ability = {
     ModuleCode: Types.Ability,
     Keybind: TextLabel,
@@ -51,7 +72,7 @@ function AbilityGUI.InitGUI()
 
     --this gets every single ability's properties and uses them
     --it's fucking genius!!
-    for _, Ability in require(Players.LocalPlayer.Character.PlayerAbilities.CharacterAbilities).Abilities do
+    for _, Ability in require(Players.LocalPlayer.PlayerScripts.CharacterAbilities).Abilities do
         if Ability.Passive ~= nil and Ability.Passive == true then
             continue
         end
@@ -65,6 +86,7 @@ function AbilityGUI.InitGUI()
     end
 
     local JanitorInstance = Janitor.new()
+    JanitorInstance:Add(Container, "Destroy")
     JanitorInstance:LinkToInstances(Container, Character)
 
     JanitorInstance:Add(InputManager.SchemeChanged:Connect(function(CurrentScheme: string)
@@ -75,6 +97,12 @@ function AbilityGUI.InitGUI()
 
     for _, Ability: Ability in Abilities do
         AbilityGUI._UpdateAbilityFrameInput(Ability, InputManager, InputManager.CurrentControlScheme)
+
+        -- apply locked overlay immediately if ability starts locked
+        local AbilityContainer = Ability.Interactor.Parent
+        if Ability.ModuleCode.Locked then
+            SetLockOverlay(AbilityContainer, true)
+        end
 
         --it would be stupid to not add this (again). -Dyscarn
         -- uses label
@@ -106,6 +134,31 @@ function AbilityGUI.InitGUI()
 
         JanitorInstance:Add(Ability.Interactor.MouseButton1Click:Connect(function()
             Ability.ModuleCode:AttemptUse()
+        end), "Disconnect")
+    end
+
+    -- watch Effects folder for Helpless to overlay all ability frames
+    local Effects = Character:WaitForChild("Effects", 10)
+    if Effects then
+        local function updateHelpless()
+            local isHelpless = Effects:FindFirstChild("Helpless") ~= nil
+            for _, Ability in Abilities do
+                local AbilityContainer = Ability.Interactor.Parent
+                -- only overlay from helpless if ability isn't already locked
+                if not Ability.ModuleCode.Locked then
+                    SetLockOverlay(AbilityContainer, isHelpless)
+                end
+            end
+        end
+        JanitorInstance:Add(Effects.ChildAdded:Connect(function(child)
+            if child.Name == "Helpless" then
+                updateHelpless()
+            end
+        end), "Disconnect")
+        JanitorInstance:Add(Effects.ChildRemoved:Connect(function(child)
+            if child.Name == "Helpless" then
+                updateHelpless()
+            end
         end), "Disconnect")
     end
 end

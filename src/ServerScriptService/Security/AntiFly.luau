@@ -5,7 +5,7 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 local CommonFunctions = require(ServerScriptService.System.CommonFunctions)
 local AntiFly = {
     TimeBetweenChecks = 0.5,
-    MaximumFlyTime = 10,
+    MaximumFlyTime = 20,
     VisualizeRays = false,
 }
 
@@ -17,8 +17,16 @@ function AntiFly:Init()
     end)
 end
 
+local _activeLoops = {} -- keyed by char instance to prevent duplicate loops
+
 function AntiFly._SetupCharacter(player: Player)
     local char = player.Character
+    if not char then return end
+
+    -- One loop per character instance; duplicate calls for the same char are no-ops
+    if _activeLoops[char] then return end
+    _activeLoops[char] = true
+
     local root = Utils.Character.GetRootPart(player)
 
     local Params = RaycastParams.new()
@@ -30,22 +38,26 @@ function AntiFly._SetupCharacter(player: Player)
     task.spawn(function()
         while root and root.Parent and char and char.Parent do
             task.wait(AntiFly.TimeBetweenChecks)
-            
+
             if AntiFly._IsCharacterNotFlying(char, root, Params) then
                 lastTouched = time()
                 continue --used to not check anything else during this check
             end
-        
+
             local timeSinceFloor = time() - lastTouched
             if timeSinceFloor >= AntiFly.MaximumFlyTime then
                 CommonFunctions.KickPlayer(player, CommonFunctions.KickIDs.Flying)
             end
         end
+        _activeLoops[char] = nil
     end)
 end
 
 function AntiFly._IsCharacterNotFlying(model: Model, root: BasePart, Params: RaycastParams): boolean
     if not (model and root and root.Parent and not root.Anchored) then
+        return true
+    end
+    if model:GetAttribute("AntiFlyExempt") then
         return true
     end
     if math.abs(root.AssemblyLinearVelocity.Y) > 45 then --if the player is flung it's obv gonna be false positive (DAMN YOU SHITTY ROBLOX PHYSICS!!!)
@@ -55,10 +67,9 @@ function AntiFly._IsCharacterNotFlying(model: Model, root: BasePart, Params: Ray
     for frontIndex = -1, 1 do
         for sideIndex = -1, 1 do
             local Origin = root.Position + (root.CFrame.RightVector * sideIndex) + (root.CFrame.LookVector * frontIndex)
-            local _, BoundSize = model:GetBoundingBox()
-            local RayHeight = BoundSize.Y / 2 + 1.25
-
-            local Cast = workspace:Raycast(Origin, Vector3.new(0, -RayHeight, 0), Params)
+            -- 12-stud downward ray: accounts for HRP height (~3 studs above ground) plus
+            -- elevated spawn platforms (up to ~8 studs above map floor on some maps)
+            local Cast = workspace:Raycast(Origin, Vector3.new(0, -12, 0), Params)
 
             if AntiFly.VisualizeRays then
                 local Part = Instance.new("Part")

@@ -24,10 +24,14 @@ local CommandOrder = {
     "ToggleFreezeTime",
     "ToggleAbilityCooldowns",
     "ToggleAbilityCharges",
+    "SkipIntermission",
+    "GiveEffect",
+    "PickNextMap",
 }
 
 local Prefabs = {
     Bool = require(Utils.Instance.FindFirstChild(script, "Bool")),
+    Executable = require(Utils.Instance.FindFirstChild(script, "Executable")),
 }
 
 function ModPanel:Init()

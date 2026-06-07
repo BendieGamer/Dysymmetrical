@@ -443,6 +443,9 @@ local function DetonateClone(cloneData, owner, clones, hrp)
 	local bitOriginalCFrame = hrp.CFrame
 	local windupElapsed = 0
 
+	-- Exempt the killer from AntiFly while we manually jitter their HRP position
+	hrp.Parent:SetAttribute("AntiFlyExempt", true)
+
 	local windupConn
 	windupConn = RunService.Heartbeat:Connect(function(dt)
 		if not cloneData.Model or not cloneData.Model.Parent then
@@ -450,10 +453,11 @@ local function DetonateClone(cloneData, owner, clones, hrp)
 			if bitHumanoid then
 				bitHumanoid.WalkSpeed = originalWalkSpeed
 			end
+			hrp.Parent:SetAttribute("AntiFlyExempt", nil)
 			return
 		end
 
-		windupElapsed += dt
+		windupElapsed = windupElapsed + dt
 
 		local t = math.min(windupElapsed / 2, 1)
 		local intensity = 0.05 + t * 0.35
@@ -488,6 +492,12 @@ local function DetonateClone(cloneData, owner, clones, hrp)
 		local clonePos = cloneData.Root.Position
 
 		hrp.CFrame = CFrame.new(clonePos + Vector3.new(0, 3, 0))
+
+		-- Clear the AntiFly exemption after a short delay so the teleport landing
+		-- doesn't get flagged (the exempt was set before the windup loop started)
+		task.delay(1, function()
+			hrp.Parent:SetAttribute("AntiFlyExempt", nil)
+		end)
 
 		-- Spawn a cyan neon sphere cuz why not.
 		local inGame = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("InGame")
@@ -571,7 +581,8 @@ local function DetonateClone(cloneData, owner, clones, hrp)
 				end)
 			end
 
-			for _, survivor in Utils.Character.GetCharactersWithRoles(false).Survivor or {} do
+			local phase2Survivors = Utils.Character.GetCharactersWithRoles(false).Survivor or {}
+			for _, survivor in phase2Survivors do
 				local survivorRoot = survivor:FindFirstChild("HumanoidRootPart")
 				local survivorHumanoid = survivor:FindFirstChildWhichIsA("Humanoid")
 				if not survivorRoot or not survivorHumanoid or survivorHumanoid.Health <= 0 then
@@ -628,7 +639,10 @@ local function BITSummonBehaviour(self: Types.Ability)
 
 		self:SetOnCooldown()
 
-		local clones = activeClonesPerPlayer[owner] or {}
+		if not activeClonesPerPlayer[owner] then
+			activeClonesPerPlayer[owner] = {}
+		end
+		local clones = activeClonesPerPlayer[owner]
 
 		if #clones >= MAX_CLONES then
 			local oldest = table.remove(clones, 1)
@@ -656,7 +670,7 @@ local function BITSummonBehaviour(self: Types.Ability)
 		BITSummonLog("found asset BIT_default source", cloneSource:GetFullName())
 		local cloneModel = cloneSource:Clone()
 
-		cloneModel.Name = ownerCharacter.Name .. "_BITClone"
+		cloneModel.Name = "BIT_default"
 
 		local mapFolder = workspace:FindFirstChild("Map")
 		local inGameFolder = mapFolder and mapFolder:FindFirstChild("InGame")
@@ -710,9 +724,16 @@ local function BITSummonBehaviour(self: Types.Ability)
 		cloneHumanoid.Health = math.max(1, cloneHumanoid.MaxHealth)
 		cloneHumanoid.WalkSpeed = 18
 		cloneHumanoid.PlatformStand = false
+		cloneHumanoid.AutoRotate = true
 
-		-- Wait briefly so everything can initialize before movement starts
-		task.wait(0.5)
+		-- Re-assert movement properties next frame in case the cloned rig resets them on init
+		task.defer(function()
+			if cloneHumanoid and cloneHumanoid.Parent then
+				cloneHumanoid.WalkSpeed = 18
+				cloneHumanoid.PlatformStand = false
+				cloneHumanoid.AutoRotate = true
+			end
+		end)
 
 		local basePartCount = 0
 		local visibleBasePartCount = 0
@@ -744,11 +765,16 @@ local function BITSummonBehaviour(self: Types.Ability)
 			end
 		end
 
-		-- Show highlight only to the killer, not survivors
-		-- Use InstanceUtils to fire remote event to killer client only
-		task.delay(0.1, function()
-			Utils.Instance.HighlightInstanceFor(owner, cloneModel, 35, Color3.fromRGB(255, 0, 0))
-		end)
+		-- Attach a Highlight directly on the server so it replicates to all clients automatically.
+		-- This is more reliable than firing a RemoteEvent (which can miss if the client handler
+		-- hasn't registered yet).
+		local cloneHighlight = Instance.new("Highlight")
+		cloneHighlight.Name = "InstanceHighlight"
+		cloneHighlight.FillColor = Color3.fromRGB(255, 0, 0)
+		cloneHighlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+		cloneHighlight.FillTransparency = 0.5
+		cloneHighlight.OutlineTransparency = 0
+		cloneHighlight.Parent = cloneModel
 
 		local cloneData = {
 			Model = cloneModel,
@@ -909,51 +935,64 @@ local function BITSummonBehaviour(self: Types.Ability)
 		)
 
 		local touchedDebounce = false
+		-- Use proximity check instead of Touched since all clone parts have CanCollide = false
 		table.insert(
 			connections,
-			cloneRoot.Touched:Connect(function(hit)
+			RunService.Heartbeat:Connect(function()
 				if cloneData.Frozen or cleaned or touchedDebounce then
 					return
 				end
-				local victimCharacter = hit and hit.Parent
-				if not victimCharacter or victimCharacter == ownerCharacter then
+				if not cloneRoot or not cloneRoot.Parent then
 					return
 				end
-				local victimHumanoid = victimCharacter:FindFirstChildWhichIsA("Humanoid")
-				if not victimHumanoid or victimHumanoid.Health <= 0 then
-					return
-				end
-
-				local isSurvivor = false
-				for _, survivor in Utils.Character.GetCharactersWithRoles(false).Survivor or {} do
-					if survivor == victimCharacter then
-						isSurvivor = true
+				local clonePos = cloneRoot.Position
+				local survivors = Utils.Character.GetCharactersWithRoles(false).Survivor or {}
+				for _, survivor in survivors do
+					local survivorRoot = survivor:FindFirstChild("HumanoidRootPart")
+					local survivorHumanoid = survivor:FindFirstChildWhichIsA("Humanoid")
+					if
+						survivor ~= ownerCharacter
+						and survivorRoot
+						and survivorHumanoid
+						and survivorHumanoid.Health > 0
+						and (survivorRoot.Position - clonePos).Magnitude <= 6
+					then
+						touchedDebounce = true
+						CommonFunctions.DamagePlayer({
+							SourcePlayer = owner,
+							TargetHumanoid = survivorHumanoid,
+							Damage = 15,
+							Reason = "BIT Clone",
+						})
+						CommonFunctions.GrantRewardToPlayer(owner, { EXP = 10, Reason = "hit with BIT Clone" })
+						Utils.Player.RevealPlayerAuraTo(owner, survivor, 10)
+						CommonFunctions.ApplyEffect({
+							TargetHumanoid = survivorHumanoid,
+							EffectSettings = { Name = "Glitched", Level = 1, Duration = 10 },
+						})
+						CommonFunctions.ApplyEffect({
+							TargetHumanoid = survivorHumanoid,
+							EffectSettings = { Name = "Slowness", Level = 2, Duration = 5, OverwriteExisting = true },
+						})
+						cleanup()
 						break
 					end
 				end
-				if not isSurvivor then
-					return
-				end
-
-				touchedDebounce = true
-
-				-- Grant EXP when clone touches a survivor
-				CommonFunctions.GrantRewardToPlayer(owner, { EXP = 10, Reason = "hit with BIT Clone" })
-				Utils.Player.RevealPlayerAuraTo(owner, victimCharacter, 10)
-				CommonFunctions.ApplyEffect({
-					TargetHumanoid = victimHumanoid,
-					EffectSettings = { Name = "Glitched", Level = 1, Duration = 10, OverwriteExisting = true },
-				})
-				CommonFunctions.ApplyEffect({
-					TargetHumanoid = victimHumanoid,
-					EffectSettings = { Name = "Slowness", Level = 2, Duration = 5, OverwriteExisting = true },
-				})
-
-				cleanup()
 			end)
 		)
 
 		table.insert(connections, cloneHumanoid.Died:Connect(cleanup))
+
+		-- Clean up when the round ends
+		local RoundState = ReplicatedStorage:FindFirstChild("RoundInfo") and ReplicatedStorage.RoundInfo:FindFirstChild("CurrentState")
+		if RoundState then
+			table.insert(connections, RoundState.Changed:Connect(function(newState)
+				if newState == "Lobby" then
+					cleanup()
+				end
+			end))
+		end
+
 		Debris:AddItem(cloneModel, 35)
 	else
 		self:PlayUseAnimation()
@@ -992,7 +1031,7 @@ local function StateEditBehaviour(self: Types.Ability)
 		local survivors = Utils.Character.GetCharactersWithRoles(false).Survivor or {}
 		if #survivors > 0 then
 			local randomSurvivor = survivors[math.random(1, #survivors)]
-			local effects = { "Blindness", "Confused", "Helpless", "Slowness" }
+			local effects = { "Blindness", "Disoriented", "Helpless", "Slowness" }
 			local randomEffect = effects[math.random(1, #effects)]
 			CommonFunctions.ApplyEffect({
 				TargetHumanoid = randomSurvivor:FindFirstChildWhichIsA("Humanoid"),
@@ -1050,7 +1089,7 @@ OnKillPassive = function(killedCharacter: Model)
 		if nearestHumanoid then
 			CommonFunctions.ApplyEffect({
 				TargetHumanoid = nearestHumanoid,
-				EffectSettings = { Name = "Confused", Level = 1, Duration = PASSIVE_DURATION },
+				EffectSettings = { Name = "Disoriented", Level = 1, Duration = PASSIVE_DURATION },
 			})
 		end
 	end

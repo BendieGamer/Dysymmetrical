@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Utils = require(ReplicatedStorage.Modules.Utils)
 local KillerIntro = require(ReplicatedStorage.Classes.KillerIntro)
+local PlayerUtils = require(ReplicatedStorage.Modules.Utils.PlayerUtils)
 
 local IntroFolder = ReplicatedStorage.Assets.KillerIntros
 local function GetIntroModule(name: string, skin: string?)
@@ -22,6 +23,15 @@ local function GetIntroModule(name: string, skin: string?)
 	return Intro
 end
 
+local function WaitForFade(timeout)
+    local t = 0
+    local limit = timeout or 5
+    while (not PlayerUtils.FadeFrame or not PlayerUtils.FadeFrame.Parent) and t < limit do
+        t = t + task.wait()
+    end
+    return PlayerUtils.FadeFrame and PlayerUtils.FadeFrame.Parent ~= nil
+end
+
 local IntroContainer = Utils.Instance.FindFirstChild(Players.LocalPlayer.PlayerGui, "KillerIntros")
 local ToastPrefab = GetIntroModule("KillerNameToast")
 
@@ -35,7 +45,10 @@ return {
                 return
             end
 
-            local Role = Char:FindFirstChild("Role")
+            local Role = Char:WaitForChild("Role", 10)
+            if not Role then
+                return
+            end
             if Role.Value ~= "Killer" then
                 return
             end
@@ -48,11 +61,11 @@ return {
 
 		    if Utils.PlayerData.GetPlayerSetting(Players.LocalPlayer, "Miscellaneous.DisableKillerIntros") then
 		    	task.spawn(require(ToastPrefab), IntroContainer, KillerPlayerNames)
-
+		    	WaitForFade()
 		    	Utils.Player.Fade(Players.LocalPlayer, "Out", 0.6)
 		    	return
 		    end
-        
+
 		    local IntroInfo: KillerIntro.IntroSettings = {
 		    	KillerName = KillerName,
 		    	SkinName = KillerSkin,
@@ -80,7 +93,7 @@ return {
 
 			if not Intro then
 		    	task.spawn(require(ToastPrefab), IntroContainer, KillerPlayerNames)
-
+		    	WaitForFade()
 		    	Utils.Player.Fade(Players.LocalPlayer, "Out", 0.6)
 				return
 			end
@@ -91,13 +104,24 @@ return {
 			end
 			CurrentIntro = Intro
 
-		    Intro:Init()
+		    local initOk, initErr = pcall(Intro.Init, Intro)
+		    if not initOk then
+		    	warn("[IntroHandler] Intro:Init() failed:", initErr)
+		    	task.spawn(require(ToastPrefab), IntroContainer, KillerPlayerNames)
+		    	WaitForFade()
+		    	Utils.Player.Fade(Players.LocalPlayer, "Out", 0.6)
+		    	return
+		    end
 
 		    task.spawn(require(ToastPrefab), IntroContainer, KillerPlayerNames)
 
+		    WaitForFade()
 		    Utils.Player.Fade(Players.LocalPlayer, "Out", 0.6)
 
-		    Intro:Play()
+		    local playOk, playErr = pcall(Intro.Play, Intro)
+		    if not playOk then
+		    	warn("[IntroHandler] Intro:Play() failed:", playErr)
+		    end
 		    task.wait(2.5)
 
 		    Utils.Player.Fade(Players.LocalPlayer, "In", 0.6, true)
@@ -105,8 +129,14 @@ return {
 		    Utils.Player.Fade(Players.LocalPlayer, "Out", 0.6)
         end
 
-		Utils.Player.ObservePlayers(function(plr: Player)
-			Utils.Character.ObserveCharacter(plr, SetupCharacter)
+		Utils.Player.ObservePlayers(function(plr, playerJanitor)
+			local function onCharacterAdded(char)
+				task.defer(SetupCharacter, char)
+			end
+			playerJanitor:Add(plr.CharacterAdded:Connect(onCharacterAdded))
+			if plr.Character then
+				task.spawn(onCharacterAdded, plr.Character)
+			end
 		end)
     end,
 }

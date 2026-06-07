@@ -28,6 +28,10 @@ return {
 				local torso: BasePart = character:FindFirstChild("Torso") or character:FindFirstChild("LowerTorso")
 				local head: BasePart = character:FindFirstChild("Head")
 
+				if not torso or not head then
+					return
+				end
+
 				local joints: {[string]: Motor6D} = {
 					RootJoint = rootPart:FindFirstChild("RootJoint") or torso:FindFirstChild("Root"),
 					Neck = torso:FindFirstChild("Neck") or head:FindFirstChild("Neck"),

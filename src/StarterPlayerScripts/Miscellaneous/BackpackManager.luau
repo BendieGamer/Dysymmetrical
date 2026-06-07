@@ -8,9 +8,9 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 return {
     Init = function(_)
         Utils.Character.ObserveCharacter(Players.LocalPlayer, function(char: Model)
-            local Role = char:FindFirstChild("Role")
+            local Role = char:FindFirstChild("Role") or char:WaitForChild("Role", 5)
 
-            if Role.Value ~= "Spectator" then
+            if Role and Role.Value ~= "Spectator" then
                 -- StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 
                 ItemGUI.InitGUI()

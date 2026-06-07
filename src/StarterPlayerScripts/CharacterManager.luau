@@ -19,15 +19,17 @@ local AnimLoadPrevented = {
 
 function CharManager:Init()
     Utils.Character.ObserveCharacter(LocalPlayer, function(Char: Model)
-        if Char:FindFirstChild("Role").Value ~= "Spectator" then
-            CharManager.LoadCharacter(Char:GetAttribute("CharacterName"), Char.Role.Value, Char:GetAttribute("CharacterSkinName"))
+        local Role = Char:FindFirstChild("Role") or Char:WaitForChild("Role", 5)
+        if Role and Role.Value ~= "Spectator" then
+            CharManager.LoadCharacter(Char:GetAttribute("CharacterName"), Role.Value, Char:GetAttribute("CharacterSkinName"))
         end
     end)
 end
 
 --- Initializes a character's client abilities.
 function CharManager._InitCharacterAbilities(Module)
-    local CharacterAbilities = require(LocalPlayer.Character.PlayerAbilities.CharacterAbilities)
+    local CharacterAbilities = require(LocalPlayer.PlayerScripts.CharacterAbilities)
+    CharacterAbilities:Init()
 
     CharacterAbilities.CharacterModule = Module
     for _, Ability in Module.GameplayConfig.Abilities do
@@ -60,12 +62,12 @@ function CharManager._InitCharacterAbilities(Module)
 end
 
 --- Loads a specific character's client stuff. The character itself is spawned in in `ServerScriptService.Managers.ServerCharacterManager`.
-function CharManager.LoadCharacter(charName: string, charType: "Survivor" | "Killer", skinName: string?)
+function CharManager.LoadCharacter(charName, charType, skinName)
     task.delay(5, function()
         StarterGui:SetCore("ResetButtonCallback", true)
     end)
 
-    local Char: Model = LocalPlayer.Character
+    local Char = LocalPlayer.Character
 
     local CharModule = Utils.Type.CopyTable(require(Utils.Instance.GetCharacterModule(charType, charName, skinName)))
     CharModule.Owner = LocalPlayer
@@ -74,7 +76,8 @@ function CharManager.LoadCharacter(charName: string, charType: "Survivor" | "Kil
 
     --animation loading
     task.defer(function()
-        local AnimationManager = require(Char:FindFirstChild("AnimationManager"))
+        local animOk, AnimationManager = pcall(require, Char:FindFirstChild("AnimationManager"))
+        if not animOk then return end
         AnimationManager:LoadAnimation("Idle", CharModule.Config.AnimationIDs.IdleAnimation)
         AnimationManager:LoadAnimation("Walk", CharModule.Config.AnimationIDs.WalkAnimation)
         AnimationManager:LoadAnimation("Sprint", CharModule.Config.AnimationIDs.RunAnimation)
@@ -94,7 +97,7 @@ function CharManager.LoadCharacter(charName: string, charType: "Survivor" | "Kil
     local CharacterAbilities = CharManager._InitCharacterAbilities(CharModule)
 
     Char.Effects.ChildAdded:Connect(function(newChild)
-        if newChild.Name == "Stunned" then
+        if newChild.Name == "Stunned" and CharacterAbilities then
             if CharacterAbilities.Animations.Stunned then
                 CharacterAbilities.Animations.Stunned:Play(0)
             end

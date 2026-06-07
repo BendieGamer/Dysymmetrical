@@ -34,7 +34,8 @@ function RoundPlayerList:Init()
 end
 
 function RoundPlayerList._InitUI(Char: Model)
-    if Char:FindFirstChild("Role").Value == "Spectator" then
+    local Role = Char:FindFirstChild("Role") or Char:WaitForChild("Role", 5)
+    if not Role or Role.Value == "Spectator" then
         return
     end
 

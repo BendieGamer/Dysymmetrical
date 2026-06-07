@@ -282,7 +282,7 @@ function PlayerManager._LoadCharacterAsyncSafely(Player: Player)
 end
 
 --- Internal: Respawns a player with a possibility to add a custom character rig from `ServerStorage.Assets.Characters`.
-function PlayerManager._RespawnPlayer(plr: Player, RigName: string?, RigType: ("Killer" | "Survivor")?, skinName: string?) --: Model
+function PlayerManager._RespawnPlayer(plr, RigName, RigType, skinName, rigOverride, spawnCF)
 	PlayerManager.CancelAutoRespawn(plr)
 	if plr.Character then
 		plr.Character:Destroy()
@@ -307,7 +307,13 @@ function PlayerManager._RespawnPlayer(plr: Player, RigName: string?, RigType: ("
 
 	local char
 
-	local function FindChar(Service: "ServerStorage" | "ReplicatedStorage", Name: string, Type: ("Killer" | "Survivor")?, Skin: string?)
+	-- If the character module supplies a custom rig model, clone that directly.
+	if rigOverride then
+		char = rigOverride:Clone()
+		char:SetAttribute("CustomRig", true)
+	end
+
+	local function FindChar(Service, Name, Type, Skin)
 		--gets the skin if queued to
 		if Skin ~= nil and #Skin > 0 then
 			char = Utils.Instance.FindFirstChild(game:GetService(Service).Assets.Characters.Skins[RigType], RigName.."."..Skin, false)
@@ -321,21 +327,22 @@ function PlayerManager._RespawnPlayer(plr: Player, RigName: string?, RigType: ("
 		end
 
 		--if not it just gets the default one for the character
-		char = game:GetService(Service).Assets.Characters[RigType][RigName]:Clone()
+		local found = game:GetService(Service).Assets.Characters[RigType]:FindFirstChild(RigName)
 
-		if not char then
+		if not found then
 			if Service == "ReplicatedStorage" then
 				FindChar("ServerStorage", Name, Type, Skin)
 				return
 			end
-			
-			-- LoadEmpty()
+
 			return
 		end
 
-		char = char:Clone()
+		char = found:Clone()
 	end
-	FindChar("ReplicatedStorage", RigName, RigType, skinName)
+	if not char then
+		FindChar("ReplicatedStorage", RigName, RigType, skinName)
+	end
 
 	if not char then
 		warn("[PlayerManager._RespawnPlayer()]: Can't find character rig! Loading player character instead...")
@@ -370,17 +377,26 @@ function PlayerManager._RespawnPlayer(plr: Player, RigName: string?, RigType: ("
 	Role.Value = RigType
 	Role.Parent = char
 	
-	char:PivotTo(plr.Character and plr.Character.WorldPivot or CFrame.new(0, 10, 0))
-	
 	--clones all scripts
 	for _, Child in StarterCharacterScripts:GetChildren() do
 		Child:Clone().Parent = char
 	end
 
+	-- Assign before parenting to workspace so Roblox's CharacterAdded pipeline
+	-- sees the character already set and does not inject a sandboxed copy of
+	-- StarterCharacterScripts on top of the unsandboxed scripts we cloned above.
+	plr.Character = char
+
+	-- Anchor immediately so physics doesn't move the character before SetupPlayer's PivotTo fires
+	if spawnCF then
+		local hrp = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
+		if hrp then
+			hrp.Anchored = true
+		end
+	end
+
 	--adds the char to `Players` in `workspace`
 	char.Parent = PlayerFolder
-	
-	plr.Character = char
 
 	--failsafe
 	PlayerManager.CancelAutoRespawn(plr)
@@ -390,7 +406,7 @@ function PlayerManager._RespawnPlayer(plr: Player, RigName: string?, RigType: ("
 	return char
 end
 
-function PlayerManager._AttemptWelcomeAchievementGranting(Player: Player)
+function PlayerManager._AttemptWelcomeAchievementGranting(Player)
 	if not Player:IsA("Player") then
 		return
 	end
@@ -400,10 +416,8 @@ function PlayerManager._AttemptWelcomeAchievementGranting(Player: Player)
 	end
 end
 
-function PlayerManager.OnPlayerLoad(Player: Player)
+function PlayerManager.OnPlayerLoad(Player)
 	PlayerManager._AttemptWelcomeAchievementGranting(Player)
-
-	task.wait(3)
 
 	if Player then
 		if not ReplicatedStorage.LoadedPlayers:FindFirstChild(Player.Name) then

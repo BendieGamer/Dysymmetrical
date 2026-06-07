@@ -38,57 +38,69 @@ type ChangelogFormat = {
 local CurrentChangelog: ChangelogFormat = {
     PlaceVersion = 0,
     MenuTitle = "Changelog",
-    UpdateTitle = "GAME RELEASE",
+    UpdateTitle = "BIT UPDATE",
     UpdateThumbnailID = "rbxasset://textures/ui/GuiImagePlaceholder.png",
-    UpdateDate = "01/01/2099",
+    UpdateDate = "06/07/2026",
     Entries = {
         {
             Type = "Separator",
-            Text = "Section N.º 1",
+            Text = "NEW CHARACTER",
         },
         {
             Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 1!",
-        },
-        {
-            Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 2!",
-        },
-        {
-            Type = "Text",
-            Text = "Quick note N.º 1!",
-        },
-        {
-            Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 3!",
-        },
-        {
-            Type = "Text",
-            Text = "Quick note N.º 2!",
+            Text = "Added BIT_09 as a new Killer character.",
         },
         {
             Type = "Separator",
-            Text = "Section N.º 2",
+            Text = "BIT_09 — ABILITIES",
         },
         {
             Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 1!",
-        },
-        {
-            Type = "Text",
-            Text = "Quick note N.º 1!",
+            Text = "Swing — Quick melee attack dealing 10–15 damage.",
         },
         {
             Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 2!",
+            Text = "Charge — Dash in movement direction, dealing 20 damage on hit. Missing slows BIT briefly.",
         },
         {
             Type = "SectionEntry",
-            Text = "Pretty cool feature N.º 3!",
+            Text = "BIT Summon — Spawns a clone that chases survivors. Touching a survivor deals 15 damage, applies Glitched (10s) and Slowness (5s), then the clone is destroyed. Up to 3 active clones. Click a highlighted clone to teleport to it and trigger a domain explosion.",
         },
         {
-            Type = "Text",
-            Text = "Quick note N.º 2!",
+            Type = "SectionEntry",
+            Text = "Digital EYE — Reveals every survivor's aura for 10 seconds.",
+        },
+        {
+            Type = "SectionEntry",
+            Text = "STATE EDIT — Inflicts a random debuff (Blindness, Disoriented, Helpless, or Slowness) on a random survivor for 10 seconds.",
+        },
+        {
+            Type = "Separator",
+            Text = "BIT_09 — PASSIVE",
+        },
+        {
+            Type = "SectionEntry",
+            Text = "Corruption Cascade — Killing a survivor inverts the nearest remaining survivor's controls for 10 seconds.",
+        },
+        {
+            Type = "Separator",
+            Text = "NEW EFFECT",
+        },
+        {
+            Type = "SectionEntry",
+            Text = "Glitched — Deals 2 damage per second for the effect's duration and corrupts the screen with a cyan/magenta flicker.",
+        },
+        {
+            Type = "Separator",
+            Text = "BUG FIXES",
+        },
+        {
+            Type = "SectionEntry",
+            Text = "Fixed AntiFly false positives kicking players on elevated map spawn platforms.",
+        },
+        {
+            Type = "SectionEntry",
+            Text = "Fixed EXP grant crash when rewarding players (wrong key name in internal call).",
         },
     },
 }
@@ -130,6 +142,7 @@ function Changelog:Init()
     for order, entry in CurrentChangelog.Entries do
         local Inst = Prefabs[entry.Type]:Clone()
         Inst.Title.Text = entry.Text
+        Inst.Title.TextSize = 12
         Inst.LayoutOrder = order
         Inst.Parent = Content
     end

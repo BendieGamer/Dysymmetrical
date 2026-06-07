@@ -64,7 +64,8 @@ function Spectate:Init()
     end)
 
     local function OnCharacterAdded(Player: Player, Character: Model)
-        local Role = Character:FindFirstChild("Role")
+        local Role = Character:FindFirstChild("Role") or Character:WaitForChild("Role", 5)
+        if not Role then return end
 
         if Role.Value == "Spectator" then
 

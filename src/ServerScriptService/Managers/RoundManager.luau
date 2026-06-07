@@ -127,7 +127,10 @@ function RoundManager.Callables.PlayIntro()
     RoundManager.Threads["IntroEndingThread"] = task.delay(3, function()
         TimeManager.CanDecreaseTime = true
         for _, player: Player in RoundManager.CurrentRound.PlayersAccepted do
-            Utils.Character.GetRootPart(player).Anchored = false --handled from server
+            local hrp = Utils.Character.GetRootPart(player)
+            if hrp then
+                hrp.Anchored = false
+            end
         end
     end)
 end
@@ -318,6 +321,7 @@ end
 --- Sets up a player in the round's player list while also spawning its character.
 function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number)
     local Char
+    local spawnCF
 
     if KillerIndex and RoundManager.CanSpawnKiller then --RoundManager.CanSpawnKiller is for debugging
         Utils.PlayerData.GetPlayerStat(Player, "General.Malice", false).Value = 1 --resets malice
@@ -325,7 +329,7 @@ function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number)
         local EquippedKillerName = Utils.PlayerData.GetPlayerEquipped(Player, "Killer")
 
         --spawns the character
-        Char = ServerCharacterManager.SetupCharacter(Player,
+        Char, spawnCF = ServerCharacterManager.SetupCharacter(Player,
             EquippedKillerName,
             "Killer",
             Utils.PlayerData.GetPlayerEquipped(Player, "Skins."..EquippedKillerName)
@@ -336,7 +340,7 @@ function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number)
             Player.CharacterRemoving:Connect(function()
                 RoundManager.Callables._OnPlayerDeath(Player, true)
             end),
-        
+
             --checks for death to count kills n shit
             Char.Humanoid.Died:Connect(function()
                 RoundManager.Callables._OnPlayerDeath(Player, true)
@@ -350,7 +354,7 @@ function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number)
         local EquippedSurvivorName = Utils.PlayerData.GetPlayerEquipped(Player, "Survivor")
 
         --spawns the character
-        Char = ServerCharacterManager.SetupCharacter(Player,
+        Char, spawnCF = ServerCharacterManager.SetupCharacter(Player,
             EquippedSurvivorName,
             "Survivor",
             Utils.PlayerData.GetPlayerEquipped(Player, "Skins."..EquippedSurvivorName)
@@ -374,6 +378,16 @@ function RoundManager.Utils.SetupPlayer(Player: Player, KillerIndex: number)
 
     --anchoring at beginning of round to unanchor later
     task.wait()
+    if spawnCF then
+        if not Char.PrimaryPart then
+            Char.PrimaryPart = Utils.Character.GetRootPart(Char)
+        end
+        Char:SetAttribute("ServerTeleport", true)
+        Char:PivotTo(spawnCF)
+        task.defer(function()
+            Char:SetAttribute("ServerTeleport", false)
+        end)
+    end
     Utils.Character.GetRootPart(Char).Anchored = true
 end
 

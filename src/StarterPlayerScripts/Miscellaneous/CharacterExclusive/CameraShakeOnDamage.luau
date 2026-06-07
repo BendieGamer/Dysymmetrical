@@ -6,7 +6,8 @@ local Utils = require(ReplicatedStorage.Modules.Utils)
 return {
     Init = function(_self)
         Utils.Character.ObserveCharacter(Players.LocalPlayer, function(Character: Model)
-            if Character:FindFirstChild("Role").Value == "Killer" then
+            local Role = Character:FindFirstChild("Role") or Character:WaitForChild("Role", 5)
+            if not Role or Role.Value == "Killer" then
                 return
             end
             local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")

@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local TimeManager = RunService:IsServer() and require(ServerScriptService.Managers.TimeManager) or nil
 local CommonFunctions = RunService:IsServer() and require(ServerScriptService.System.CommonFunctions) or nil
+local CharModuleCache = RunService:IsServer() and require(ServerScriptService.System.CharModuleCache) or nil
 local Types = require(script.Parent.Types)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Utils = require(ReplicatedStorage.Modules.Utils)
@@ -347,7 +348,7 @@ function Hitbox.New(SourcePlayer: Player, Config: Types.HitboxSettings): Types.H
 				if TargetCharacter:GetAttribute("CharacterName") ~= nil then
 
 					-- Find the survivor/killer module tied to this character.
-					local CharacterModule = require(TargetCharacter.PlayerAbilities.CharacterAbilities).CharacterModule
+					local CharacterModule = CharModuleCache and CharModuleCache.Get(TargetCharacter)
 
 					-- If the survivor/killer has a function callback for being hit, and they nullify the hit for one reason or another, skip them and move on.
 					if CharacterModule and CharacterModule.OnHit ~= nil then
@@ -452,7 +453,7 @@ function Hitbox.New(SourcePlayer: Player, Config: Types.HitboxSettings): Types.H
 						end
 
 						-- If there is an animation to play, grab it.
-						local RuntimeKillerModule = require(Char.PlayerAbilities.CharacterAbilities).CharacterModule
+						local RuntimeKillerModule = CharModuleCache and CharModuleCache.Get(Char)
 						local KillerExecAnims = RuntimeKillerModule.GameplayConfig.Cache.Animations[Config.ExecutionAnimation or "Execution"]
 						local KillerAnim = ((KilledSurvivor.Skin and
 							KillerExecAnims[KilledSurvivor.Skin..KilledSurvivor.Name]

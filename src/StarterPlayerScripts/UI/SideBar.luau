@@ -249,12 +249,27 @@ function SideBar:Init()
             if not Menu.UIInstance then
                 return
             end
-            Menu.Toggle(char:FindFirstChild("Role").Value == "Spectator")
+            local Role = char:FindFirstChild("Role") or char:WaitForChild("Role", 5)
+            Menu.Toggle(not Role or Role.Value == "Spectator")
         end)
     end
 
     Utils.Character.ObserveCharacter(LocalPlayer, function(char: Model)
-        SideBar.Toggle(char:FindFirstChild("Role").Value == "Spectator")
+        local Role = char:FindFirstChild("Role") or char:WaitForChild("Role", 5)
+        SideBar.Toggle(not Role or Role.Value == "Spectator")
+    end)
+
+    -- Direct round-state listener: guarantees sidebar hides/shows regardless of
+    -- character replication timing.
+    local RoundState = ReplicatedStorage.RoundInfo.CurrentState
+    RoundState.Changed:Connect(function(state)
+        if state == "InRound" then
+            SideBar.Toggle(false)
+        elseif state == "Lobby" then
+            local char = LocalPlayer.Character
+            local Role = char and char:FindFirstChild("Role")
+            SideBar.Toggle(not Role or Role.Value == "Spectator")
+        end
     end)
 end
 

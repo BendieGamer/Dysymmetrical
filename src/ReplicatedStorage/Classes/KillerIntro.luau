@@ -113,7 +113,7 @@ function KillerIntroClass.New3DIntro(Config: IntroSettings): Types.AnimatedIntro
 
             local Module = Utils.Instance.GetCharacterModule("Killer", Config.KillerName, Config.SkinName)
 
-            local PlayerRig = workspace.Players:FindFirstChild(Config.Name)
+            local PlayerRig = workspace.Players:FindFirstChild(Config.PlayerName)
             --yield until the char loads properly
             local HRP = Utils.Instance.FindFirstChild(PlayerRig, "HumanoidRootPart")
 

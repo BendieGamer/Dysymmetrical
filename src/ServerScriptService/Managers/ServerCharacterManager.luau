@@ -7,6 +7,7 @@ local PlayerManager = require(script.Parent.PlayerManager)
 local Network = require(ReplicatedStorage.Modules.Network)
 local Sounds = require(ReplicatedStorage.Modules.Sounds)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local CharModuleCache = require(ServerScriptService.System.CharModuleCache)
 
 local Rand = Random.new()
 
@@ -17,89 +18,89 @@ local PlayersRemainingFolder = ReplicatedStorage.RoundInfo.PlayersRemaining
 function ServerCharacterManager:Init()
 end
 
-function ServerCharacterManager._PositionCharacter(Char: Model, charType: "Survivor" | "Killer", cf: CFrame?)
+--- Resolves the spawn CFrame for a given role from the current map's SpawnPoints.
+--- Returns nil if no valid spawn point is found.
+function ServerCharacterManager._ResolveSpawnCFrame(charType, cf)
     if cf then
-        Char:PivotTo(cf)
-        return
+        return cf
     end
 
-    --if it's neither of the roles it won't position the character
     if not charType then
-        return
+        return nil
     end
 
-    --will try to get the current map
     local Map = workspace:FindFirstChild("Map")
     if not Map then
-        return
+        warn("[ServerCharacterManager] No Map in workspace!")
+        return nil
     end
 
-    --will try to get the map itself (because the map itself is parented to a folder named `Map` where `Config` and `Behaviour` reside)
-    Map = Map:FindFirstChild("Map")
-    if not Map then
-        warn("[ServerCharacterManager._PositionCharacter()] The map should be in a whole model inside of the map's folder! Check the template map! Using the folder itself instead...")
-        
-        Map = workspace:FindFirstChild("Map")
-    end
+    Map = Map:FindFirstChild("Map") or Map
 
-    --will try to get the spawn points of the map
     local SpawnPoints = Map:FindFirstChild("SpawnPoints")
     if not SpawnPoints then
-        --i am so lazy to split this string
-        warn("[ServerCharacterManager._PositionCharacter()] Spawn points aren't set for this map! Inside of the map there should be a folder called \"SpawnPoints\" containing a folder for every possible spawn layout also containing a folder for every role (\"Killers\" and \"Survivors\" by default)! Preventing character positioning...")
-
-        return
+        warn("[ServerCharacterManager._PositionCharacter()] Spawn points aren't set for this map!")
+        return nil
     end
 
-    --will check if the map has any spawn point layouts
-    SpawnPoints = SpawnPoints:GetChildren()
-    if #SpawnPoints <= 0 then
-        warn("[ServerCharacterManager._PositionCharacter()] The map's spawn point folder is empty! Make sure to make some spawn point layouts! Preventing character positioning...")
-        
-        return
+    local Layouts = SpawnPoints:GetChildren()
+    if #Layouts <= 0 then
+        warn("[ServerCharacterManager._PositionCharacter()] The map's spawn point folder is empty!")
+        return nil
     end
 
-    --will get a random layout if there's more than 1 available (which there shouldn't)
-    SpawnPoints = SpawnPoints[#SpawnPoints > 1 and Rand:NextInteger(1, #SpawnPoints) or 1]
-    local LayoutName = SpawnPoints.Name
-    --will try to get the spawn points for the character's specific role
-    SpawnPoints = SpawnPoints:FindFirstChild(charType.."s")
-
-    if not SpawnPoints then
-        --i am so lazy to split this string
-        warn("[ServerCharacterManager._PositionCharacter()] There are no spawn points for the \""..charType.."\" role! Make sure the folder named \""..LayoutName.."\" in this map's layouts contains a folder for this role named \""..charType.."s\"! Preventing character positioning...")
-        
-        return
+    local Layout = Layouts[#Layouts > 1 and Rand:NextInteger(1, #Layouts) or 1]
+    local RoleFolder = Layout:FindFirstChild(charType.."s")
+    if not RoleFolder then
+        warn("[ServerCharacterManager._PositionCharacter()] No spawn points for role \"" .. charType .. "\" in layout \"" .. Layout.Name .. "\"!")
+        return nil
     end
 
-    --will try to get any spawn points in the folder
-    SpawnPoints = SpawnPoints:GetChildren()
-    if #SpawnPoints <= 0 then
-        --i am so lazy to split this string
-        warn("[ServerCharacterManager._PositionCharacter()] Spawn Points aren't set for the \""..charType.."\" role in this map! Preventing character positioning...")
-
-        return
+    local Points = RoleFolder:GetChildren()
+    if #Points <= 0 then
+        warn("[ServerCharacterManager._PositionCharacter()] Spawn Points folder for \"" .. charType .. "\" is empty!")
+        return nil
     end
 
-    --will try to choose a BasePart spawnpoint from the children of the folder
-    local ChosenSpawnPoint = SpawnPoints[Rand:NextInteger(1, #SpawnPoints)]
-    if not ChosenSpawnPoint:IsA("BasePart") then
-        --i could make this cycle to another spawn but meh the rest would probably be badly set up the same way so yeah
-        warn("[ServerCharacterManager._PositionCharacter()] Chosen spawn point is not a BasePart! Make sure all of your spawn points are invisible, anchored, non-collidable baseparts which anchor point is touching the ground! Check the template map! Preventing character positioning...")
-
-        return
+    local ChosenSpawnPoint = Points[Rand:NextInteger(1, #Points)]
+    if ChosenSpawnPoint:IsA("BasePart") then
+        return ChosenSpawnPoint.CFrame
+    elseif ChosenSpawnPoint:IsA("Model") then
+        return ChosenSpawnPoint:GetPivot()
+    else
+        warn("[ServerCharacterManager._PositionCharacter()] Spawn point is not a BasePart or Model!")
+        return nil
     end
+end
 
-    --will move the character to that spawn point
-    Char:PivotTo(ChosenSpawnPoint.CFrame)
+function ServerCharacterManager._PositionCharacter(Char, charType, cf)
+    local SpawnCFrame = ServerCharacterManager._ResolveSpawnCFrame(charType, cf)
+    if SpawnCFrame then
+        Char:PivotTo(SpawnCFrame)
+    end
 end
 
 --- Sets up a player's character specified by its name, its type, and a possible skin.
 --- Can also take a `CFrame` parameter to pivot the character there.
 function ServerCharacterManager.SetupCharacter(player: Player, charName: string, charType: "Survivor" | "Killer", skinName: string?, cf: CFrame?)
-    local Char: Model = PlayerManager._RespawnPlayer(player, charName, charType, skinName)
-    --setting the character's position
-    ServerCharacterManager._PositionCharacter(Char, charType, cf)
+    if not charName or not charType then
+        return PlayerManager._RespawnPlayer(player)
+    end
+
+    local rigOverride = nil
+    do
+        local charModule = Utils.Instance.GetCharacterModule(charType, charName, skinName)
+        if charModule then
+            local ok, mod = pcall(require, charModule)
+            if ok and type(mod) == "table" and mod.Config and typeof(mod.Config.Rig) == "Instance" then
+                rigOverride = mod.Config.Rig
+            end
+        end
+    end
+    -- Resolve the spawn CFrame BEFORE the character is parented/replicated to clients.
+    -- This ensures clients receive the character already at the correct position.
+    local spawnCF = ServerCharacterManager._ResolveSpawnCFrame(charType, cf)
+    local Char = PlayerManager._RespawnPlayer(player, charName, charType, skinName, rigOverride, spawnCF)
 
     if charType == "Survivor" then
 	    local Remaining = Instance.new("ObjectValue") --only for survivors since there's only ever going to be 1 killer (i'm lazy to make the possibility to have multiple and it'd be too broken lol)
@@ -108,23 +109,24 @@ function ServerCharacterManager.SetupCharacter(player: Player, charName: string,
 	    Remaining.Parent = PlayersRemainingFolder
     end
 
-    if not charName or not charType then
-        return Char
-    end
-
     ServerCharacterManager._InitCharacter(player, Char, Utils.Instance.GetCharacterModule(charType, charName, skinName))
 
-    return Char
+    return Char, spawnCF
 end
 
 --- Inits a character's abilities and sets its properties accordingly as specified in its `GameplayConfig`.
-function ServerCharacterManager._InitCharacter(player: Player, Char: Model, charModule: ModuleScript)
+function ServerCharacterManager._InitCharacter(player, Char, charModule)
     local module = Utils.Type.CopyTable(require(charModule))
     module.Owner = player
 
+    -- Store in the shared cache so CommonFunctions/Hitbox can look it up without
+    -- requiring the client-side CharacterAbilities script (sandboxed on noob rigs).
+    CharModuleCache.Set(Char, module)
+
     --Abilities
-    local CharacterAbilities = require(Char.PlayerAbilities.CharacterAbilities)
-    CharacterAbilities.CharacterModule = module
+    -- CharacterAbilities now lives in PlayerScripts (client-side, unsandboxed).
+    -- The client reads CharacterModule from CharModuleCache via a network signal instead.
+    local charAbilitiesResult = nil
 
     local Humanoid = Char:FindFirstChildWhichIsA("Humanoid")
     Humanoid.MaxHealth = module.GameplayConfig.Health
@@ -137,7 +139,7 @@ function ServerCharacterManager._InitCharacter(player: Player, Char: Model, char
             local Timeout = 0
             repeat
                 task.wait()
-                Timeout += 1
+                Timeout = Timeout + 1
             until PlayerSprintManager.ManagedPlayers[player] or Timeout >= 50
             if Timeout >= 50 then
                 return
@@ -160,7 +162,9 @@ function ServerCharacterManager._InitCharacter(player: Player, Char: Model, char
 
     for _, Ability in module.GameplayConfig.Abilities do
         Ability:Init(module, player)
-        CharacterAbilities.Abilities[Ability] = Ability
+        if charAbilitiesResult then
+            charAbilitiesResult.Abilities[Ability] = Ability
+        end
     end
 
     task.defer(function()
@@ -226,7 +230,7 @@ function ServerCharacterManager._InitCharacter(player: Player, Char: Model, char
             return
         end
 
-        VoicelineJanitor:Add(Network:SetConnection("LMSVoiceline", "BINDABLE_EVENT", function(LastMan: Player)
+        VoicelineJanitor:Add(Network:SetConnection("LMSVoiceline", "BINDABLE_EVENT", function(LastMan)
             local Voiceline =
                 module.Config.Voicelines.LMS[LastMan:GetAttribute("CharacterSkinName") and LastMan:GetAttribute("CharacterSkinName")..LastMan:GetAttribute("CharacterName") or LastMan:GetAttribute("CharacterName")]
                 or module.Config.Voicelines.LMS["Default"]
